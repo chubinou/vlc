@@ -191,4 +191,8 @@
         <file alias="VLCStyle.qml">qml/style/VLCStyle.qml</file>
         <file alias="VLCColors.qml">qml/style/VLCColors.qml</file>
     </qresource>
+    <qresource prefix="/playlist">
+        <file alias="PLItem.qml">qml/playlist/PLItem.qml</file>
+        <file alias="PlaylistListView.qml">qml/playlist/PlaylistListView.qml</file>
+    </qresource>
 </RCC>
