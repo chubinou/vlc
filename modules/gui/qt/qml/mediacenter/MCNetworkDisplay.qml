@@ -41,44 +41,6 @@ Utils.NavigableFocusScope {
 
         delegate: Package {
             id: element
-            Column {
-                Package.name: "grid"
-                Utils.GridItem {
-                    noActionButtons: model.type == MLNetworkModel.TYPE_FILE
-                    image: model.type == MLNetworkModel.TYPE_SHARE ?
-                                "qrc:///type/network.svg" : (model.type == MLNetworkModel.TYPE_DIR ?
-                                    "qrc:///type/directory.svg" : "qrc:///type/file-asym.svg")
-                    title: model.name || qsTr("Unknown share")
-                    selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
-                    shiftX: view.currentItem.shiftX(model.index)
-
-                    onItemDoubleClicked: {
-                        if ( model.type != MLNetworkModel.TYPE_FILE ) {
-                            history.push({
-                                view: "network",
-                                viewProperties: {
-                                    model: networkModelFactory.create(mainctx, model.mrl)
-                                 },
-                            }, History.Go)
-                        } else {
-                            medialib.addAndPlay( model.mrl )
-                        }
-                    }
-                    onPlayClicked: {
-                        medialib.addAndPlay( model.mrl )
-                    }
-                    onAddToPlaylistClicked: {
-                        medialib.addToPlaylist( model.mrl );
-                    }
-                }
-                CheckBox {
-                    visible: model.can_index
-                    text: "Indexed"
-                    checked: model.indexed
-                    onCheckedChanged: model.indexed = checked;
-                }
-            }
-
             Utils.ListItem {
                 Package.name: "list"
                 width: root.width
@@ -144,90 +106,23 @@ Utils.NavigableFocusScope {
             }
         }
     }
-    Component {
-        id: gridComponent
 
-        Utils.KeyNavigableGridView {
-            id: gridView_id
-
-            model: delegateModel.parts.grid
-            modelCount: delegateModel.items.count
-
-            focus: true
-
-            cellWidth: VLCStyle.cover_normal + VLCStyle.margin_small
-            cellHeight: VLCStyle.cover_normal + VLCStyle.fontHeight_normal + VLCStyle.margin_small
-
-            onSelectAll: delegateModel.selectAll()
-            onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
-            onActionAtIndex: delegateModel.actionAtIndex(index)
-
-            onActionLeft: root.actionLeft(index)
-            onActionRight: root.actionRight(index)
-            onActionDown: root.actionDown(index)
-            onActionUp: root.actionUp(index)
-            onActionCancel: root.actionCancel(index)
-        }
-    }
-
-    Component {
-        id: listComponent
-        /* ListView */
-        Utils.KeyNavigableListView {
-            id: listView_id
-
-            model: delegateModel.parts.list
-            modelCount: delegateModel.items.count
-
-            focus: true
-            spacing: VLCStyle.margin_xxxsmall
-
-            onSelectAll: delegateModel.selectAll()
-            onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
-            onActionAtIndex: delegateModel.actionAtIndex(index)
-
-            onActionLeft: root.actionLeft(index)
-            onActionRight: root.actionRight(index)
-            onActionDown: root.actionDown(index)
-            onActionUp: root.actionUp(index)
-            onActionCancel: root.actionCancel(index)
-        }
-    }
-
-    StackView {
-        id: view
-
+    Utils.KeyNavigableListView {
         anchors.fill: parent
+        model: delegateModel.parts.list
+        modelCount: delegateModel.items.count
+
         focus: true
+        spacing: VLCStyle.margin_xxxsmall
 
-        initialItem: medialib.gridView ? gridComponent : listComponent
+        onSelectAll: delegateModel.selectAll()
+        onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
+        onActionAtIndex: delegateModel.actionAtIndex(index)
 
-        replaceEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to:1
-                duration: 500
-            }
-        }
-
-        replaceExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to:0
-                duration: 500
-            }
-        }
-
-        Connections {
-            target: medialib
-            onGridViewChanged: {
-                if (medialib.gridView)
-                    view.replace(gridComponent)
-                else
-                    view.replace(listComponent)
-            }
-        }
+        onActionLeft: root.actionLeft(index)
+        onActionRight: root.actionRight(index)
+        onActionDown: root.actionDown(index)
+        onActionUp: root.actionUp(index)
+        onActionCancel: root.actionCancel(index)
     }
 }
