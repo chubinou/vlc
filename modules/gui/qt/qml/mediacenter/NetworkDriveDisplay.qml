@@ -56,4 +56,7 @@ Utils.NetworkListItem {
              },
         }, History.Go)
     }
+    onIndexClicked: {
+        model.indexed = !model.indexed;
+    }
 }

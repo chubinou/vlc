@@ -25,6 +25,7 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.1
 import QtQuick.Controls 2.4
 
+import "qrc:///utils/" as Utils
 import "qrc:///style/"
 
 Rectangle {
@@ -81,12 +82,13 @@ Rectangle {
             Layout.fillWidth: true
         }
 
-        ToolButton {
+        Utils.ImageToolButton {
             id: indexButton
-            text: "Add to library"
-            icon.source: model.indexed ? "qrc:///buttons/playlist/playlist_add.svg" :
-                (mouse.containsMouse || activeFocus ? "qrc:///toolbar/clear.svg" :
-                                       "qrc:///valid.svg" )
+            Layout.preferredHeight: VLCStyle.icon_normal
+            Layout.preferredWidth: VLCStyle.icon_normal
+            imageSource: !model.indexed ? "qrc:///buttons/playlist/playlist_add.svg" :
+                ((mouse.containsMouse || activeFocus) ? "qrc:///toolbar/clear.svg" :
+                                       "qrc:///pixmaps/valid.svg" )
             onClicked: {
                 root.indexClicked(mouse.buttons, mouse.modifiers);
             }
