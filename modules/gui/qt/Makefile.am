@@ -519,6 +519,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/utils/ListItem.qml \
 	gui/qt/qml/utils/MultiCoverPreview.qml \
 	gui/qt/qml/utils/NavigableFocusScope.qml \
+	gui/qt/qml/utils/NetworkListItem.qml \
 	gui/qt/qml/utils/KeyNavigableGridView.qml \
 	gui/qt/qml/utils/KeyNavigableListView.qml \
 	gui/qt/qml/utils/KeyNavigableTableView.qml \
@@ -535,6 +536,8 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/mediacenter/MusicGenresDisplay.qml \
 	gui/qt/qml/mediacenter/MusicTracksDisplay.qml \
 	gui/qt/qml/mediacenter/MusicTrackListDisplay.qml \
+	gui/qt/qml/mediacenter/NetworkDriveDisplay.qml \
+	gui/qt/qml/mediacenter/NetworkFileDisplay.qml \
 	gui/qt/qml/mediacenter/Presentation.qml \
 	gui/qt/qml/mediacenter/ScanProgressBar.qml \
 	gui/qt/qml/playlist/PlaylistListView.qml \

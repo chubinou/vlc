@@ -175,6 +175,7 @@
         <file alias="BannerView.qml">qml/utils/BannerView.qml</file>
         <file alias="NavigableFocusScope.qml">qml/utils/NavigableFocusScope.qml</file>
         <file alias="ImageToolButton.qml">qml/utils/ImageToolButton.qml</file>
+        <file alias="NetworkListItem.qml">qml/utils/NetworkListItem.qml</file>
     </qresource>
     <qresource prefix="/mediacenter">
         <file alias="MCMusicDisplay.qml">qml/mediacenter/MCMusicDisplay.qml</file>
@@ -192,6 +193,8 @@
         <file alias="ArtistTopBanner.qml">qml/mediacenter/ArtistTopBanner.qml</file>
         <file alias="ScanProgressBar.qml">qml/mediacenter/ScanProgressBar.qml</file>
         <file alias="MCMainDisplay.qml">qml/mediacenter/MCMainDisplay.qml</file>
+        <file alias="NetworkDriveDisplay.qml">qml/mediacenter/NetworkDriveDisplay.qml</file>
+        <file alias="NetworkFileDisplay.qml">qml/mediacenter/NetworkFileDisplay.qml</file>
     </qresource>
     <qresource prefix="/style">
         <file alias="qmldir">qml/style/qmldir</file>

@@ -32,7 +32,6 @@ import "qrc:///style/"
 Utils.NavigableFocusScope {
     id: root
 
-    property alias model: delegateModel.model
     property string mrl
 
     Utils.SelectableDelegateModel {
@@ -41,45 +40,11 @@ Utils.NavigableFocusScope {
 
         delegate: Package {
             id: element
-            Utils.ListItem {
+            Loader {
                 Package.name: "list"
-                width: root.width
-                height: VLCStyle.icon_normal
-
-                color: VLCStyle.colors.getBgColor(element.DelegateModel.inSelected, this.hovered, this.activeFocus)
-
-                cover: Image {
-                    id: cover_obj
-                    fillMode: Image.PreserveAspectFit
-                    source: model.type == MLNetworkModel.TYPE_SHARE ?
-                                "qrc:///type/network.svg" : (model.type == MLNetworkModel.TYPE_DIR ?
-                                    "qrc:///type/directory.svg" : "qrc:///type/file-asym.svg")
-                }
-                line1: model.name || qsTr("Unknown share")
-
-                onItemClicked : {
-                    delegateModel.updateSelection( modifier, view.currentItem.currentIndex, index )
-                    view.currentItem.currentIndex = index
-                    this.forceActiveFocus()
-                }
-                onItemDoubleClicked: {
-                    if ( model.type != MLNetworkModel.TYPE_FILE ) {
-                        history.push({
-                            view: "network",
-                            viewProperties: {
-                                model: networkModelFactory.create(mainctx, model.mrl)
-                             },
-                        }, History.Go)
-                    } else {
-                        medialib.addAndPlay( model.mrl )
-                    }
-                }
-                onPlayClicked: {
-                    medialib.addAndPlay( model.mrl )
-                }
-                onAddToPlaylistClicked: {
-                    medialib.addToPlaylist( model.mrl );
-                }
+                source: model.type == MLNetworkModel.TYPE_FILE ?
+                            "qrc:///mediacenter/NetworkFileDisplay.qml" :
+                            "qrc:///mediacenter/NetworkDriveDisplay.qml";
             }
         }
         function actionAtIndex(index) {
@@ -97,7 +62,7 @@ Utils.NavigableFocusScope {
                     history.push({
                         view: "network",
                         viewProperties: {
-                            model: networkModelFactory.create(mainctx, itemModel.mrl)
+                            mrl: itemModel.mrl
                          },
                     }, History.Go);
                 } else {
