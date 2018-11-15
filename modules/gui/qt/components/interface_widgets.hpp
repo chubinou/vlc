@@ -44,6 +44,7 @@
 #include <QMouseEvent>
 #include <QPropertyAnimation>
 #include <QLinkedList>
+#include <QStackedLayout>
 
 class QMenu;
 class QSlider;
@@ -84,7 +85,7 @@ private:
     vout_window_t *p_window;
 
     QWidget *stable;
-    QLayout *m_layout;
+    QStackedLayout *m_layout;
     QTimer *cursorTimer;
     int cursorTimeout;
 

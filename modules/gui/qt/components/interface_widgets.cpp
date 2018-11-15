@@ -84,8 +84,9 @@ VideoWidget::VideoWidget( intf_thread_t *_p_i, QWidget* p_parent )
     /* Set the policy to expand in both directions */
     // setSizePolicy( QSizePolicy::Expanding, QSizePolicy::Expanding );
 
-    m_layout = new QHBoxLayout( this );
+    m_layout = new QStackedLayout( this );
     m_layout->setContentsMargins( 0, 0, 0, 0 );
+    m_layout->setStackingMode(QStackedLayout::StackAll);
     stable = NULL;
     p_window = NULL;
 
@@ -133,7 +134,7 @@ bool VideoWidget::request( struct vout_window_t *p_wnd )
     stable = new QWidget();
     stable->setContextMenuPolicy( Qt::PreventContextMenu );
     QPalette plt = palette();
-    plt.setColor( QPalette::Window, Qt::black );
+    plt.setColor( QPalette::Window, Qt::magenta );
     stable->setPalette( plt );
     stable->setAutoFillBackground(true);
     /* Force the widget to be native so that it gets a winId() */
@@ -149,7 +150,7 @@ bool VideoWidget::request( struct vout_window_t *p_wnd )
     stable->setMouseTracking( true );
     setMouseTracking( true );
 #endif
-    m_layout->addWidget( stable );
+    m_layout->insertWidget( -1, stable );
 
     sync();
     p_window = p_wnd;

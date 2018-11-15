@@ -326,16 +326,23 @@ void MainInterface::onInputChanged( bool hasInput )
 
 void MainInterface::createMainWidget( QSettings *creationSettings )
 {
-    QWidget* mainWidget = new QWidget(this);
-    QStackedLayout *stackedLayout = new QStackedLayout;
-    stackedLayout->setStackingMode(QStackedLayout::StackAll);
-    mainWidget->setLayout(stackedLayout);
-    setCentralWidget( mainWidget );
+    //QWidget* mainWidget = new QWidget(this);
+    //QStackedLayout *stackedLayout = new QStackedLayout;
+    //stackedLayout->setStackingMode(QStackedLayout::StackAll);
+    //mainWidget->setLayout(stackedLayout);
+    //setCentralWidget( mainWidget );
 
     /* Create the main Widget and the mainLayout */
-    videoWidget = new VideoWidget( p_intf, mainWidget );
+    videoWidget = new VideoWidget( p_intf, this );
+    setCentralWidget( videoWidget );
 
-    mediacenterView = new QQuickWidget( mainWidget);
+    QWidget* redish = new QWidget;
+    redish->setAttribute(Qt::WA_NativeWindow);
+    redish->setAttribute(Qt::WA_DontCreateNativeAncestors);
+    redish->winId();
+    redish->setStyleSheet("background-color: red;");
+
+    mediacenterView = new QQuickWidget();
     QQmlContext *rootCtx = mediacenterView->rootContext();
 
     MCMediaLib *medialib = new MCMediaLib(p_intf, mediacenterView, mediacenterView);
@@ -384,23 +391,23 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     mediacenterView->setClearColor(Qt::transparent);
     mediacenterView->setAttribute(Qt::WA_AlwaysStackOnTop);
 
+
     QWidget      *front_wrapper = new QWidget;
+    front_wrapper->resize(800, 600);
     QHBoxLayout  *front_wrapper_layout = new QHBoxLayout(front_wrapper);
     front_wrapper_layout->addWidget(mediacenterView);
 
     front_wrapper->setAttribute(Qt::WA_NativeWindow);
     front_wrapper->setAttribute(Qt::WA_DontCreateNativeAncestors);
+    front_wrapper->setWindowFlag(Qt::WindowStaysOnTopHint);
+    front_wrapper->setWindowFlag(Qt::ToolTip);
 
-    stackedLayout->addWidget(front_wrapper);
-    stackedLayout->addWidget(videoWidget);
-
-    //QVBoxLayout *layout = new QVBoxLayout();
-    //layout->addWidget(mediacenterView);
+    front_wrapper->show();
     //videoWidget->layout()->addWidget(mediacenterView);
 
-    //setCentralWidget( mediacenterView );
+    //stackedLayout->addWidget(front_wrapper);
+    //stackedLayout->addWidget(videoWidget);
 
-    /* Enable the popup menu in the MI */
     if ( b_interfaceOnTop )
         setWindowFlags( windowFlags() | Qt::WindowStaysOnTopHint );
 }
