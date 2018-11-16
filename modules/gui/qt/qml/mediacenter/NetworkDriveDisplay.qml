@@ -42,6 +42,8 @@ Utils.NetworkListItem {
             "qrc:///type/network.svg" : "qrc:///type/directory.svg";
     }
     line1: model.name || qsTr("Unknown share")
+    line2: model.protocol
+
 
     onItemClicked : {
         delegateModel.updateSelection( modifier, view.currentItem.currentIndex, index )

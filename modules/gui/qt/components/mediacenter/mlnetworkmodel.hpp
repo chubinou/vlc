@@ -63,6 +63,7 @@ private:
     {
         std::string name;
         std::string mrl;
+        std::string protocol;
         bool indexed;
         ItemType type;
         bool canBeIndexed;

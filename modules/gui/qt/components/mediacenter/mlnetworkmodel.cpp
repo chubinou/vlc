@@ -30,6 +30,7 @@ enum Role {
     NETWORK_INDEXED,
     NETWORK_CANINDEX,
     NETWORK_TYPE,
+    NETWORK_PROTOCOL,
 };
 
 }
@@ -66,6 +67,8 @@ QVariant MLNetworkModel::data( const QModelIndex& index, int role ) const
             return QVariant::fromValue( item.canBeIndexed );
         case NETWORK_TYPE:
             return QVariant::fromValue( item.type );
+        case NETWORK_PROTOCOL:
+            return QVariant::fromValue( QString::fromStdString( item.protocol ) );
         default:
             return {};
     }
@@ -78,7 +81,8 @@ QHash<int, QByteArray> MLNetworkModel::roleNames() const
         { NETWORK_MRL, "mrl" },
         { NETWORK_INDEXED, "indexed" },
         { NETWORK_CANINDEX, "can_index" },
-        { NETWORK_TYPE, "type" }
+        { NETWORK_TYPE, "type" },
+        { NETWORK_PROTOCOL, "protocol" },
     };
 }
 
@@ -181,8 +185,7 @@ bool MLNetworkModel::initializeFolderDiscovery()
 void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
                                   const char* )
 {
-    if ( ( parent == nullptr ) != m_parentMrl.isEmpty() )
-        return;
+    assert( parent == nullptr );
 
     Item item;
     item.mrl = p_item->psz_uri;
@@ -190,6 +193,10 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
     item.indexed = false;
     item.canBeIndexed = canBeIndexed( p_item->psz_uri );
     item.type = TYPE_SHARE;
+    auto protocolEnd = strchr( p_item->psz_uri, ':' );
+    if ( protocolEnd != nullptr )
+        item.protocol = std::string{ p_item->psz_uri, 0,
+                (size_t)(protocolEnd - p_item->psz_uri) };
 
     if ( m_entryPoints != nullptr )
     {
@@ -257,6 +264,7 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
         items.push_back( Item{
             it->psz_name,
             it->psz_uri,
+            "", //protocol
             isIndexed,
             (it->i_type == ITEM_TYPE_DIRECTORY || it->i_type == ITEM_TYPE_NODE) ?
                 TYPE_DIR : TYPE_FILE,
