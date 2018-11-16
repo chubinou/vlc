@@ -11,7 +11,6 @@ import "qrc:///utils/" as Utils
 Utils.NavigableFocusScope {
     id: root
 
-    property bool showVideoButtons: true
     signal showPlaylist()
 
     Keys.priority: Keys.AfterItem
@@ -169,7 +168,7 @@ Utils.NavigableFocusScope {
                             imageSource: "qrc:///toolbar/audiosub.svg"
                             onClicked: audioSubMenu.popupAbove(this)
                             KeyNavigation.right: playlistBtn
-                            visible: showVideoButtons
+                            visible: true
                         }
 
                         Utils.ImageToolButton {
@@ -188,7 +187,7 @@ Utils.NavigableFocusScope {
                             height: VLCStyle.icon_small
                             imageSource: "qrc:///toolbar/fullscreen.svg"
                             onClicked: player.toggleFullscreen()
-                            visible: showVideoButtons
+                            visible: player.hasVideoOutput
                         }
                     }
                 }

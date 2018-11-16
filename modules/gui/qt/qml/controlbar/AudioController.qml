@@ -102,7 +102,6 @@ Utils.NavigableFocusScope {
                 width: parent.width
                 height: 80
                 focus: true
-                showVideoButtons: false
                 onActionCancel: {
                     controlbarpopup.state = "hidden"
                 }
