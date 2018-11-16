@@ -198,9 +198,11 @@ static  void on_player_current_media_changed(vlc_player_t *, input_item_t *new_m
     if ( new_media )
         input_item_Hold( new_media );
     that->callAsync([=] () {
+        InputManager* q = that->q_func();
         that->UpdateName( new_media );
         that->UpdateArt( new_media );
         that->UpdateMeta( new_media );
+        emit q->inputChanged( new_media != nullptr );
         if ( new_media) {
             input_item_Release( new_media );
         }
