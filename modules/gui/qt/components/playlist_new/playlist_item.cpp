@@ -19,8 +19,8 @@
  *****************************************************************************/
 #include "playlist_item.hpp"
 
-namespace vlc {
-namespace playlist {
+//namespace vlc {
+//namespace playlist {
 
 PlaylistItem::PlaylistItem(vlc_playlist_item_t* item)
 {
@@ -77,5 +77,5 @@ PlaylistItem::operator bool() const
 }
 
 
-}
-}
+//}
+//}

@@ -34,8 +34,8 @@
 #include <QMetaType>
 
 
-namespace vlc {
-  namespace playlist {
+//namespace vlc {
+//  namespace playlist {
 
 using PlaylistItemPtr = vlc_shared_data_ptr_type(vlc_playlist_item_t,
                                                  vlc_playlist_item_Hold,
@@ -98,9 +98,9 @@ private:
 /* PlaylistItem has the same size as a raw pointer */
 static_assert(sizeof(PlaylistItem) == sizeof(void *));
 
-  } // namespace playlist
-} // namespace vlc
+//  } // namespace playlist
+//} // namespace vlc
 
-Q_DECLARE_METATYPE(vlc::playlist::PlaylistItem)
+Q_DECLARE_METATYPE(PlaylistItem)
 
 #endif

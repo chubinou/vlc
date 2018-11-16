@@ -348,6 +348,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterUncreatableType<InputManager>("org.videolan.vlc", 0, 1, "PlayerControler", "FIXME doc" );
 
     qRegisterMetaType<PlaylistPtr>();
+    qRegisterMetaType<PlaylistItem>();
     qmlRegisterUncreatableType<PlaylistItem>("org.videolan.vlc", 0, 1, "PlaylistItem", "");
     qmlRegisterType<PlaylistListModel>( "org.videolan.vlc", 0, 1, "PlaylistListModel" );
     qmlRegisterType<PlaylistControlerModel>( "org.videolan.vlc", 0, 1, "PlaylistControlerModel" );
