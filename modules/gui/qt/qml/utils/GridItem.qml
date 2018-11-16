@@ -90,6 +90,7 @@ Item {
                         Behavior on height { SmoothedAnimation { velocity: 100 } }
                         anchors.centerIn: parent
                         source: image
+                        fillMode: Image.PreserveAspectFit
 
                         Rectangle {
                             id: overlay
