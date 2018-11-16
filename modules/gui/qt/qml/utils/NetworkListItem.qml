@@ -84,6 +84,7 @@ Rectangle {
 
         Utils.ImageToolButton {
             id: indexButton
+            visible: model.can_index
             Layout.preferredHeight: VLCStyle.icon_normal
             Layout.preferredWidth: VLCStyle.icon_normal
             imageSource: !model.indexed ? "qrc:///buttons/playlist/playlist_add.svg" :
