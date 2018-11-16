@@ -15,28 +15,84 @@ Utils.NavigableFocusScope {
 
     signal visibilityChanged(bool visible)
 
-    ControlBar {
-        id: controlbar
-        width: parent.width
+    Rectangle {
         anchors.fill: parent
-        focus: root.state === "visible"
-        onActionCancel: {
-            root.state = "hidden"
+        color: VLCStyle.colors.setColorAlpha(VLCStyle.colors.banner, 0.9)
+
+        ControlBar {
+            id: controlbar
+            anchors.fill: parent
+            focus: true
+            onShowTrackBar: {
+                root.state = "tracks"
+            }
+            onActionCancel: {
+                root.state = "hidden"
+            }
+        }
+
+        TrackSelector {
+            id: trackbar
+            anchors.fill: parent
+            onActionCancel: {
+                root.state = "control"
+            }
         }
     }
 
-    state: "visible"
-    onStateChanged: {
-        root.visibilityChanged( root.state === "visible" )
-    }
 
+    state: "control"
+    states: [
+        State {
+            name: "hidden"
+            PropertyChanges {
+                target: controlbar
+                visible: false
+                focus: false
+            }
+            PropertyChanges {
+                target: trackbar
+                visible: false
+                focus: false
+            }
+        },
+        State {
+            name: "control"
+            PropertyChanges {
+                target: controlbar
+                visible: true
+                focus: true
+            }
+            PropertyChanges {
+                target: trackbar
+                visible: false
+                focus: false
+            }
+        },
+        State {
+            name: "tracks"
+            PropertyChanges {
+                target: controlbar
+                visible: false
+                focus: false
+            }
+            PropertyChanges {
+                target: trackbar
+                visible: true
+                focus: true
+            }
+        }
+    ]
+    onStateChanged: {
+        root.visibilityChanged( root.state !== "hidden" )
+    }
 
     Keys.priority: Keys.AfterItem
     Keys.onPressed: {
         console.log("root key handle", root.state)
-        if (root.state === "visible")
+        if (root.state !== "hidden")
             return;
-        root.state = "visible"
+        root.state = "control"
         event.accepted = true
     }
 }
