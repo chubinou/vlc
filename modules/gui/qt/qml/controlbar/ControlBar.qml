@@ -129,7 +129,7 @@ Utils.NavigableFocusScope {
                             width: VLCStyle.icon_small
                             height: VLCStyle.icon_small
 
-                            checked: playlistCtrl.repeatMode === PlaylistControlerModel.PLAYBACK_REPEAT_NONE
+                            checked: playlistCtrl.repeatMode !== PlaylistControlerModel.PLAYBACK_REPEAT_NONE
                             imageSource: (playlistCtrl.repeatMode == PlaylistControlerModel.PLAYBACK_REPEAT_CURRENT)
                                          ? "qrc:///buttons/playlist/repeat_one.svg"
                                          : "qrc:///buttons/playlist/repeat_all.svg"
@@ -154,12 +154,13 @@ Utils.NavigableFocusScope {
 
                     RowLayout {
                         anchors.fill: parent
+
+
                         Utils.ImageToolButton {
                             AudioSubMenu {
                                 id: audioSubMenu
                                 onClosed: parent.forceActiveFocus()
                             }
-
 
                             id: langBtn
                             width: VLCStyle.icon_small
@@ -188,11 +189,11 @@ Utils.NavigableFocusScope {
                             imageSource: "qrc:///toolbar/fullscreen.svg"
                             onClicked: player.toggleFullscreen()
                             visible: player.hasVideoOutput
+                            onClicked: playlistCtrl.stop()
                         }
                     }
                 }
             }
         }
     }
-
 }
