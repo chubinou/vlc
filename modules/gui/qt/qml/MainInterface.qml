@@ -37,7 +37,7 @@ import "qrc:///controlbar/" as CB
 
 Rectangle {
     id: root
-    color: "transparent"
+    color: VLCStyle.colors.bg
 
     Row {
         anchors.fill: parent

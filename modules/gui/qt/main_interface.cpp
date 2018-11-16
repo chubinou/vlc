@@ -377,8 +377,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     mediacenterView->setSource( QUrl ( QStringLiteral("qrc:/qml/MainInterface.qml") ) );
     mediacenterView->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
-    mediacenterView->setClearColor(Qt::transparent);
-    //mediacenterView->setAttribute(Qt::WA_AlwaysStackOnTop);
     mediacenterWrapper = new QWidget(this);
     QHBoxLayout  *front_wrapper_layout = new QHBoxLayout(mediacenterWrapper);
     front_wrapper_layout->addWidget(mediacenterView);
