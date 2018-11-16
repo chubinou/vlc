@@ -47,6 +47,7 @@ class QEvent;
 class VideoWidget;
 class VisualSelector;
 class QVBoxLayout;
+class QStackedLayout;
 class QMenu;
 class QSize;
 class QScreen;
@@ -126,9 +127,11 @@ protected:
     QVBoxLayout         *mainLayout;
 
     VideoWidget         *videoWidget;
+    QQuickWidget        *toolbarView;
+    QVBoxLayout         *videoLayout;
+
     QQuickWidget        *mediacenterView;
     QWidget             *mediacenterWrapper;
-    QQuickWidget        *toolbarView;
 
 
     /* Status Bar */

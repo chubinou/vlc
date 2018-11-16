@@ -386,7 +386,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
 
     /* Create the main Widget and the mainLayout */
     QWidget* videoSplitWidget = new QWidget(this);
-    QVBoxLayout *videoLayout = new QVBoxLayout;
+    videoLayout = new QVBoxLayout;
     videoSplitWidget->setLayout(videoLayout);
 
     videoWidget = new VideoWidget( p_intf, this );
@@ -413,11 +413,13 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     stackedLayout->addWidget(mediacenterWrapper);
     stackedLayout->addWidget(videoSplitWidget);
 
-
     connect(p_intf->p_sys->p_mainPlayerControler, &InputManager::hasVideoOutputChanged, [=] (bool videoPresent) {
         stackedLayout->setCurrentIndex(videoPresent ? 1 : 0);
-        if (videoPresent)
+        if (videoPresent) {
             toolbarView->setFocus();
+        } else {
+            mediacenterView->setFocus();
+        }
     });
 
     if ( b_interfaceOnTop )
@@ -426,9 +428,8 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
 
 void MainInterface::onToolbarVisibilityChanged( bool visible )
 {
-    msg_Warn(p_intf, "onToolbarVisibilityChanged %s", visible ? "on" : "off");
-    toolbarView->setVisible(visible);
-
+    toolbarView->setMinimumHeight(visible ? 80 : 0);
+    toolbarView->setMaximumHeight(visible ? 80 : 0);
 }
 
 inline void MainInterface::initSystray()
