@@ -399,7 +399,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     toolbarCtx->setContextProperty( "history", navigation_history );
     toolbarCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
     toolbarCtx->setContextProperty( "mainctx", mainCtx);
-    toolbarCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
     toolbarView->setSource( QUrl ( QStringLiteral("qrc:/controlbar/VideoControler.qml") ) );
     toolbarView->setResizeMode( QQuickWidget::SizeRootObjectToView );
 

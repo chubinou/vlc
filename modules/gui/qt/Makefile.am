@@ -505,11 +505,13 @@ libqt_plugin_la_RES = \
 	gui/qt/pixmaps/lock.svg \
 	gui/qt/qml/MainInterface.qml \
 	gui/qt/qml/BannerSources.qml \
+	gui/qt/qml/AudioPlayer.qml \
 	gui/qt/qml/controlbar/TrackInfo.qml \
 	gui/qt/qml/controlbar/AudioSubMenu.qml \
 	gui/qt/qml/controlbar/ControlBar.qml \
 	gui/qt/qml/controlbar/SliderBar.qml \
 	gui/qt/qml/controlbar/VideoControler.qml \
+	gui/qt/qml/controlbar/AudioController.qml \
 	gui/qt/qml/utils/BannerView.qml \
 	gui/qt/qml/utils/DNDLabel.qml \
 	gui/qt/qml/utils/ToolTipArea.qml \

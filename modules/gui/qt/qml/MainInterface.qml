@@ -26,6 +26,7 @@ import QtQuick 2.0
 import QtQuick.Layouts 1.3
 import QtQuick.Controls 2.2
 import org.videolan.medialib 0.1
+import org.videolan.vlc 0.1
 
 import "qrc:///utils/" as Utils
 import "qrc:///style/"
@@ -40,12 +41,26 @@ Rectangle {
 
     Row {
         anchors.fill: parent
-        MC.MCMainDisplay {
-            id: mlview
+        StackLayout {
+            id: mainStackViewId
+            currentIndex: 0
             width: parent.width * (2. / 3)
             height: parent.height
-            focus: true
-            onActionRight: playlist.focus = true
+            MC.MCMainDisplay {
+                onActionRight: playlist.focus = true
+                id: mlview
+                focus: true
+            }
+            AudioPlayer {
+                onActionRight: playlist.focus = true
+            }
+
+            Connections {
+                target: player
+                onPlayingStateChanged: {
+                    mainStackViewId.currentIndex = state != PlayerControler.PLAYING_STATE_STOPPED ? 1 : 0
+                }
+            }
         }
 
         PL.PlaylistListView {

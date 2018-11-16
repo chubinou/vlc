@@ -159,6 +159,7 @@
     <qresource prefix="/qml">
         <file alias="BannerSources.qml">qml/BannerSources.qml</file>
         <file alias="MainInterface.qml">qml/MainInterface.qml</file>
+        <file alias="AudioPlayer.qml">qml/AudioPlayer.qml</file>
     </qresource>
     <qresource prefix="/utils">
         <file alias="MultiCoverPreview.qml">qml/utils/MultiCoverPreview.qml</file>
@@ -213,5 +214,6 @@
         <file alias="AudioSubMenu.qml">qml/controlbar/AudioSubMenu.qml</file>
         <file alias="VideoControler.qml">qml/controlbar/VideoControler.qml</file>
         <file alias="TrackInfo.qml">qml/controlbar/TrackInfo.qml</file>
+        <file alias="AudioController.qml">qml/controlbar/AudioController.qml</file>
     </qresource>
 </RCC>
