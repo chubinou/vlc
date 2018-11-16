@@ -338,8 +338,8 @@ public slots:
 
 signals:
     //playback
-    void playingStateChanged( PlayingState );
-    void inputChanged( bool );
+    void playingStateChanged( PlayingState state );
+    void inputChanged( bool hasInput );
     void nameChanged( const QString& );
     void bufferingChanged( float );
     void rateChanged( float );
