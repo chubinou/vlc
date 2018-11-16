@@ -11,10 +11,33 @@ import "qrc:///controlbar/" as CB
 Utils.NavigableFocusScope {
     id: root
     anchors.fill: parent
+    PlaylistControlerModel {
+        id: playlistCtrl
+        playlistPtr: mainctx.playlist
+    }
+    RowLayout {
+        id: topBarId
+        anchors {
+            top: parent.top
+            left: parent.left
+            right: parent.right
+        }
+        Utils.BackButton {
+            width: VLCStyle.icon_normal
+            height: VLCStyle.icon_normal
+            onClicked: playlistCtrl.stop()
+        }
+    }
+
     Rectangle {
         focus: false
         color: "black"
-        anchors.fill: parent
+        anchors {
+            top: topBarId.bottom
+            right: parent.right
+            left: parent.left
+            bottom: controllerId.top
+        }
         Rectangle {
             width: parent.width / 2
             height: parent.height / 2
@@ -29,6 +52,7 @@ Utils.NavigableFocusScope {
         }
     }
     CB.AudioController {
+        id: controllerId
         focus: true
         anchors {
             left: parent.left

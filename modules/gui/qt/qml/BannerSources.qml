@@ -54,18 +54,8 @@ Utils.NavigableFocusScope {
         RowLayout {
             anchors.fill: parent
 
-            Utils.ImageToolButton {
-                id: history_back
-                imageSource: "qrc:///toolbar/dvd_prev.svg"
-
-                focus: true
-
-                Layout.preferredHeight: VLCStyle.icon_normal
-                Layout.preferredWidth: VLCStyle.icon_normal
-                Layout.alignment: Qt.AlignVCenter
-
+            Utils.BackButton {
                 KeyNavigation.right: buttonView
-
                 onClicked: history.pop(History.Go)
             }
 
