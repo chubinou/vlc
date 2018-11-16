@@ -197,13 +197,14 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
     if ( protocolEnd != nullptr )
         item.protocol = std::string{ p_item->psz_uri, 0,
                 (size_t)(protocolEnd - p_item->psz_uri) };
-
+    if ( *item.mrl.crbegin() != '/' )
+        item.mrl += '/';
     if ( m_entryPoints != nullptr )
     {
         for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
         {
             if ( ep.b_present && ep.b_banned == false &&
-                 strcasecmp( ep.psz_mrl, p_item->psz_uri ) == 0 )
+                 strcasecmp( ep.psz_mrl, item.mrl.c_str() ) == 0 )
             {
                 item.indexed = true;
                 break;
@@ -244,32 +245,36 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
 {
     if ( event->type != INPUT_EVENT_SUBITEMS )
         return;
-    auto isIndexed = false;
-    if ( m_entryPoints != nullptr )
-    {
-        for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
-        {
-            if ( ep.b_present && strncasecmp( ep.psz_mrl, event->subitems->p_item->psz_uri,
-                                              strlen(ep.psz_mrl) ) == 0 )
-            {
-                isIndexed = true;
-                break;
-            }
-        }
-    }
+
     std::vector<Item> items;
     for ( auto i = 0; i < event->subitems->i_children; ++i )
     {
         auto it = event->subitems->pp_children[i]->p_item;
-        items.push_back( Item{
+        Item item {
             it->psz_name,
             it->psz_uri,
             "", //protocol
-            isIndexed,
+            false,
             (it->i_type == ITEM_TYPE_DIRECTORY || it->i_type == ITEM_TYPE_NODE) ?
                 TYPE_DIR : TYPE_FILE,
             canBeIndexed( it->psz_uri )
-        });
+        };
+        if ( *item.mrl.crbegin() != '/' )
+            item.mrl += '/';
+
+        if ( m_entryPoints != nullptr )
+        {
+            for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
+            {
+                if ( ep.b_present && ep.b_banned == false &&
+                     strncasecmp( ep.psz_mrl, item.mrl.c_str(), strlen(ep.psz_mrl) ) == 0 )
+                {
+                    item.indexed = true;
+                    break;
+                }
+            }
+        }
+        items.push_back( std::move( item ) );
     }
     callAsync([this, items = std::move(items)]() {
         beginInsertRows( {}, m_items.size(), m_items.size() + items.size() - 1 );
