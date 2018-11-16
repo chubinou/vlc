@@ -82,7 +82,7 @@ PlaylistWidget::PlaylistWidget( intf_thread_t *_p_i, QWidget *_par )
         mediacenterView = new QQuickWidget(this);
         QQmlContext *rootCtx = mediacenterView->rootContext();
 
-        MCMediaLib *medialib = new MCMediaLib(_p_i, mediacenterView, mediacenterView);
+        MCMediaLib *medialib = new MCMediaLib(_p_i,  mediacenterView);
         rootCtx->setContextProperty( "medialib", medialib );
         qRegisterMetaType<MLParentId>();
         qmlRegisterType<MLAlbumModel>( "org.videolan.medialib", 0, 1, "MLAlbumModel" );

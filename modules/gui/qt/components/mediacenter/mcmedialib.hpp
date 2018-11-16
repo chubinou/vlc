@@ -47,10 +47,7 @@ class MCMediaLib : public QObject
     Q_PROPERTY(bool gridView READ isGridView WRITE setGridView NOTIFY gridViewChanged)
 
 public:
-    MCMediaLib(intf_thread_t* _intf,
-        QQuickWidget* _qml_item,
-        QObject* _parent = nullptr
-    );
+    MCMediaLib(intf_thread_t* _intf, QObject* _parent = nullptr );
 
     Q_INVOKABLE void addToPlaylist(const MLParentId &itemId);
     Q_INVOKABLE void addToPlaylist(const QString& mrl);
@@ -73,14 +70,12 @@ signals:
 private:
     bool isGridView() const;
     void setGridView(bool);
-    void invokeQML(const char *func );
     static void onMediaLibraryEvent( void* data, const vlc_ml_event_t* event );
 
 private:
     void openMRLFromMedia(const vlc_ml_media_t& media, bool start );
 
     intf_thread_t* m_intf;
-    QQuickWidget *m_qmlItem;
 
     bool m_gridView;
 

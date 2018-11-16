@@ -32,6 +32,7 @@
 
 #include <QSystemTrayIcon>
 #include <QStackedWidget>
+#include <QQuickView>
 #include <QQuickWidget>
 
 #ifdef _WIN32
@@ -126,6 +127,9 @@ protected:
 
     VideoWidget         *videoWidget;
     QQuickWidget        *mediacenterView;
+    QWidget             *mediacenterWrapper;
+    QQuickWidget        *toolbarView;
+
 
     /* Status Bar */
     QLabel              *nameLabel;
@@ -204,6 +208,8 @@ protected slots:
     void voutReleaseMouseEvents();
 
     void onInputChanged( bool );
+
+    void onToolbarVisibilityChanged( bool );
 
 signals:
     void askGetVideo( struct vout_window_t *, unsigned, unsigned, bool,

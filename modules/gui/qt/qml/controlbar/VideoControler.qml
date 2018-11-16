@@ -12,6 +12,9 @@ Utils.NavigableFocusScope {
     id: root
     focus: true
 
+    signal visibilityChanged(bool visible)
+
+    /*
     Utils.NavigableFocusScope {
         id: playlistpopup
         width: 0
@@ -81,6 +84,7 @@ Utils.NavigableFocusScope {
             }
         ]
     }
+    */
 
 
     Utils.NavigableFocusScope {
@@ -104,16 +108,20 @@ Utils.NavigableFocusScope {
                     controlbarpopup.state = "hidden"
                 }
                 onShowPlaylist: {
-                    if (playlistpopup.state === "visible")
-                        playlistpopup.state = "hidden"
-                    else
-                        playlistpopup.state = "visible"
-                    playlistpopup.focus = true
+                //    if (playlistpopup.state === "visible")
+                //        playlistpopup.state = "hidden"
+                //    else
+                //        playlistpopup.state = "visible"
+                //    playlistpopup.focus = true
                 }
             }
         }
 
         state: "visible"
+        onStateChanged: {
+            root.visibilityChanged( state === "visible" )
+        }
+
         states: [
             State {
                 name: "visible"
@@ -121,6 +129,7 @@ Utils.NavigableFocusScope {
                     target: controlbarpopup
                     height: controlbar.height
                     visible: true
+                    focus: true
                 }
             },
             State {
@@ -149,6 +158,7 @@ Utils.NavigableFocusScope {
                 }
             }
         ]
+
     }
 
     Keys.priority: Keys.BeforeItem

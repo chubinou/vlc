@@ -29,12 +29,9 @@
 #include <vlc_playlist.h>
 #include <vlc_input_item.h>
 
-MCMediaLib::MCMediaLib(intf_thread_t *_intf,
-        QQuickWidget *_qml_item,
-        QObject *_parent)
+MCMediaLib::MCMediaLib(intf_thread_t *_intf, QObject *_parent)
     : QObject( _parent )
     , m_intf( _intf )
-    , m_qmlItem( _qml_item )
     , m_gridView( true )
     , m_ml( vlcMl() )
     , m_event_cb( nullptr, [this](vlc_ml_event_callback_t* cb ) {
@@ -56,7 +53,6 @@ void MCMediaLib::setGridView(bool state)
     m_gridView = state;
     emit gridViewChanged();
 }
-
 
 void MCMediaLib::openMRLFromMedia(const vlc_ml_media_t& media, bool start )
 {
@@ -176,14 +172,6 @@ void MCMediaLib::addAndPlay(const QVariantList& itemIdList)
 vlc_medialibrary_t* MCMediaLib::vlcMl()
 {
     return vlc_ml_instance_get( m_intf );
-}
-
-// Invoke a given QML function (used to notify the view part of a change)
-void MCMediaLib::invokeQML( const char* func ) {
-    QQuickItem *root = m_qmlItem->rootObject();
-    int methodIndex = root->metaObject()->indexOfMethod(func);
-    QMetaMethod method = root->metaObject()->method(methodIndex);
-    method.invoke(root);
 }
 
 void MCMediaLib::onMediaLibraryEvent( void* data, const vlc_ml_event_t* event )

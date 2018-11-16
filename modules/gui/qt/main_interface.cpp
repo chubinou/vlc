@@ -135,9 +135,6 @@ MainInterface::MainInterface( intf_thread_t *_p_intf ) : QVLCMW( _p_intf )
     b_maximizedView      = false;
     b_isWindowTiled      = false;
 
-    /* Ask for Privacy */
-    FirstRun::CheckAndRun( this, p_intf );
-
     /**
      *  Configuration and settings
      *  Pre-building of interface
@@ -326,27 +323,6 @@ void MainInterface::onInputChanged( bool hasInput )
 
 void MainInterface::createMainWidget( QSettings *creationSettings )
 {
-    //QWidget* mainWidget = new QWidget(this);
-    //QStackedLayout *stackedLayout = new QStackedLayout;
-    //stackedLayout->setStackingMode(QStackedLayout::StackAll);
-    //mainWidget->setLayout(stackedLayout);
-    //setCentralWidget( mainWidget );
-
-    /* Create the main Widget and the mainLayout */
-    videoWidget = new VideoWidget( p_intf, this );
-    setCentralWidget( videoWidget );
-
-    QWidget* redish = new QWidget;
-    redish->setAttribute(Qt::WA_NativeWindow);
-    redish->setAttribute(Qt::WA_DontCreateNativeAncestors);
-    redish->winId();
-    redish->setStyleSheet("background-color: red;");
-
-    mediacenterView = new QQuickWidget();
-    QQmlContext *rootCtx = mediacenterView->rootContext();
-
-    MCMediaLib *medialib = new MCMediaLib(p_intf, mediacenterView, mediacenterView);
-    rootCtx->setContextProperty( "medialib", medialib );
     qRegisterMetaType<MLParentId>();
     qmlRegisterType<MLAlbumModel>( "org.videolan.medialib", 0, 1, "MLAlbumModel" );
     qmlRegisterType<MLArtistModel>( "org.videolan.medialib", 0, 1, "MLArtistModel" );
@@ -355,7 +331,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterType<MLVideoModel>( "org.videolan.medialib", 0, 1, "MLVideoModel" );
     qmlRegisterUncreatableType<MLNetworkModel>( "org.videolan.medialib", 0, 1,
         "MLNetworkModel", "Use the model factory to create this type" );
-    rootCtx->setContextProperty( "networkModelFactory", new MLNetworkModelFactory(this) );
     //expose base object, they aren't instanciable from QML side
     qmlRegisterType<MLAlbum>();
     qmlRegisterType<MLArtist>();
@@ -364,9 +339,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterType<MLVideo>();
 
     qmlRegisterUncreatableType<NavigationHistory>("org.videolan.medialib", 0, 1, "History", "Type of global variable history" );
-    NavigationHistory* navigation_history = new NavigationHistory(this);
-    rootCtx->setContextProperty( "history", navigation_history );
-
 
     qmlRegisterUncreatableType<TrackListModel>("org.videolan.vlc", 0, 1, "TrackListModel", "FIXME doc" );
     qmlRegisterUncreatableType<TitleListModel>("org.videolan.vlc", 0, 1, "TitleListModel", "FIXME doc" );
@@ -375,41 +347,88 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterUncreatableType<VLCVarChoiceModel>("org.videolan.vlc", 0, 1, "VLCVarChoiceModel", "FIXME doc" );
     qmlRegisterUncreatableType<InputManager>("org.videolan.vlc", 0, 1, "PlayerControler", "FIXME doc" );
 
-    rootCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
-
     qRegisterMetaType<PlaylistPtr>();
     qmlRegisterUncreatableType<PlaylistItem>("org.videolan.vlc", 0, 1, "PlaylistItem", "");
     qmlRegisterType<PlaylistListModel>( "org.videolan.vlc", 0, 1, "PlaylistListModel" );
     qmlRegisterType<PlaylistControlerModel>( "org.videolan.vlc", 0, 1, "PlaylistControlerModel" );
 
+
+
+    QWidget* mainWidget = new QWidget(this);
+
+    QStackedLayout *stackedLayout = new QStackedLayout;
+    //stackedLayout->setStackingMode(QStackedLayout::StackAll);
+    mainWidget->setLayout(stackedLayout);
+    setCentralWidget( mainWidget );
+
+    NavigationHistory* navigation_history = new NavigationHistory(this);
+    MCMediaLib *medialib = new MCMediaLib(p_intf,  this);
     QmlMainContext* mainCtx = new QmlMainContext(p_intf, this);
+
+
+    mediacenterView = new QQuickWidget();
+    QQmlContext *rootCtx = mediacenterView->rootContext();
+    rootCtx->setContextProperty( "medialib", medialib );
+    rootCtx->setContextProperty( "networkModelFactory", new MLNetworkModelFactory(this) );
+    rootCtx->setContextProperty( "history", navigation_history );
+    rootCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
     rootCtx->setContextProperty( "mainctx", mainCtx);
 
     mediacenterView->setSource( QUrl ( QStringLiteral("qrc:/qml/MainInterface.qml") ) );
     mediacenterView->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
     mediacenterView->setClearColor(Qt::transparent);
-    mediacenterView->setAttribute(Qt::WA_AlwaysStackOnTop);
-
-
-    QWidget      *front_wrapper = new QWidget;
-    front_wrapper->resize(800, 600);
-    QHBoxLayout  *front_wrapper_layout = new QHBoxLayout(front_wrapper);
+    //mediacenterView->setAttribute(Qt::WA_AlwaysStackOnTop);
+    mediacenterWrapper = new QWidget(this);
+    QHBoxLayout  *front_wrapper_layout = new QHBoxLayout(mediacenterWrapper);
     front_wrapper_layout->addWidget(mediacenterView);
 
-    front_wrapper->setAttribute(Qt::WA_NativeWindow);
-    front_wrapper->setAttribute(Qt::WA_DontCreateNativeAncestors);
-    front_wrapper->setWindowFlag(Qt::WindowStaysOnTopHint);
-    front_wrapper->setWindowFlag(Qt::ToolTip);
 
-    front_wrapper->show();
-    //videoWidget->layout()->addWidget(mediacenterView);
+    /* Create the main Widget and the mainLayout */
+    QWidget* videoSplitWidget = new QWidget(this);
+    QVBoxLayout *videoLayout = new QVBoxLayout;
+    videoSplitWidget->setLayout(videoLayout);
 
-    //stackedLayout->addWidget(front_wrapper);
-    //stackedLayout->addWidget(videoWidget);
+    videoWidget = new VideoWidget( p_intf, this );
+    videoWidget ->setAttribute(Qt::WA_NativeWindow);
+    videoWidget ->setAttribute(Qt::WA_DontCreateNativeAncestors);
+
+    toolbarView = new QQuickWidget(this);
+    toolbarView->setMinimumHeight(80);
+    QQmlContext* toolbarCtx = toolbarView->rootContext();
+    toolbarCtx->setContextProperty( "history", navigation_history );
+    toolbarCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
+    toolbarCtx->setContextProperty( "mainctx", mainCtx);
+    toolbarCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
+    toolbarView->setSource( QUrl ( QStringLiteral("qrc:/controlbar/VideoControler.qml") ) );
+    toolbarView->setResizeMode( QQuickWidget::SizeRootObjectToView );
+
+    QQuickItem* toolbarRootObj = toolbarView->rootObject();
+    connect(toolbarRootObj, SIGNAL(visibilityChanged(bool)), this, SLOT(onToolbarVisibilityChanged(bool)));
+
+    videoLayout->addWidget(videoWidget);
+    videoLayout->addWidget(toolbarView);
+    videoLayout->setSpacing(0);
+
+    stackedLayout->addWidget(mediacenterWrapper);
+    stackedLayout->addWidget(videoSplitWidget);
+
+
+    connect(p_intf->p_sys->p_mainPlayerControler, &InputManager::hasVideoOutputChanged, [=] (bool videoPresent) {
+        stackedLayout->setCurrentIndex(videoPresent ? 1 : 0);
+        if (videoPresent)
+            toolbarView->setFocus();
+    });
 
     if ( b_interfaceOnTop )
         setWindowFlags( windowFlags() | Qt::WindowStaysOnTopHint );
+}
+
+void MainInterface::onToolbarVisibilityChanged( bool visible )
+{
+    msg_Warn(p_intf, "onToolbarVisibilityChanged %s", visible ? "on" : "off");
+    toolbarView->setVisible(visible);
+
 }
 
 inline void MainInterface::initSystray()
@@ -981,9 +1000,27 @@ void MainInterface::closeEvent( QCloseEvent *e )
 
 bool MainInterface::eventFilter( QObject *obj, QEvent *event )
 {
-     //if ( event->type() == QEvent::Resize ) {
-        return QObject::eventFilter( obj, event );
-    //}
+    switch (event->type())
+    {
+    case QEvent::Show:
+
+        break;
+    case QEvent::WindowActivate:
+    case QEvent::Resize:
+    case QEvent::Move:
+    {
+
+        //qreal ratio = ceil(this->devicePixelRatioF());
+        //QPoint p = this->mapToGlobal(this->pos());
+        //mediacenterWrapper->setGeometry(p.x() / ratio, p.y() / ratio, this->width(), this->height());
+        //mediacenterWrapper->raise();
+    }
+    break;
+    default:
+        break;
+    }
+
+    return QObject::eventFilter( obj, event );
 }
 
 void MainInterface::toolBarConfUpdated()
