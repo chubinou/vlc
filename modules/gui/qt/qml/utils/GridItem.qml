@@ -76,12 +76,21 @@ Item {
 
                     RectangularGlow {
                         visible: picture.highlighted
-                        anchors.fill: cover
+                        anchors.fill: coverPlaceHolder
                         cornerRadius: 25
                         spread: 0.2
                         glowRadius: VLCStyle.margin_xsmall
                         color: VLCStyle.colors.getBgColor( selected, mouseArea.containsMouse, root.activeFocus )
                     }
+
+                    Item {
+                        id: coverPlaceHolder
+                        x: cover.x + (cover.width - cover.paintedWidth) / 2
+                        y: cover.y +(cover.height - cover.paintedHeight) / 2
+                        width: cover.paintedWidth
+                        height: cover.paintedHeight
+                    }
+
                     Image {
                         id: cover
                         width: VLCStyle.cover_small
