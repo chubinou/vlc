@@ -1,6 +1,7 @@
 import QtQuick 2.9
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
+import QtGraphicalEffects 1.0
 
 import org.videolan.vlc 0.1
 
@@ -28,7 +29,7 @@ Utils.NavigableFocusScope {
         }
 
         Image {
-            id: coverId
+            id: cover
             source: (playlistCtrl.currentItem.artwork && playlistCtrl.currentItem.artwork.toString())
                     ? playlistCtrl.currentItem.artwork
                     : VLCStyle.noArtCover
@@ -36,6 +37,16 @@ Utils.NavigableFocusScope {
             width: parent.width / 2
             height: parent.height / 2
             anchors.centerIn: parent
+        }
+
+        DropShadow {
+            anchors.fill: cover
+            source: cover
+            horizontalOffset: 3
+            verticalOffset: 10
+            radius: 12
+            samples: 17
+            color: "black"
         }
     }
 
