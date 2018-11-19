@@ -41,6 +41,7 @@ Utils.NavigableFocusScope {
         delegate: Package {
             id: element
             Loader {
+                focus: true
                 Package.name: "list"
                 source: model.type == MLNetworkModel.TYPE_FILE ?
                             "qrc:///mediacenter/NetworkFileDisplay.qml" :
