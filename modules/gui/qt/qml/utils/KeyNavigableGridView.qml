@@ -64,11 +64,15 @@ NavigableFocusScope {
                     newIndex = Math.max(0, currentIndex - 1)
                 }
             } else if (event.key === Qt.Key_Down || event.matches(StandardKey.MoveToNextLine) ||event.matches(StandardKey.SelectNextLine) ) {
-                newIndex = Math.min(gridview_id.modelCount - 1, currentIndex + _colCount)
+                if (Math.floor(currentIndex / _colCount) !== Math.floor(gridview_id.modelCount / _colCount)) { //we are not on the last line
+                    newIndex = Math.min(gridview_id.modelCount - 1, currentIndex + _colCount)
+                }
             } else if (event.key === Qt.Key_PageDown || event.matches(StandardKey.MoveToNextPage) ||event.matches(StandardKey.SelectNextPage)) {
                 newIndex = Math.min(gridview_id.modelCount - 1, currentIndex + _colCount * 5)
             } else if (event.key === Qt.Key_Up || event.matches(StandardKey.MoveToPreviousLine) ||event.matches(StandardKey.SelectPreviousLine)) {
-                newIndex = Math.max(0, currentIndex - _colCount)
+                if (Math.floor(currentIndex / _colCount) !== 0) { //we are not on the first line
+                    newIndex = Math.max(0, currentIndex - _colCount)
+                }
             } else if (event.key === Qt.Key_PageUp || event.matches(StandardKey.MoveToPreviousPage) ||event.matches(StandardKey.SelectPreviousPage)) {
                 newIndex = Math.max(0, currentIndex - _colCount * 5)
             } else if (event.key === Qt.Key_Space || event.matches(StandardKey.InsertParagraphSeparator)) { //enter/return/space
