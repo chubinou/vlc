@@ -164,7 +164,7 @@ SDFileSystemFactory::scheme() const
     return m_scheme;
 }
 
-void
+bool
 SDFileSystemFactory::start(IFileSystemFactoryCb *callbacks)
 {
     this->callbacks = callbacks;
@@ -173,8 +173,7 @@ SDFileSystemFactory::start(IFileSystemFactoryCb *callbacks)
         .sys = this,
     };
     sd.reset(vlc_sd_Create(parent, m_name.c_str(), &owner));
-    if (!sd)
-        throw std::bad_alloc();
+    return sd != nullptr;
 }
 
 void

@@ -72,7 +72,7 @@ public:
     const std::string &
     scheme() const override;
 
-    void
+    bool
     start(IFileSystemFactoryCb *callbacks) override;
 
     void
