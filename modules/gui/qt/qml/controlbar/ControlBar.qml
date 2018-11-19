@@ -12,7 +12,9 @@ Utils.NavigableFocusScope {
     id: root
 
     signal showTrackBar()
-	signal showPlaylist()
+    signal showPlaylist()
+
+    property bool showPlaylistButton: false
 
     Keys.priority: Keys.AfterItem
     Keys.onPressed: defaultKeyAction(event, 0)
@@ -160,11 +162,12 @@ Utils.NavigableFocusScope {
                         checked: playlistCtrl.random
                         imageSource: "qrc:///toolbar/audiosub.svg"
                         onClicked: root.showTrackBar()
-                        KeyNavigation.right: playlistBtn
+                        KeyNavigation.right: showPlaylistButton ? playlistBtn : fullscreenBtn
                     }
 
                     Utils.ImageToolButton {
                         id: playlistBtn
+                        visible: showPlaylistButton
                         width: VLCStyle.icon_small
                         height: VLCStyle.icon_small
                         imageSource: "qrc:///toolbar/playlist.svg"

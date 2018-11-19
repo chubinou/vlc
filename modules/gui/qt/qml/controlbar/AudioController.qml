@@ -14,75 +14,7 @@ Utils.NavigableFocusScope {
 
     signal visibilityChanged(bool visible)
 
-    Utils.NavigableFocusScope {
-        id: playlistpopup
-        width: 0
-        anchors {
-            top: parent.top
-            right: parent.right
-            bottom: controlbarpopup.top
-        }
-        focus: false
 
-        Flickable {
-            anchors.fill: parent
-
-            Rectangle {
-                color: VLCStyle.colors.setColorAlpha(VLCStyle.colors.banner, 0.9)
-                width: root.width/4
-                height: parent.height
-
-                PL.PlaylistListView {
-                    id: playlistView
-                    focus: true
-                    anchors.fill: parent
-                    onActionLeft: playlistpopup.quit()
-                    onActionCancel: playlistpopup.quit()
-                }
-            }
-        }
-
-        function quit() {
-            state = "hidden"
-            controlbarpopup.focus = true
-        }
-
-        state: "hidden"
-        states: [
-            State {
-                name: "visible"
-                PropertyChanges {
-                    target: playlistpopup
-                    width: playlistView.width
-                    visible: true
-                }
-            },
-            State {
-                name: "hidden"
-                PropertyChanges {
-                    target: playlistpopup
-                    height: 0
-                    visible: false
-                }
-            }
-        ]
-        transitions: [
-            Transition {
-                to: "hidden"
-                SequentialAnimation {
-                    NumberAnimation { target: playlistpopup; property: "width"; duration: 200 }
-                    PropertyAction{ target: playlistpopup; property: "visible" }
-                }
-            },
-            Transition {
-                to: "visible"
-                SequentialAnimation {
-                    PropertyAction{ target: playlistpopup; property: "visible" }
-                    NumberAnimation { target: playlistpopup; property: "width"; duration: 200 }
-                }
-            }
-        ]
-    }
 
 
     Utils.NavigableFocusScope {
@@ -95,23 +27,21 @@ Utils.NavigableFocusScope {
         }
         height: controlbar.height
 
-        Flickable {
-            anchors.fill: parent
-            ControlBar {
-                id: controlbar
-                width: parent.width
-                height: 80
-                focus: true
-                onActionCancel: {
-                    controlbarpopup.state = "hidden"
-                }
-                onShowPlaylist: {
-                    if (playlistpopup.state === "visible")
-                        playlistpopup.state = "hidden"
-                    else
-                        playlistpopup.state = "visible"
-                    playlistpopup.focus = true
-                }
+
+        ControlBar {
+            id: controlbar
+            width: parent.width
+            height: 80
+            focus: true
+            onActionCancel: {
+                controlbarpopup.state = "hidden"
+            }
+            onShowPlaylist: {
+                if (playlistpopup.state === "visible")
+                    playlistpopup.state = "hidden"
+                else
+                    playlistpopup.state = "visible"
+                playlistpopup.focus = true
             }
         }
 

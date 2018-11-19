@@ -14,7 +14,7 @@ QVariant NavigationHistory::getCurrent()
 
 bool NavigationHistory::isEmpty()
 {
-    return m_history.count() <= 1;
+    return m_history.count() < 1;
 }
 
 void NavigationHistory::push(QVariantMap item, PostAction postAction)

@@ -22,9 +22,9 @@
  * 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.10
 import QtQuick.Layouts 1.3
-import QtQuick.Controls 2.2
+import QtQuick.Controls 2.4
 import org.videolan.medialib 0.1
 import org.videolan.vlc 0.1
 
@@ -39,38 +39,77 @@ Rectangle {
     id: root
     color: VLCStyle.colors.bg
 
-    Row {
-        anchors.fill: parent
-        StackLayout {
-            id: mainStackViewId
-            currentIndex: 0
-            width: parent.width * (2. / 3)
-            height: parent.height
-            MC.MCMainDisplay {
-                onActionRight: playlist.focus = true
-                id: mlview
-                focus: true
-            }
-            AudioPlayer {
-                onActionRight: playlist.focus = true
-            }
+    Component {
+        id: medialibComp
+        FocusScope {
+            focus: true
+            Row {
+                anchors.fill: parent
+                MC.MCMainDisplay {
+                    id: medialibId
+                    onActionRight: playlist.focus = true
+                    focus: true
+                    width: parent.width * (2. / 3)
+                    height: parent.height
+                }
 
-            Connections {
-                target: player
-                onPlayingStateChanged: {
-                    mainStackViewId.currentIndex = state != PlayerControler.PLAYING_STATE_STOPPED ? 1 : 0
+                PL.PlaylistListView {
+                    id: playlist
+                    focus: false
+                    width: parent.width / 3
+                    height: parent.height
+                    onActionLeft: medialibId.focus = true
                 }
             }
         }
+    }
 
-        PL.PlaylistListView {
-            id: playlist
-            width: parent.width / 3
-            height: parent.height
-            onActionLeft: mlview.focus = true
+    Component {
+        id: audioplayerComp
+        AudioPlayer {
+            focus: true
         }
     }
 
+
+    StackView {
+        id: mainStackViewId
+        anchors.fill: parent
+
+        initialItem: medialibComp
+        focus: true
+        property int prevPlayerState: PlayerControler.PLAYING_STATE_STOPPED
+
+
+        Connections {
+            target: player
+            onPlayingStateChanged: {
+                if (state == PlayerControler.PLAYING_STATE_STOPPED )
+                    mainStackViewId.replace(medialibComp)
+                else if (mainStackViewId.prevPlayerState == PlayerControler.PLAYING_STATE_STOPPED)
+                    mainStackViewId.replace(audioplayerComp)
+                mainStackViewId.prevPlayerState = state
+            }
+        }
+
+        replaceEnter: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 0
+                to:1
+                duration: 200
+            }
+        }
+
+        replaceExit: Transition {
+            PropertyAnimation {
+                property: "opacity"
+                from: 1
+                to:0
+                duration: 200
+            }
+        }
+    }
 
     MC.ScanProgressBar {
         anchors.left: parent.left
@@ -79,12 +118,13 @@ Rectangle {
     }
 
     Component.onCompleted: {
+        //set the initial view
         history.push({
-            view : "music",
-            viewProperties : {
-                view : "albums",
-                viewProperties : {}
-            }
-        }, History.Go)
+                    view : "music",
+                    viewProperties : {
+                        view : "albums",
+                        viewProperties : {}
+                    }
+                }, History.Go)
     }
 }

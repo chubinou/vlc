@@ -69,10 +69,17 @@ Utils.NavigableFocusScope {
         }
     }
 
+    Component.onCompleted: {
+        console.warn("Component.onCompleted")
+        if (!history.empty) {
+            console.warn("reload from history")
+            stackView.loadView(history.current.view, history.current.viewProperties)
+        }
+    }
+
     ColumnLayout {
         id: column
         anchors.fill: parent
-
 
         Layout.minimumWidth: VLCStyle.minWidthMediacenter
         spacing: 0

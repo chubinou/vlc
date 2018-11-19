@@ -23,6 +23,7 @@ Item {
             Layout.preferredWidth: VLCStyle.heightAlbumCover_small
             Layout.preferredHeight: VLCStyle.heightAlbumCover_small
             Layout.alignment: Qt.AlignLeft | Qt.AlignVCenter
+            fillMode    : Image.PreserveAspectFit
             source: (playlist.currentItem.artwork && playlist.currentItem.artwork.toString()) ? playlist.currentItem.artwork : VLCStyle.noArtCover
         }
 
