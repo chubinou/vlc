@@ -78,6 +78,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/dialogs/extensions.cpp gui/qt/dialogs/extensions.hpp \
 	gui/qt/dialogs/fingerprintdialog.cpp \
 	gui/qt/dialogs/fingerprintdialog.hpp \
+	gui/qt/components/aboutmodel.cpp \
+	gui/qt/components/aboutmodel.hpp \
 	gui/qt/components/extended_panels.cpp \
 	gui/qt/components/extended_panels.hpp \
 	gui/qt/components/info_panels.cpp gui/qt/components/info_panels.hpp \
@@ -236,6 +238,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/dialogs/firstrun.moc.cpp \
 	gui/qt/dialogs/extensions.moc.cpp \
 	gui/qt/dialogs/fingerprintdialog.moc.cpp \
+	gui/qt/components/aboutmodel.moc.cpp \
 	gui/qt/components/extended_panels.moc.cpp \
 	gui/qt/components/info_panels.moc.cpp \
 	gui/qt/components/info_widgets.moc.cpp \
@@ -506,6 +509,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/MainInterface.qml \
 	gui/qt/qml/BannerSources.qml \
 	gui/qt/qml/AudioPlayer.qml \
+	gui/qt/qml/about/About.qml \
 	gui/qt/qml/controlbar/TrackInfo.qml \
 	gui/qt/qml/controlbar/AudioSubMenu.qml \
 	gui/qt/qml/controlbar/TrackSelector.qml \

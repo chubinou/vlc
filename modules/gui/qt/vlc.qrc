@@ -219,4 +219,7 @@
         <file alias="AudioController.qml">qml/controlbar/AudioController.qml</file>
         <file alias="TrackSelector.qml">qml/controlbar/TrackSelector.qml</file>
     </qresource>
+    <qresource prefix="/about">
+        <file alias="About.qml">qml/about/About.qml</file>
+    </qresource>
 </RCC>

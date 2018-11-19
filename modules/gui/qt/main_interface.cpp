@@ -58,6 +58,7 @@
 #include "components/mediacenter/mlnetworkmodel.hpp"
 
 #include "components/mediacenter/navigation_history.hpp"
+#include "components/aboutmodel.hpp"
 
 #include "components/video_overlay.hpp"
 #include "components/playlist_new/playlist_model.hpp"
@@ -353,6 +354,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterType<PlaylistListModel>( "org.videolan.vlc", 0, 1, "PlaylistListModel" );
     qmlRegisterType<PlaylistControlerModel>( "org.videolan.vlc", 0, 1, "PlaylistControlerModel" );
 
+    qmlRegisterType<AboutModel>( "org.videolan.vlc", 0, 1, "AboutModel" );
 
 
     QWidget* mainWidget = new QWidget(this);
