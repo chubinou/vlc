@@ -38,6 +38,8 @@ Utils.NavigableFocusScope {
     property int selectedIndex: 0
     property alias model: pLBannerSources.model
 
+    signal showAbout()
+
     // Triggered when the toogleView button is selected
     function toggleView () {
         medialib.gridView = !medialib.gridView
@@ -150,19 +152,49 @@ Utils.NavigableFocusScope {
             }
 
 
-            /* button to choose the view displayed (list or grid) */
-            Utils.ImageToolButton {
-                id: view_selector
-
+            ToolBar {
                 Layout.preferredHeight: VLCStyle.icon_normal
-                Layout.preferredWidth: VLCStyle.icon_normal
+                //Layout.preferredWidth: VLCStyle.icon_normal * 3
                 Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                background: Item{
+                    width: parent.implicitWidth
+                    height: parent.implicitHeight
+                }
 
-                KeyNavigation.left: buttonView
+                Row {
+                Utils.ImageToolButton {
+                    id: about_selector
 
-                onClicked: root.toggleView()
+                    //Layout.preferredWidth: VLCStyle.icon_normal
+                    //Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
 
-                imageSource: "qrc:///toolbar/tv.svg"
+                    width: VLCStyle.icon_normal
+                    height: VLCStyle.icon_normal
+
+                    KeyNavigation.left: buttonView
+
+                    onClicked: root.showAbout()
+
+                    imageSource: "qrc:///menu/help.svg"
+                }
+
+                /* button to choose the view displayed (list or grid) */
+                Utils.ImageToolButton {
+                    id: view_selector
+
+                    width: VLCStyle.icon_normal
+                    height: VLCStyle.icon_normal
+                    //Layout.preferredHeight: VLCStyle.icon_normal
+                    //Layout.preferredWidth: VLCStyle.icon_normal
+                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+
+                    KeyNavigation.left: about_selector
+
+                    onClicked: root.toggleView()
+
+                    imageSource: "qrc:///toolbar/tv.svg"
+                }
+                }
             }
         }
     }

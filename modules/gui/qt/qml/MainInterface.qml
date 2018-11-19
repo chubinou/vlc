@@ -34,6 +34,7 @@ import "qrc:///style/"
 import "qrc:///mediacenter/" as MC
 import "qrc:///playlist/" as PL
 import "qrc:///controlbar/" as CB
+import "qrc:///about/"
 
 Rectangle {
     id: root
@@ -51,6 +52,7 @@ Rectangle {
                     focus: true
                     width: parent.width * (2. / 3)
                     height: parent.height
+                    onShowAbout: mainStackViewId.replace(aboutComp)
                 }
 
                 PL.PlaylistListView {
@@ -71,6 +73,14 @@ Rectangle {
         }
     }
 
+
+    Component {
+        id: aboutComp
+        About {
+            focus: true
+            onActionCancel:  mainStackViewId.replace(medialibComp)
+        }
+    }
 
     StackView {
         id: mainStackViewId

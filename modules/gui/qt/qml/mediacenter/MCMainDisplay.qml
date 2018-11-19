@@ -37,6 +37,8 @@ Utils.NavigableFocusScope {
     property string view: "music"
     property var viewProperties: QtObject {}
 
+    signal showAbout()
+
     property var tabModel: ListModel {
         ListElement {
             displayText: qsTr("Music")
@@ -112,6 +114,7 @@ Utils.NavigableFocusScope {
             onActionRight: root.actionRight(index)
             onActionUp: root.actionUp(index)
             onActionCancel: root.actionCancel(index)
+            onShowAbout: root.showAbout()
         }
 
         StackView {
