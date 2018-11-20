@@ -66,7 +66,7 @@ Item {
 
     property color alert: "red";
 
-    state: "system"
+    state: "night"
     states: [
         //other "ugly" styles are provided for testing purpose
         State {
@@ -103,28 +103,21 @@ Item {
             PropertyChanges {
                 target: colors_id
 
-                text: "white"
-
-                bg: "black"
-                bgInactive: "black"
-
-                bgAlt: "darkgrey"
-                bgAltInactive: "darkgrey"
-
-                bgHover: "red"
-                bgHoverInactive: "darkred"
-
-                button: "#111111"
-                buttonText: "white"
-                buttonBorder: blendColors(activePalette.button, activePalette.buttonText, 0.8)
-
-                textActiveSource: "green"
-
-                banner: "#222222"
-                bannerHover: "green"
-
-                accent: "yellow"
-                alert: "red"
+                text: "#eff0f1"
+                bg: "#232629"
+                bgInactive: "#232629"
+                bgAlt: "#31363b"
+                bgAltInactive: "#31363b"
+                bgHover: "#3daee9"
+                bgHoverInactive: "#3daee9"
+                button: "#31363b"
+                buttonText: "#eff0f1"
+                buttonBorder: "#575b5f"
+                textActiveSource: "#ff950d"
+                banner: "#31363b"
+                bannerHover: "#3daee9"
+                accent: "#ff950d"
+                alert: "#ff0000"
             }
         },
         State {
