@@ -38,6 +38,7 @@ class PlaylistListModel : public QAbstractListModel
 {
     Q_OBJECT
     Q_PROPERTY(PlaylistPtr playlistId READ getPlaylistId WRITE setPlaylistId NOTIFY playlistIdChanged)
+    Q_PROPERTY(int currentIndex READ getCurrentIndex NOTIFY currentIndexChanged)
 
 public:
     enum Roles
@@ -65,6 +66,8 @@ public:
     Q_INVOKABLE virtual void removeItems(const QList<int> &indexes);
     Q_INVOKABLE virtual void moveItems(const QList<int> &indexes, int target);
 
+    int getCurrentIndex() const;
+
 public slots:
     PlaylistPtr getPlaylistId() const;
     void setPlaylistId(PlaylistPtr id);
@@ -72,6 +75,7 @@ public slots:
 
 signals:
     void playlistIdChanged(const PlaylistPtr& );
+    void currentIndexChanged( int );
 
 private:
     Q_DECLARE_PRIVATE(PlaylistListModel)

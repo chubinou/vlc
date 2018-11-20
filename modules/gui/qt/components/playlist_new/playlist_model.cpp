@@ -141,6 +141,7 @@ on_playlist_current_item_changed(vlc_playlist_t *playlist, ssize_t index,
             that->notifyItemsChanged(oldCurrent, 1, {PlaylistListModel::IsCurrentRole});
         if (index != -1)
             that->notifyItemsChanged(index, 1, {PlaylistListModel::IsCurrentRole});
+        emit that->q_func()->currentIndexChanged(index);
     });
 }
 
@@ -334,6 +335,12 @@ void PlaylistListModel::moveItems(const QList<int> &indexes, int target)
         if (ret != VLC_SUCCESS)
             throw std::bad_alloc();
     }
+}
+
+int PlaylistListModel::getCurrentIndex() const
+{
+    Q_D(const PlaylistListModel);
+    return d->m_current;
 }
 
 PlaylistPtr PlaylistListModel::getPlaylistId() const
