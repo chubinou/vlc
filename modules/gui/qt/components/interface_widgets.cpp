@@ -134,7 +134,7 @@ bool VideoWidget::request( struct vout_window_t *p_wnd )
     stable = new QWidget();
     stable->setContextMenuPolicy( Qt::PreventContextMenu );
     QPalette plt = palette();
-    plt.setColor( QPalette::Window, Qt::magenta );
+    plt.setColor( QPalette::Window, Qt::black );
     stable->setPalette( plt );
     stable->setAutoFillBackground(true);
     /* Force the widget to be native so that it gets a winId() */
