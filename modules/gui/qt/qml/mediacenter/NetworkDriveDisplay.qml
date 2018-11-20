@@ -33,6 +33,8 @@ Utils.NetworkListItem {
     width: root.width
     height: VLCStyle.icon_normal
 
+    focus: true
+
     color: VLCStyle.colors.getBgColor(element.DelegateModel.inSelected, this.hovered, this.activeFocus)
 
     cover: Image {

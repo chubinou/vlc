@@ -44,6 +44,7 @@ Utils.NavigableFocusScope {
             id: element
             Utils.GridItem {
                 Package.name: "grid"
+                focus: true
                 image: model.thumbnail || VLCStyle.noArtCover
                 title: model.title || qsTr("Unknown title")
                 selected: element.DelegateModel.inSelected || view.currentItem.currentIndex === index
@@ -62,6 +63,7 @@ Utils.NavigableFocusScope {
                 Package.name: "list"
                 width: root.width
                 height: VLCStyle.icon_normal
+                focus: true
 
                 color: VLCStyle.colors.getBgColor(element.DelegateModel.inSelected, this.hovered, this.activeFocus)
 
