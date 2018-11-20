@@ -260,6 +260,9 @@ PlaylistListModel::roleNames() const
         { TitleRole, "title" },
         { DurationRole, "duration" },
         { IsCurrentRole, "isCurrent" },
+        { ArtistRole , "artist" },
+        { AlbumRole  , "album" },
+        { ArtworkRole, "artwork" },
     };
 }
 
@@ -372,15 +375,19 @@ PlaylistListModel::data(const QModelIndex &index, int role) const
     if (!d->m_playlist)
         return {};
 
+    ssize_t row = index.row();
+    if (row < 0 || row >= d->m_items.size())
+        return {};
+
     switch (role)
     {
     case TitleRole:
-        return d->m_items[index.row()].getTitle();
+        return d->m_items[row].getTitle();
     case IsCurrentRole:
-        return index.row() != -1 && index.row() == d->m_current;
+        return row == d->m_current;
     case DurationRole:
     {
-        int64_t t_sec = SEC_FROM_VLC_TICK(d->m_items[index.row()].getDuration());
+        int64_t t_sec = SEC_FROM_VLC_TICK(d->m_items[row].getDuration());
         int sec = t_sec % 60;
         int min = (t_sec / 60) % 60;
         int hour = t_sec / 3600;
@@ -394,6 +401,12 @@ PlaylistListModel::data(const QModelIndex &index, int role) const
                     .arg(min, 2, 10, QChar('0'))
                     .arg(sec, 2, 10, QChar('0'));
     }
+    case ArtistRole:
+        return d->m_items[row].getArtist();
+    case AlbumRole:
+        return d->m_items[row].getAlbum();
+    case ArtworkRole:
+        return d->m_items[row].getArtwork();
     default:
         return {};
     }

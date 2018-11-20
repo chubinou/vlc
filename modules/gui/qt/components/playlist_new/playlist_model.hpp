@@ -45,6 +45,9 @@ public:
         TitleRole = Qt::UserRole,
         DurationRole,
         IsCurrentRole,
+        ArtistRole,
+        AlbumRole,
+        ArtworkRole
     };
 
     PlaylistListModel(QObject *parent = nullptr);
