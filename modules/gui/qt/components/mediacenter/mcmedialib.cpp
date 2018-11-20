@@ -132,7 +132,7 @@ void MCMediaLib::addAndPlay(const MLParentId & itemId )
         input_item_t* item = vlc_ml_get_input_item( m_ml, itemId.id );
         if (item) {
             QVector<vlc::playlist::Media> medias = { vlc::playlist::Media(item) };
-            m_intf->p_sys->p_mainPlaylistControler->append(medias, false);
+            m_intf->p_sys->p_mainPlaylistControler->append(medias, true);
         }
     }
     else
