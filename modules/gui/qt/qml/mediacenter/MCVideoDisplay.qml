@@ -88,6 +88,22 @@ Utils.NavigableFocusScope {
             medialib.addAndPlay( list )
         }
     }
+
+    /*
+     *define the intial position/selection
+     * This is done on activeFocus rather than Component.onCompleted because delegateModel.
+     * selectedGroup update itself after this event
+     */
+    onActiveFocusChanged: {
+        if (activeFocus && delegateModel.items.count > 0 && delegateModel.selectedGroup.count === 0) {
+            var initialIndex = 0
+            if (view.currentItem.currentIndex !== -1)
+                initialIndex = view.currentItem.currentIndex
+            delegateModel.items.get(initialIndex).inSelected = true
+            view.currentItem.currentIndex = initialIndex
+        }
+    }
+
     Component {
         id: gridComponent
 

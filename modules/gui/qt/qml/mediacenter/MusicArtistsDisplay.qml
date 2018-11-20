@@ -41,9 +41,9 @@ Utils.NavigableFocusScope {
     property int currentArtistIndex: -1
     onCurrentArtistIndexChanged: {
         if (currentArtistIndex == -1)
-            mainView.replace(artistGridComponent)
+            view.replace(artistGridComponent)
         else
-            mainView.replace(albumComponent)
+            view.replace(albumComponent)
     }
     property var artistId: null
 
@@ -98,7 +98,7 @@ Utils.NavigableFocusScope {
                 title: model.name || "Unknown Artist"
                 selected: element.DelegateModel.inSelected
 
-                //shiftX: mainView.currentItem.shiftX(index)
+                //shiftX: view.currentItem.shiftX(index)
 
                 onItemClicked: {
                     delegateModel.updateSelection( modifier , artistList.currentIndex, index)
@@ -152,6 +152,21 @@ Utils.NavigableFocusScope {
                 root.currentArtistIndex = index
                 artistList.currentIndex = index
             }
+        }
+    }
+
+    /*
+     *define the intial position/selection
+     * This is done on activeFocus rather than Component.onCompleted because delegateModel.
+     * selectedGroup update itself after this event
+     */
+    onActiveFocusChanged: {
+        if (activeFocus && delegateModel.items.count > 0 && delegateModel.selectedGroup.count === 0) {
+            var initialIndex = 0
+            if (view.currentItem.currentIndex !== -1)
+                initialIndex = view.currentItem.currentIndex
+            delegateModel.items.get(initialIndex).inSelected = true
+            view.currentItem.currentIndex = initialIndex
         }
     }
 
@@ -240,7 +255,7 @@ Utils.NavigableFocusScope {
             onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
             onActionAtIndex: delegateModel.actionAtIndex(index)
 
-            onActionRight:  mainView.focus = true
+            onActionRight:  view.focus = true
             onActionLeft: root.actionLeft(index)
             onActionUp: root.actionUp(index)
             onActionDown: root.actionDown(index)
@@ -248,7 +263,7 @@ Utils.NavigableFocusScope {
         }
 
         StackView {
-            id: mainView
+            id: view
             width: parent.width * 0.75
             height: parent.height
             focus: true
