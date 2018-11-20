@@ -219,6 +219,17 @@ Utils.NavigableFocusScope {
                 fct(index)
             }
         }
+
+        Connections {
+            target: root.plmodel
+            onCurrentIndexChanged: {
+                var plIndex = root.plmodel.currentIndex
+                if (view.currentIndex === -1 && plIndex >= 0) {
+                    delegateModel.items.get(plIndex).inSelected = true
+                    view.currentIndex = plIndex
+                }
+            }
+        }
     }
 
     Label {
