@@ -118,6 +118,17 @@ Utils.NavigableFocusScope {
                 onAddToPlaylistClicked : medialib.addToPlaylist( model.id )
             }
         }
+
+        function actionAtIndex(index) {
+            if (delegateModel.selectedGroup.count > 1) {
+                var list = []
+                for (var i = 0; i < delegateModel.selectedGroup.count; i++)
+                    list.push(delegateModel.selectedGroup.get(i).model.id)
+                medialib.addAndPlay( list )
+            } else {
+                medialib.addAndPlay( delegateModel.selectedGroup.get(0).model.id )
+            }
+        }
     }
 
     Component {
@@ -168,13 +179,10 @@ Utils.NavigableFocusScope {
             modelCount: delegateModel.items.count
 
             onActionAtIndex: {
-                if (delegateModel.selectedGroup.count > 1) {
-                    var list = []
-                    for (var i = 0; i < delegateModel.selectedGroup.count; i++)
-                        list.push(delegateModel.selectedGroup.get(i).model.id)
-                    medialib.addAndPlay( list )
-                } else {
+                if (delegateModel.selectedGroup.count === 1) {
                     view._switchExpandItem(index)
+                } else {
+                    delegateModel.actionAtIndex(index)
                 }
             }
             onSelectAll: delegateModel.selectAll()
@@ -201,6 +209,7 @@ Utils.NavigableFocusScope {
             model: delegateModel.parts.list
             modelCount: delegateModel.items.count
 
+            onActionAtIndex: delegateModel.actionAtIndex(index)
             onSelectAll: delegateModel.selectAll()
             onSelectionUpdated: delegateModel.updateSelection( keyModifiers, oldIndex, newIndex )
 
