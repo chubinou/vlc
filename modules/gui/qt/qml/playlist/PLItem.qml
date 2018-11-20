@@ -103,7 +103,7 @@ Rectangle {
                 Layout.preferredWidth: VLCStyle.icon_normal
 
                 fillMode: Image.PreserveAspectFit
-                source: VLCStyle.noArtCover
+                source: (model.artwork && model.artwork.toString()) ? model.artwork : VLCStyle.noArtCover
             }
 
             Image {
