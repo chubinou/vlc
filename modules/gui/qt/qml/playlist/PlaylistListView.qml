@@ -82,7 +82,6 @@ Utils.NavigableFocusScope {
         model: root.plmodel
 
         property string mode: "normal"
-        onModeChanged: console.log("delegate mode changed to", mode)
 
         delegate: Package {
             id: element
@@ -119,7 +118,6 @@ Utils.NavigableFocusScope {
             for (var i = 0; i < delegateModel.selectedGroup.count; i++ ) {
                 list.push(delegateModel.selectedGroup.get(i).itemsIndex)
             }
-            console.log("move", list, "to", target)
             root.plmodel.moveItems(list, target)
         }
 
@@ -132,7 +130,6 @@ Utils.NavigableFocusScope {
             for (var i = 0; i < delegateModel.selectedGroup.count; i++ ) {
                 list.push(delegateModel.selectedGroup.get(i).itemsIndex)
             }
-            console.log("delete", list)
             root.plmodel.removeItems(list)
         }
 
@@ -150,7 +147,6 @@ Utils.NavigableFocusScope {
 
         function onUpdateIndex( keyModifiers, oldIndex, newIndex )
         {
-            console.log("onUpdateIndex", oldIndex, newIndex)
             if (delegateModel.mode === "select") {
                 console.log("update selection select")
             } else if (delegateModel.mode === "move") {
@@ -174,11 +170,9 @@ Utils.NavigableFocusScope {
                     newIndex = Math.max(minIndex - 1, 0)
                 }
 
-                console.log("move", list, "to", newIndex)
                 root.plmodel.moveItems(list, newIndex)
 
             } else  { //normal
-                console.log("update selection regular")
                 updateSelection( keyModifiers, oldIndex, newIndex )
             }
         }
@@ -227,6 +221,15 @@ Utils.NavigableFocusScope {
                 if (view.currentIndex === -1 && plIndex >= 0) {
                     delegateModel.items.get(plIndex).inSelected = true
                     view.currentIndex = plIndex
+                }
+            }
+        }
+        Connections {
+            target: delegateModel.items
+            onCountChanged: {
+                if (view.currentIndex === -1 && delegateModel.items.count > 0) {
+                    delegateModel.items.get(0).inSelected = true
+                    view.currentIndex = 0
                 }
             }
         }
