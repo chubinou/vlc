@@ -31,7 +31,7 @@ FocusScope {
         } else if (event.key === Qt.Key_Left || event.matches(StandardKey.MoveToPreviousChar) ) {
             actionLeft( index )
             event.accepted = true
-        } else if ( event.matches(StandardKey.Back) || event.matches(StandardKey.Cancel)) {
+        } else if ( event.key === Qt.Key_Back || event.key === Qt.Key_Cancel || event.matches(StandardKey.Back) || event.matches(StandardKey.Cancel)) {
             actionCancel( index )
             event.accepted = true
         }
