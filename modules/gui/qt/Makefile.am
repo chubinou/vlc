@@ -514,6 +514,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/controlbar/AudioSubMenu.qml \
 	gui/qt/qml/controlbar/TrackSelector.qml \
 	gui/qt/qml/controlbar/ControlBar.qml \
+	gui/qt/qml/controlbar/ModalControlBar.qml \
 	gui/qt/qml/controlbar/SliderBar.qml \
 	gui/qt/qml/controlbar/VideoControler.qml \
 	gui/qt/qml/controlbar/AudioController.qml \

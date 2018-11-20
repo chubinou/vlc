@@ -61,7 +61,7 @@ Utils.NavigableFocusScope {
 
             TrackInfo {
                 anchors.left: parent.left
-                anchors.right: centerbuttons
+                anchors.right: centerbuttons.left
                 anchors.top: parent.top
                 anchors.bottom: parent.bottom
             }

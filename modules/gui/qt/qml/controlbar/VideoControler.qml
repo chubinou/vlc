@@ -19,23 +19,11 @@ Utils.NavigableFocusScope {
         anchors.fill: parent
         color: VLCStyle.colors.setColorAlpha(VLCStyle.colors.banner, 0.9)
 
-        ControlBar {
-            id: controlbar
+        ModalControlBar {
             anchors.fill: parent
             focus: true
-            onShowTrackBar: {
-                root.state = "tracks"
-            }
             onActionCancel: {
                 root.state = "hidden"
-            }
-        }
-
-        TrackSelector {
-            id: trackbar
-            anchors.fill: parent
-            onActionCancel: {
-                root.state = "control"
             }
         }
     }
@@ -45,42 +33,9 @@ Utils.NavigableFocusScope {
     states: [
         State {
             name: "hidden"
-            PropertyChanges {
-                target: controlbar
-                visible: false
-                focus: false
-            }
-            PropertyChanges {
-                target: trackbar
-                visible: false
-                focus: false
-            }
         },
         State {
             name: "control"
-            PropertyChanges {
-                target: controlbar
-                visible: true
-                focus: true
-            }
-            PropertyChanges {
-                target: trackbar
-                visible: false
-                focus: false
-            }
-        },
-        State {
-            name: "tracks"
-            PropertyChanges {
-                target: controlbar
-                visible: false
-                focus: false
-            }
-            PropertyChanges {
-                target: trackbar
-                visible: true
-                focus: true
-            }
         }
     ]
     onStateChanged: {

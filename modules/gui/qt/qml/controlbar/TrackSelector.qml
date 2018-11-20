@@ -16,7 +16,7 @@ Utils.NavigableFocusScope {
 
         Row {
             focus:  true
-            spacing: VLCStyle.maring_small
+            spacing: VLCStyle.margin_small
             opacity: 1.0 - Math.abs(Tumbler.displacement) / (Tumbler.tumbler.visibleItemCount / 2)
             height: VLCStyle.fontHeight_large + VLCStyle.margin_small
 
