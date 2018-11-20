@@ -242,7 +242,7 @@ Utils.NavigableFocusScope {
         anchors.fill: parent
         focus: true
 
-        initialItem: gridComponent
+        initialItem: medialib.gridView ? gridComponent : listComponent
 
         replaceEnter: Transition {
             PropertyAnimation {
