@@ -178,7 +178,6 @@
         <file alias="NavigableFocusScope.qml">qml/utils/NavigableFocusScope.qml</file>
         <file alias="ImageToolButton.qml">qml/utils/ImageToolButton.qml</file>
         <file alias="NetworkListItem.qml">qml/utils/NetworkListItem.qml</file>
-        <file alias="BackButton.qml">qml/utils/BackButton.qml</file>
         <file alias="TextToolButton.qml">qml/utils/TextToolButton.qml</file>
         <file alias="IconToolButton.qml">qml/utils/IconToolButton.qml</file>
     </qresource>

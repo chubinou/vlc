@@ -48,15 +48,12 @@ Utils.NavigableFocusScope {
         }
     }
 
-    Utils.ImageToolButton {
+    Utils.IconToolButton {
         id: back
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
-
-        width: VLCStyle.icon_large
-        height: VLCStyle.icon_large
-
-        imageSource: "qrc:///menu/exit.svg"
+        size: VLCStyle.icon_large
+        text: VLCIcons.exit
         onClicked: root.actionCancel(0)
         KeyNavigation.right: trackTypeTumbler
     }

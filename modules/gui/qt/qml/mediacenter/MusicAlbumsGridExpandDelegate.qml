@@ -95,28 +95,30 @@ Utils.NavigableFocusScope {
                         right: parent.right
                     }
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: addButton
                         focus: true
 
                         Layout.preferredWidth: VLCStyle.icon_normal
                         Layout.preferredHeight: VLCStyle.icon_normal
+                        size: VLCStyle.icon_normal
                         Layout.alignment: Qt.AlignHCenter
 
-                        imageSource: "qrc:///buttons/playlist/playlist_add.svg"
+                        text: VLCIcons.add
 
                         onClicked: medialib.addToPlaylist(model.id)
 
                         KeyNavigation.right: playButton
                     }
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: playButton
 
                         Layout.preferredWidth: VLCStyle.icon_normal
                         Layout.preferredHeight: VLCStyle.icon_normal
                         Layout.alignment: Qt.AlignHCenter
+                        size: VLCStyle.icon_normal
 
-                        imageSource: "qrc:///toolbar/play_b.svg"
+                        text: VLCIcons.play
 
                         onClicked: medialib.addAndPlay(model.id)
 

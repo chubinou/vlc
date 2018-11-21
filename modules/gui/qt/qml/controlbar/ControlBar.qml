@@ -84,54 +84,48 @@ Utils.NavigableFocusScope {
                 RowLayout {
                     focus: true
                     anchors.fill: parent
-                    Utils.ImageToolButton {
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
+                    Utils.IconToolButton {
+                        size: VLCStyle.icon_large
                         checked: playlistCtrl.random
-                        imageSource: "qrc:///buttons/playlist/shuffle_on.svg"
+                        text: VLCIcons.shuffle_on
                         onClicked: playlistCtrl.toggleRandom()
                         KeyNavigation.right: prevBtn
                     }
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: prevBtn
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
-                        imageSource: "qrc:///toolbar/previous_b.svg"
+                        size: VLCStyle.icon_large
+                        text: VLCIcons.previous
                         onClicked: playlistCtrl.prev()
                         KeyNavigation.right: playBtn
                     }
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: playBtn
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
-                        imageSource: player.playingState === PlayerControler.PLAYING_STATE_PLAYING
-                                     ? "qrc:///toolbar/pause_b.svg"
-                                     : "qrc:///toolbar/play_b.svg"
+                        size: VLCStyle.icon_large
+                        text: player.playingState === PlayerControler.PLAYING_STATE_PLAYING
+                                     ? VLCIcons.pause
+                                     : VLCIcons.play
                         onClicked: playlistCtrl.togglePlayPause()
                         focus: true
                         KeyNavigation.right: nextBtn
                     }
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: nextBtn
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
-                        imageSource: "qrc:///toolbar/next_b.svg"
+                        size: VLCStyle.icon_large
+                        text: VLCIcons.next
                         onClicked: playlistCtrl.next()
                         KeyNavigation.right: randomBtn
                     }
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: randomBtn
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
-
+                        size: VLCStyle.icon_large
                         checked: playlistCtrl.repeatMode !== PlaylistControlerModel.PLAYBACK_REPEAT_NONE
-                        imageSource: (playlistCtrl.repeatMode == PlaylistControlerModel.PLAYBACK_REPEAT_CURRENT)
-                                     ? "qrc:///buttons/playlist/repeat_one.svg"
-                                     : "qrc:///buttons/playlist/repeat_all.svg"
+                        text: (playlistCtrl.repeatMode == PlaylistControlerModel.PLAYBACK_REPEAT_CURRENT)
+                                     ? VLCIcons.repeat_one
+                                     : VLCIcons.repeat_all
                         onClicked: playlistCtrl.toggleRepeatMode()
                         KeyNavigation.right: langBtn
                     }
@@ -155,31 +149,27 @@ Utils.NavigableFocusScope {
                     anchors.fill: parent
 
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: langBtn
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
-                        checked: playlistCtrl.random
-                        imageSource: "qrc:///toolbar/audiosub.svg"
+                        size: VLCStyle.icon_large
+                        text: VLCIcons.audiosub
                         onClicked: root.showTrackBar()
                         KeyNavigation.right: showPlaylistButton ? playlistBtn : fullscreenBtn
                     }
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: playlistBtn
                         visible: showPlaylistButton
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
-                        imageSource: "qrc:///toolbar/playlist.svg"
+                        size: VLCStyle.icon_large
+                        text: VLCIcons.playlist
                         onClicked: root.showPlaylist()
                         KeyNavigation.right: fullscreenBtn
                     }
 
-                    Utils.ImageToolButton {
+                    Utils.IconToolButton {
                         id: fullscreenBtn
-                        width: VLCStyle.icon_small
-                        height: VLCStyle.icon_small
-                        imageSource: "qrc:///menu/exit.svg"
+                        size: VLCStyle.icon_large
+                        text: VLCIcons.exit
                         onClicked: playlistCtrl.stop()
                     }
                 }

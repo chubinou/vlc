@@ -72,11 +72,10 @@ FocusScope {
                     Layout.fillHeight: true
                 }
 
-                Utils.ImageToolButton {
+                Utils.IconToolButton {
                     id: backBtn
-                    width: VLCStyle.icon_small
-                    height: VLCStyle.icon_small
-                    imageSource: "qrc:///menu/exit.svg"
+                    size: VLCStyle.icon_large
+                    text: VLCIcons.exit
                     Layout.alignment: Qt.AlignLeft | Qt.AlignBottom
                     KeyNavigation.right: textScroll
 

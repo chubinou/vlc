@@ -56,7 +56,11 @@ Utils.NavigableFocusScope {
         RowLayout {
             anchors.fill: parent
 
-            Utils.BackButton {
+            Utils.IconToolButton {
+                size: VLCStyle.icon_normal
+                text: VLCIcons.dvd_prev
+
+                focus: true
                 KeyNavigation.right: buttonView
                 onClicked: history.pop(History.Go)
             }
@@ -162,38 +166,28 @@ Utils.NavigableFocusScope {
                 }
 
                 Row {
-                Utils.ImageToolButton {
-                    id: about_selector
+                    Utils.IconToolButton {
+                        id: about_selector
 
-                    //Layout.preferredWidth: VLCStyle.icon_normal
-                    //Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
+                        size: VLCStyle.icon_normal
+                        text: VLCIcons.help
 
-                    width: VLCStyle.icon_normal
-                    height: VLCStyle.icon_normal
+                        KeyNavigation.left: buttonView
 
-                    KeyNavigation.left: buttonView
+                        onClicked: root.showAbout()
+                    }
 
-                    onClicked: root.showAbout()
+                    /* button to choose the view displayed (list or grid) */
+                    Utils.IconToolButton {
+                        id: view_selector
 
-                    imageSource: "qrc:///menu/help.svg"
-                }
+                        size: VLCStyle.icon_normal
+                        text: VLCIcons.tv
 
-                /* button to choose the view displayed (list or grid) */
-                Utils.ImageToolButton {
-                    id: view_selector
+                        KeyNavigation.left: about_selector
 
-                    width: VLCStyle.icon_normal
-                    height: VLCStyle.icon_normal
-                    //Layout.preferredHeight: VLCStyle.icon_normal
-                    //Layout.preferredWidth: VLCStyle.icon_normal
-                    Layout.alignment: Qt.AlignVCenter | Qt.AlignRight
-
-                    KeyNavigation.left: about_selector
-
-                    onClicked: root.toggleView()
-
-                    imageSource: "qrc:///toolbar/tv.svg"
-                }
+                        onClicked: root.toggleView()
+                    }
                 }
             }
         }
