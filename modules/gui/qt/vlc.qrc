@@ -95,6 +95,7 @@
         <file alias="search_clear.svg">pixmaps/search_clear.svg</file>
         <file alias="dropzone.svg">pixmaps/playlist/dropzone.svg</file>
         <file alias="valid.svg">pixmaps/valid.svg</file>
+        <file alias="VLCIcons.ttf">pixmaps/VLCIcons.ttf</file>
     </qresource>
     <qresource prefix="/prefsmenu">
         <file alias="cone_audio_64.png">pixmaps/prefs/spref_cone_Audio_64.png</file>
@@ -203,6 +204,7 @@
         <file alias="qmldir">qml/style/qmldir</file>
         <file alias="VLCStyle.qml">qml/style/VLCStyle.qml</file>
         <file alias="VLCColors.qml">qml/style/VLCColors.qml</file>
+        <file alias="VLCIcons.qml">qml/style/VLCIcons.qml</file>
     </qresource>
     <qresource prefix="/playlist">
         <file alias="PLItem.qml">qml/playlist/PLItem.qml</file>

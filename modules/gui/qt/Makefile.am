@@ -375,6 +375,7 @@ EXTRA_DIST += $(libqt_plugin_la_UI)
 # Resources
 
 libqt_plugin_la_RES = \
+	gui/qt/pixmaps/VLCIcons.ttf \
 	gui/qt/pixmaps/clear.svg \
 	gui/qt/pixmaps/eject.svg \
 	gui/qt/pixmaps/faster.svg \
@@ -555,6 +556,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/playlist/PLItemFooter.qml \
 	gui/qt/qml/playlist/PlaylistMenu.qml \
 	gui/qt/qml/style/qmldir \
+	gui/qt/qml/style/VLCIcons.qml \
 	gui/qt/qml/style/VLCStyle.qml \
 	gui/qt/qml/style/VLCColors.qml
 
