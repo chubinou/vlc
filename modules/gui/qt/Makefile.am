@@ -525,6 +525,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/utils/ToolTipArea.qml \
 	gui/qt/qml/utils/ExpandGridView.qml \
 	gui/qt/qml/utils/GridItem.qml \
+	gui/qt/qml/utils/IconToolButton.qml \
 	gui/qt/qml/utils/ImageToolButton.qml \
 	gui/qt/qml/utils/TextToolButton.qml \
 	gui/qt/qml/utils/ListItem.qml \
