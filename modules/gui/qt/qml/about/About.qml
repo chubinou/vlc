@@ -25,7 +25,7 @@ FocusScope {
 
         Rectangle {
 
-            Layout.preferredWidth: 100
+            Layout.preferredWidth: columnLayout.implicitWidth
             Layout.fillHeight: true
             color: VLCStyle.colors.banner
 
@@ -120,7 +120,6 @@ FocusScope {
                     }
                 }
 
-                ScrollBar.vertical: ScrollBar { }
                 clip: true
 
                 Text {
@@ -130,6 +129,7 @@ FocusScope {
                     anchors.fill: parent
                     Layout.fillHeight: true
                     Layout.fillWidth: true
+                    Layout.alignment: Qt.AlignHCenter
 
                     color: VLCStyle.colors.text
                     enabled: false
