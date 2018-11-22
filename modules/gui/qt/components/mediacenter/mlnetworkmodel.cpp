@@ -233,7 +233,8 @@ void MLNetworkModel::onItemRemoved( input_item_t* p_item )
             return i.mrl == p_item->psz_uri;
         });
         input_item_Release( p_item );
-        assert( it != end( m_items ) );
+        if ( it == end( m_items ) )
+            return;
         auto idx = std::distance( begin( m_items ), it );
         beginRemoveRows({}, idx, idx );
         m_items.erase( it );
