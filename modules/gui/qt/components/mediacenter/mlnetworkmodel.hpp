@@ -49,7 +49,10 @@ public:
     };
     Q_ENUM( ItemType );
 
-    MLNetworkModel( QmlMainContext* ctx, QString parentMrl, QObject* parent = nullptr);
+    //Q_PROPERTY(MLNetworkContext context READ getContext WRITE setContext NOTIFY contextChanged)
+
+    explicit MLNetworkModel(QObject* parent = nullptr);
+    MLNetworkModel( QmlMainContext* ctx, QString parentMrl, QObject* parent = nullptr );
 
     QVariant data(const QModelIndex& index, int role) const override;
     QHash<int, QByteArray> roleNames() const override;
@@ -58,12 +61,14 @@ public:
     Qt::ItemFlags flags( const QModelIndex& idx ) const override;
     bool setData( const QModelIndex& idx,const QVariant& value, int role ) override;
 
+    Q_INVOKABLE void setContext(QmlMainContext* ctx, QString parentMrl);
+
 private:
     struct Item
     {
-        std::string name;
-        std::string mrl;
-        std::string protocol;
+        QString name;
+        QString mrl;
+        QString protocol;
         bool indexed;
         ItemType type;
         bool canBeIndexed;
@@ -97,27 +102,17 @@ private:
                               void *data );
     static bool canBeIndexed( const char* psz_mrl );
 
+signals:
+    void contextChanged();
+
 private:
     std::vector<Item> m_items;
     std::unique_ptr<vlc_ml_entry_point_list_t, decltype(&vlc_ml_entry_point_list_release)> m_entryPoints;
-    QmlMainContext* m_ctx;
-    const QString m_parentMrl;
+    QmlMainContext* m_ctx = nullptr;
+    QString m_parentMrl;
     using SdPtr = std::unique_ptr<services_discovery_t, decltype(&vlc_sd_Destroy)>;
     std::vector<SdPtr> m_sds;
     std::unique_ptr<input_thread_t, decltype(&input_Close)> m_input;
 };
-
-
-struct MLNetworkModelFactory : public QObject
-{
-    Q_OBJECT
-public:
-    explicit MLNetworkModelFactory(QObject* parent = nullptr) : QObject(parent) {}
-    Q_INVOKABLE MLNetworkModel* create( QmlMainContext* ctx, QString parentMrl )
-    {
-        return new MLNetworkModel( ctx, parentMrl );
-    }
-};
-
 
 #endif // MLNETWORKMODEL_HPP

@@ -28,8 +28,6 @@ import "qrc:///utils/" as Utils
 import "qrc:///style/"
 
 Utils.ListItem {
-    property string _mrl: model.mrl
-
     width: root.width
     height: VLCStyle.icon_normal
 
@@ -43,22 +41,20 @@ Utils.ListItem {
         source: "qrc:///type/file-asym.svg"
     }
     line1: model.name || qsTr("Unknown share")
-    line2: _mrl
-
+    line2: model.mrl
 
     onItemClicked : {
-        delegateModel.updateSelection( modifier, view.currentItem.currentIndex, index )
-        view.currentItem.currentIndex = index
+        delegateModel.updateSelection( modifier, view.currentIndex, index )
+        view.currentIndex = index
         this.forceActiveFocus()
     }
     onItemDoubleClicked: {
-        console.log( "Playing ", _mrl );
-        medialib.addAndPlay( _mrl )
+        medialib.addAndPlay( model.mrl )
     }
     onPlayClicked: {
-        medialib.addAndPlay( _mrl )
+        medialib.addAndPlay( model.mrl )
     }
     onAddToPlaylistClicked: {
-        medialib.addToPlaylist( _mrl );
+        medialib.addToPlaylist( model.mrl );
     }
 }

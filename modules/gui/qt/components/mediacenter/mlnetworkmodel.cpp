@@ -35,22 +35,17 @@ enum Role {
 
 }
 
-MLNetworkModel::MLNetworkModel( QmlMainContext* ctx, QString parentMrl, QObject* parent )
+MLNetworkModel::MLNetworkModel( QObject* parent )
     : QAbstractListModel( parent )
     , m_entryPoints( nullptr, &vlc_ml_entry_point_list_release )
-    , m_ctx( ctx )
-    , m_parentMrl( parentMrl )
     , m_input( nullptr, &input_Close )
 {
-    initializeKnownEntrypoints();
-    if ( parentMrl.isEmpty() )
-        initializeDeviceDiscovery();
-    else
-        initializeFolderDiscovery();
 }
 
 QVariant MLNetworkModel::data( const QModelIndex& index, int role ) const
 {
+    if (!m_ctx)
+        return {};
     auto idx = index.row();
     if ( idx < 0 || (size_t)idx >= m_items.size() )
         return {};
@@ -58,17 +53,17 @@ QVariant MLNetworkModel::data( const QModelIndex& index, int role ) const
     switch ( role )
     {
         case NETWORK_NAME:
-            return QVariant::fromValue( QString::fromStdString( item.name ) );
+            return item.name;
         case NETWORK_MRL:
-            return QVariant::fromValue( QString::fromStdString( item.mrl ) );
+            return item.mrl;
         case NETWORK_INDEXED:
-            return QVariant::fromValue( item.indexed );
+            return item.indexed;
         case NETWORK_CANINDEX:
-            return QVariant::fromValue( item.canBeIndexed );
+            return item.canBeIndexed;
         case NETWORK_TYPE:
-            return QVariant::fromValue( item.type );
+            return item.type;
         case NETWORK_PROTOCOL:
-            return QVariant::fromValue( QString::fromStdString( item.protocol ) );
+            return item.protocol;
         default:
             return {};
     }
@@ -101,20 +96,39 @@ Qt::ItemFlags MLNetworkModel::flags( const QModelIndex& idx ) const
 
 bool MLNetworkModel::setData( const QModelIndex& idx, const QVariant& value, int role )
 {
+    if (!m_ctx)
+        return false;
+
     if ( role != NETWORK_INDEXED )
         return false;
     auto ml = vlc_ml_instance_get( m_ctx->getIntf() );
     assert( ml != nullptr );
     auto enabled = value.toBool();
     assert( m_items[idx.row()].indexed != enabled );
-    auto mrl = m_items[idx.row()].mrl.c_str();
+    QString mrl = m_items[idx.row()].mrl;
     int res;
     if ( enabled )
-        res = vlc_ml_add_folder( ml, mrl );
+        res = vlc_ml_add_folder( ml, qtu(mrl) );
     else
-        res = vlc_ml_remove_folder( ml, mrl );
+        res = vlc_ml_remove_folder( ml, qtu(mrl) );
     m_items[idx.row()].indexed = enabled;
+    emit dataChanged(idx, idx, { NETWORK_INDEXED });
     return res == VLC_SUCCESS;
+}
+
+void MLNetworkModel::setContext(QmlMainContext* ctx, QString parentMrl)
+{
+
+    assert(!m_ctx);
+    if (ctx) {
+        m_ctx = ctx;
+        m_parentMrl = parentMrl;
+        initializeKnownEntrypoints();
+        if ( m_parentMrl.isEmpty() )
+            initializeDeviceDiscovery();
+        else
+            initializeFolderDiscovery();
+    }
 }
 
 bool MLNetworkModel::initializeKnownEntrypoints()
@@ -188,15 +202,14 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
     assert( parent == nullptr );
 
     Item item;
-    item.mrl = p_item->psz_uri;
-    item.name = p_item->psz_name;
+    item.mrl = qfu(p_item->psz_uri);
+    item.name = qfu(p_item->psz_name);
     item.indexed = false;
     item.canBeIndexed = canBeIndexed( p_item->psz_uri );
     item.type = TYPE_SHARE;
     auto protocolEnd = strchr( p_item->psz_uri, ':' );
     if ( protocolEnd != nullptr )
-        item.protocol = std::string{ p_item->psz_uri, 0,
-                (size_t)(protocolEnd - p_item->psz_uri) };
+        item.protocol = QString::fromUtf8( p_item->psz_uri, (size_t)(protocolEnd - p_item->psz_uri ) );
     if ( *item.mrl.crbegin() != '/' )
         item.mrl += '/';
     if ( m_entryPoints != nullptr )
@@ -204,7 +217,7 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
         for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
         {
             if ( ep.b_present && ep.b_banned == false &&
-                 strcasecmp( ep.psz_mrl, item.mrl.c_str() ) == 0 )
+                 strcasecmp( ep.psz_mrl, qtu(item.mrl) ) == 0 )
             {
                 item.indexed = true;
                 break;
@@ -268,7 +281,7 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
             for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
             {
                 if ( ep.b_present && ep.b_banned == false &&
-                     strncasecmp( ep.psz_mrl, item.mrl.c_str(), strlen(ep.psz_mrl) ) == 0 )
+                     strncasecmp( ep.psz_mrl, qtu(item.mrl), strlen(ep.psz_mrl) ) == 0 )
                 {
                     item.indexed = true;
                     break;

@@ -90,9 +90,9 @@ PlaylistWidget::PlaylistWidget( intf_thread_t *_p_i, QWidget *_par )
         qmlRegisterType<MLAlbumTrackModel>( "org.videolan.medialib", 0, 1, "MLAlbumTrackModel" );
         qmlRegisterType<MLGenreModel>( "org.videolan.medialib", 0, 1, "MLGenreModel" );
         qmlRegisterType<MLVideoModel>( "org.videolan.medialib", 0, 1, "MLVideoModel" );
-        qmlRegisterUncreatableType<MLNetworkModel>( "org.videolan.medialib", 0, 1,
-            "MLNetworkModel", "Use the model factory to create this type" );
-        rootCtx->setContextProperty( "networkModelFactory", new MLNetworkModelFactory(this) );
+        //qRegisterMetaType<MLNetworkContext>();
+        //qmlRegisterType<MLNetworkContext>( "org.videolan.medialib", 0, 1, "MLNetworkContext");
+        qmlRegisterType<MLNetworkModel>( "org.videolan.medialib", 0, 1, "MLNetworkModel");
         //expose base object, they aren't instanciable from QML side
         qmlRegisterType<MLAlbum>();
         qmlRegisterType<MLArtist>();

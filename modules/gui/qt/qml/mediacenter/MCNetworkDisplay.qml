@@ -36,7 +36,12 @@ Utils.NavigableFocusScope {
 
     Utils.SelectableDelegateModel {
         id: delegateModel
-        model: networkModelFactory.create(mainctx, mrl)
+
+        model:  MLNetworkModel {
+            Component.onCompleted: {
+                setContext(mainctx, root.mrl)
+            }
+        }
 
         delegate: Package {
             id: element
@@ -52,22 +57,22 @@ Utils.NavigableFocusScope {
             if ( delegateModel.selectedGroup.count > 1 ) {
                 var list = []
                 for (var i = 0; i < delegateModel.selectedGroup.count; i++) {
-                    var itemModel = delegateModel.selectedGroup.get(i).model;
-                    if (itemModel.type == MLNetworkModel.TYPE_FILE)
-                        list.push(itemModel.mrl)
+                    var type = delegateModel.selectedGroup.get(i).model.type;
+                    var mrl = delegateModel.selectedGroup.get(i).model.mrl;
+                    if (type == MLNetworkModel.TYPE_FILE)
+                        list.push(mrl)
                 }
                 medialib.addAndPlay( list )
-            } else if (delegateModel.selectedGroup.count === 1) {
-                var itemModel = delegateModel.selectedGroup.get(0).model;
-                if (itemModel.type != MLNetworkModel.TYPE_FILE) {
+            } else {
+                if (type != delegateModel.items.get(index).model.type) {
                     history.push({
                         view: "network",
                         viewProperties: {
-                            mrl: itemModel.mrl
+                            mrl: delegateModel.items.get(index).model.mrl
                          },
                     }, History.Go);
                 } else {
-                    medialib.addAndPlay( itemModel.mrl );
+                    medialib.addAndPlay( mrl );
                 }
             }
         }

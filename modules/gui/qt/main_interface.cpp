@@ -330,8 +330,8 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterType<MLAlbumTrackModel>( "org.videolan.medialib", 0, 1, "MLAlbumTrackModel" );
     qmlRegisterType<MLGenreModel>( "org.videolan.medialib", 0, 1, "MLGenreModel" );
     qmlRegisterType<MLVideoModel>( "org.videolan.medialib", 0, 1, "MLVideoModel" );
-    qmlRegisterUncreatableType<MLNetworkModel>( "org.videolan.medialib", 0, 1,
-        "MLNetworkModel", "Use the model factory to create this type" );
+    qmlRegisterType<MLNetworkModel>( "org.videolan.medialib", 0, 1, "MLNetworkModel");
+
     //expose base object, they aren't instanciable from QML side
     qmlRegisterType<MLAlbum>();
     qmlRegisterType<MLArtist>();
@@ -372,7 +372,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     mediacenterView = new QQuickWidget();
     QQmlContext *rootCtx = mediacenterView->rootContext();
     rootCtx->setContextProperty( "medialib", medialib );
-    rootCtx->setContextProperty( "networkModelFactory", new MLNetworkModelFactory(this) );
     rootCtx->setContextProperty( "history", navigation_history );
     rootCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
     rootCtx->setContextProperty( "mainctx", mainCtx);

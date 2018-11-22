@@ -27,8 +27,8 @@ import org.videolan.medialib 0.1
 import "qrc:///utils/" as Utils
 import "qrc:///style/"
 
-Utils.NetworkListItem {
-    property string _mrl: model.mrl
+Utils.ListItem {
+    id: item
 
     width: root.width
     height: VLCStyle.icon_normal
@@ -44,23 +44,35 @@ Utils.NetworkListItem {
             "qrc:///type/network.svg" : "qrc:///type/directory.svg";
     }
     line1: model.name || qsTr("Unknown share")
-    line2: model.protocol
-
+    line2: model.protocol + " / " + model.mrl
 
     onItemClicked : {
-        delegateModel.updateSelection( modifier, view.currentItem.currentIndex, index )
-        view.currentItem.currentIndex = index
+        delegateModel.updateSelection( modifier, view.currentIndex, index )
+        view.currentIndex = index
         this.forceActiveFocus()
     }
     onItemDoubleClicked: {
         history.push({
             view: "network",
             viewProperties: {
-                mrl: _mrl
+                mrl: model.mrl
              },
         }, History.Go)
     }
-    onIndexClicked: {
-        model.indexed = !model.indexed;
+
+    Component {
+        id: actionAdd
+        Utils.IconToolButton {
+            size: VLCStyle.icon_normal
+            text: model.indexed ? VLCIcons.remove : VLCIcons.add
+
+            focus: true
+
+            highlightColor: activeFocus ? VLCStyle.colors.buttonText : "transparent"
+
+            onClicked: model.indexed = !model.indexed
+        }
     }
+
+    actionButtons: model.can_index ? [actionAdd] : []
 }
