@@ -9,8 +9,6 @@ import "qrc:///utils/" as Utils
 Utils.NavigableFocusScope {
     id: root
 
-
-
     Component {
         id: delegateComponent
 
@@ -101,7 +99,6 @@ Utils.NavigableFocusScope {
         delegate: delegateComponent
         Keys.forwardTo: [trackTumble.currentItem]
     }
-
 
     Keys.onPressed: defaultKeyAction(event, 0)
 }

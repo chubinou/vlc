@@ -19,6 +19,8 @@ Utils.NavigableFocusScope {
     Keys.priority: Keys.AfterItem
     Keys.onPressed: defaultKeyAction(event, 0)
 
+    onActionCancel: playlistCtrl.stop()
+
     PlaylistControlerModel {
         id: playlistCtrl
         playlistPtr: mainctx.playlist

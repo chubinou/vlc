@@ -6,10 +6,9 @@ import org.videolan.vlc 0.1
 import "qrc:///style/"
 import "qrc:///utils/" as Utils
 
-FocusScope {
+Utils.NavigableFocusScope {
     id: root
     property alias columnLayout: columnLayout
-    signal actionCancel()
 
     AboutModel {
         id: about
@@ -138,4 +137,6 @@ FocusScope {
         }
     }
 
+    Keys.priority: Keys.AfterItem
+    Keys.onPressed: defaultKeyAction(event, 0)
 }
