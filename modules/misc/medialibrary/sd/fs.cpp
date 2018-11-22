@@ -201,7 +201,10 @@ SDFileSystemFactory::onDeviceAdded(input_item_t *media)
                     return uuid == device->uuid();
                 });
         if (it != devices.cend())
+        {
+            (*it)->setPresent( true );
             return; /* already exists */
+        }
 
         auto device = std::make_shared<SDDevice>(media->psz_uri);
         devices.push_back(device);
