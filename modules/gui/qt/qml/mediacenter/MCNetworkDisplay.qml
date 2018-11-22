@@ -46,13 +46,21 @@ Utils.NavigableFocusScope {
         delegate: Package {
             id: element
             Loader {
+                id: delegateLoader
                 focus: true
                 Package.name: "list"
                 source: model.type == MLNetworkModel.TYPE_FILE ?
                             "qrc:///mediacenter/NetworkFileDisplay.qml" :
                             "qrc:///mediacenter/NetworkDriveDisplay.qml";
             }
+            Connections {
+                target: delegateLoader.item
+                onActionLeft: root.actionLeft(0)
+                onActionRight: root.actionRight(0)
+            }
+
         }
+
         function actionAtIndex(index) {
             if ( delegateModel.selectedGroup.count > 1 ) {
                 var list = []

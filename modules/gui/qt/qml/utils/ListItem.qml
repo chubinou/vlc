@@ -126,13 +126,14 @@ NavigableFocusScope {
                     }
                 }
 
-                KeyNavigation.right: toolButtons
-                Keys.onPressed: {
-                    if (event.key === Qt.Key_Left)
-                    {
-                        event.accepted = true
-                        root.actionLeft(0)
-                    }
+                Keys.onRightPressed: {
+                    if (actionButtons.length === 0)
+                        root.actionRight(0)
+                    else
+                        toolButtons.focus = true
+                }
+                Keys.onLeftPressed: {
+                    root.actionLeft(0)
                 }
             }
 
