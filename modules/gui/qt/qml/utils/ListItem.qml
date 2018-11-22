@@ -21,11 +21,12 @@
  * 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 
-import QtQuick 2.0
+import QtQuick 2.10
+import QtQuick.Controls 2.3
 import QtQuick.Layouts 1.1
 import "qrc:///style/"
 
-Rectangle {
+NavigableFocusScope {
     id: root
     signal playClicked
     signal addToPlaylistClicked
@@ -37,82 +38,140 @@ Rectangle {
     property Component cover: Item {}
     property alias line1: line1_text.text
     property alias line2: line2_text.text
-    color: "transparent"
 
-    MouseArea {
-        id: mouse
-        anchors.fill: parent
-        hoverEnabled: true
-        onClicked: {
-            root.itemClicked(mouse.buttons, mouse.modifiers);
-        }
-        onDoubleClicked: {
-            root.itemDoubleClicked(mouse.buttons, mouse.modifiers);
+    property alias color: linerect.color
+
+    Component {
+        id: actionAdd
+        IconToolButton {
+            size: VLCStyle.icon_normal
+            text: VLCIcons.add
+
+            focus: true
+
+            highlightColor: activeFocus ? VLCStyle.colors.buttonText : "transparent"
+
+            visible: mouse.containsMouse || root.activeFocus
+            onClicked: root.addToPlaylistClicked()
         }
     }
 
-    RowLayout {
-        anchors.fill: parent
-        Loader {
-            Layout.preferredWidth: VLCStyle.icon_normal
-            Layout.preferredHeight: VLCStyle.icon_normal
-            sourceComponent: root.cover
-        }
-        Column {
-            Text{
-                id: line1_text
-                font.bold: true
-                elide: Text.ElideRight
-                color: VLCStyle.colors.text
-                font.pixelSize: VLCStyle.fontSize_normal
-                enabled: text !== ""
-            }
-            Text{
-                id: line2_text
-                text: ""
-                elide: Text.ElideRight
-                color: VLCStyle.colors.text
-                font.pixelSize: VLCStyle.fontSize_xsmall
-                enabled: text !== ""
-            }
-        }
 
-        Item {
-            Layout.fillWidth: true
-        }
-
-        Image {
-            id: add_to_playlist_icon
-
-            width: VLCStyle.icon_small
-            height: VLCStyle.icon_small
-            Layout.alignment: Qt.AlignVCenter
-            Layout.preferredWidth: VLCStyle.icon_small
-            Layout.preferredHeight: VLCStyle.icon_small
-
-            visible: mouse.containsMouse
-            source: "qrc:///buttons/playlist/playlist_add.svg"
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.playClicked()
-            }
-        }
-
-        /* The icon to add to playlist and play */
-        Image {
+    Component {
+        id: actionPlay
+        IconToolButton {
             id: add_and_play_icon
+            size: VLCStyle.icon_normal
+            visible: mouse.containsMouse  || root.activeFocus
+            text: VLCIcons.play
 
-            width: VLCStyle.icon_small
-            height: VLCStyle.icon_small
-            Layout.alignment: Qt.AlignVCenter
-            Layout.preferredWidth: VLCStyle.icon_small
-            Layout.preferredHeight: VLCStyle.icon_small
-            Layout.rightMargin: VLCStyle.margin_large
-            visible: mouse.containsMouse
-            source: "qrc:///toolbar/play_b.svg"
-            MouseArea {
-                anchors.fill: parent
-                onClicked: root.addToPlaylistClicked()
+            focus: true
+
+            highlightColor: add_and_play_icon.activeFocus ? VLCStyle.colors.buttonText : "transparent"
+            onClicked: root.playClicked()
+        }
+    }
+
+    property var actionButtons: [ actionAdd, actionPlay ]
+
+    Rectangle {
+        id: linerect
+        anchors.fill: parent
+        color: "transparent"
+
+        MouseArea {
+            id: mouse
+            anchors.fill: parent
+            hoverEnabled: true
+            onClicked: {
+                root.itemClicked(mouse.buttons, mouse.modifiers);
+            }
+            onDoubleClicked: {
+                root.itemDoubleClicked(mouse.buttons, mouse.modifiers);
+            }
+        }
+
+        RowLayout {
+            anchors.fill: parent
+            FocusScope {
+                id: presentation
+                Layout.preferredHeight: VLCStyle.icon_normal
+                focus: true
+                Row {
+                    spacing: VLCStyle.margin_normal
+
+                    Loader {
+                        width: VLCStyle.icon_normal
+                        height: VLCStyle.icon_normal
+                        sourceComponent: root.cover
+                    }
+
+                    Column {
+                        Text{
+                            id: line1_text
+                            font.bold: true
+                            elide: Text.ElideRight
+                            color: VLCStyle.colors.text
+                            font.pixelSize: VLCStyle.fontSize_normal
+                            enabled: text !== ""
+                        }
+                        Text{
+                            id: line2_text
+                            text: ""
+                            elide: Text.ElideRight
+                            color: VLCStyle.colors.text
+                            font.pixelSize: VLCStyle.fontSize_xsmall
+                            enabled: text !== ""
+                        }
+                    }
+                }
+
+                KeyNavigation.right: toolButtons
+                Keys.onPressed: {
+                    if (event.key === Qt.Key_Left)
+                    {
+                        event.accepted = true
+                        root.actionLeft(0)
+                    }
+                }
+            }
+
+            Item {
+                Layout.fillWidth: true
+            }
+
+            FocusScope {
+                id: toolButtons
+                Layout.preferredHeight: VLCStyle.icon_normal
+                Layout.preferredWidth: toolButtonsRow.implicitWidth
+                Layout.alignment: Qt.AlignVCenter
+                property int focusIndex: 0
+                Row {
+                    id: toolButtonsRow
+                    anchors.fill: parent
+                    Repeater {
+                        id: buttons
+                        model: actionButtons
+                        delegate: Loader {
+                            sourceComponent: modelData
+                            focus: index === toolButtons.focusIndex
+                        }
+                    }
+                }
+                Keys.onLeftPressed: {
+                    if (focusIndex === 0)
+                        presentation.focus = true
+                    else {
+                        focusIndex -= 1
+                    }
+                }
+                Keys.onRightPressed: {
+                    if (focusIndex === actionButtons.length - 1)
+                        root.actionRight(0)
+                    else {
+                        focusIndex += 1
+                    }
+                }
             }
         }
     }

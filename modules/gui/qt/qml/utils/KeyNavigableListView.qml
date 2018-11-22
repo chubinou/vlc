@@ -45,6 +45,33 @@ NavigableFocusScope {
         clip: true
         ScrollBar.vertical: ScrollBar { id: scroll_id }
 
+        Connections {
+            target: view.currentItem
+            ignoreUnknownSignals: true
+            onActionRight: listview_id.actionRight(currentIndex)
+            onActionLeft: listview_id.actionLeft(currentIndex)
+            onActionDown: {
+                if ( currentIndex !== modelCount - 1 ) {
+                    var newIndex = currentIndex + 1
+                    var oldIndex = currentIndex
+                    currentIndex = newIndex
+                    selectionUpdated(0, oldIndex, newIndex)
+                } else {
+                    root.actionDown(currentIndex)
+                }
+            }
+            onActionUp: {
+                if ( currentIndex !== 0 ) {
+                    var newIndex = currentIndex - 1
+                    var oldIndex = currentIndex
+                    currentIndex = newIndex
+                    selectionUpdated(0, oldIndex, newIndex)
+                } else {
+                    root.actionUp(currentIndex)
+                }
+            }
+        }
+
         Keys.onPressed: {
             var newIndex = -1
             if ( event.key === Qt.Key_Down || event.matches(StandardKey.MoveToNextLine) ||event.matches(StandardKey.SelectNextLine) ) {
