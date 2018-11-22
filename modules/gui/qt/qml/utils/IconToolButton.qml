@@ -5,11 +5,12 @@ import "qrc:///style/"
 
 ToolButton {
     id: control
-    property var color: control.checked
+    property color color: control.checked
                         ? (control.activeFocus ? VLCStyle.colors.accent : VLCStyle.colors.bgHover )
                         : VLCStyle.colors.buttonText
     property int size: VLCStyle.icon_normal
 
+    property color highlightColor: control.activeFocus ? VLCStyle.colors.accent : VLCStyle.colors.bgHover
 
     contentItem: Label {
         text: control.text
@@ -36,7 +37,7 @@ ToolButton {
             }
             height: 2
             visible: control.activeFocus || control.checked
-            color: control.activeFocus ? VLCStyle.colors.accent : VLCStyle.colors.bgHover
+            color: control.highlightColor
         }
     }
 
