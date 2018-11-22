@@ -222,7 +222,8 @@ SDFileSystemFactory::onDeviceRemoved(input_item_t *media)
                 [&uuid](const std::shared_ptr<IDevice> &device) {
                     return uuid == device->uuid();
                 });
-        devices.erase(it, devices.end());
+        if ( it != devices.end() )
+            (*it)->setPresent( false );
     }
 
     callbacks->onDeviceUnplugged(uuid);
