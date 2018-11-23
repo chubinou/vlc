@@ -72,10 +72,10 @@ Utils.NavigableFocusScope {
                 }
                 medialib.addAndPlay( list )
             } else {
-                if (type != delegateModel.items.get(index).model.type) {
+                if (delegateModel.items.get(index).model.type != MLNetworkModel.TYPE_FILE)  {
                     history.push(["network", { mrl: delegateModel.items.get(index).model.mrl }], History.Go);
                 } else {
-                    medialib.addAndPlay( mrl );
+                    medialib.addAndPlay( delegateModel.items.get(index).model.mrl );
                 }
             }
         }
