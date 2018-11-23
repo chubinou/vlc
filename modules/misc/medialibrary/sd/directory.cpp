@@ -172,10 +172,10 @@ SDDirectory::read() const
                                 "Failed to browse network directory: "
                                 "Unknown error");
 
-    for (const InputItemPtr &media : children)
+    for (const InputItemPtr &m : children)
     {
-        const char *mrl = media.get()->psz_uri;
-        enum input_item_type_e type = media->i_type;
+        const char *mrl = m.get()->psz_uri;
+        enum input_item_type_e type = m->i_type;
         if (type == ITEM_TYPE_DIRECTORY)
             m_dirs.push_back(std::make_shared<SDDirectory>(mrl, m_fs));
         else if (type == ITEM_TYPE_FILE)
