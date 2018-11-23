@@ -146,7 +146,8 @@ request_metadata_sync(libvlc_int_t *libvlc, input_item_t *media,
 void
 SDDirectory::read() const
 {
-    input_item_t *media = input_item_New(m_mrl.c_str(), m_mrl.c_str());
+    auto media = vlc::wrap_cptr( input_item_New(m_mrl.c_str(), m_mrl.c_str()),
+                                 &input_item_Release );
     if (!media)
         throw std::bad_alloc();
 
@@ -158,7 +159,7 @@ SDDirectory::read() const
     vlc_tick_t timeout = VLC_TICK_FROM_SEC(5);
 
     enum input_item_preparse_status status =
-            request_metadata_sync(m_fs.libvlc(), media, options, timeout,
+            request_metadata_sync(m_fs.libvlc(), media.get(), options, timeout,
                                   &children);
     assert(status != ITEM_PREPARSE_SKIPPED); /* network flag enabled */
 
