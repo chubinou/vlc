@@ -222,7 +222,7 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
         if ( it != end( m_items ) )
         {
             (*it).mrls.push_back( item.mainMrl );
-            filterMainMrl( ( *it ) );
+            filterMainMrl( ( *it ), std::distance( begin( m_items ), it ) );
             return;
         }
         if ( m_entryPoints != nullptr )
@@ -341,7 +341,7 @@ bool MLNetworkModel::canBeIndexed(const char* psz_mrl)
             strncasecmp( psz_mrl, "ftp:", 4 ) == 0;
 }
 
-void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item )
+void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item , size_t itemIndex )
 {
     assert( item.mrls.empty() == false );
     if ( item.mrls.size() == 1 )
@@ -374,6 +374,8 @@ void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item )
             continue;
         item.mainMrl = mrl;
         item.canBeIndexed = canBeIndexed( qtu( mrl ) );
+        auto idx = index( static_cast<int>( itemIndex ), 0 );
+        emit dataChanged( idx, idx, { NETWORK_MRL } );
         return;
     }
     // If we can't get a cannonical name, don't attempt to index this as we

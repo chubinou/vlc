@@ -102,7 +102,7 @@ private:
     static void onInputEvent( input_thread_t* input, const vlc_input_event *event,
                               void *data );
     static bool canBeIndexed( const char* psz_mrl );
-    static void filterMainMrl( Item& item );
+    void filterMainMrl( Item& item, size_t itemIndex );
     static bool areProtocolEqual( const char* lhs, const char* rhs );
 
 signals:
