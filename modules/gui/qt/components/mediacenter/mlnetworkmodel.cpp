@@ -381,6 +381,7 @@ void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item , size_t itemInde
     // If we can't get a cannonical name, don't attempt to index this as we
     // would fail to get a unique associated device in the medialibrary
     item.canBeIndexed = false;
+    auto idx = index( static_cast<int>( itemIndex ), 0 );
     emit dataChanged( idx, idx, { NETWORK_CANINDEX } );
 }
 
