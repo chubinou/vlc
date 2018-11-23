@@ -52,12 +52,7 @@ Utils.ListItem {
         this.forceActiveFocus()
     }
     onItemDoubleClicked: {
-        history.push({
-            view: "network",
-            viewProperties: {
-                mrl: model.mrl
-             },
-        }, History.Go)
+        history.push( ["network", { mrl: model.mrl } ], History.Go)
     }
 
     Component {

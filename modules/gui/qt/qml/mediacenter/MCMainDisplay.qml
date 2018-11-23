@@ -101,10 +101,7 @@ Utils.NavigableFocusScope {
 
             onSelectedIndexChanged: {
                 stackView.replace(root.tabModel.get(selectedIndex).url)
-                history.push({
-                                 view: root.tabModel.get(selectedIndex).name,
-                                 viewProperties: {}
-                             }, History.Stay)
+                history.push([root.tabModel.get(selectedIndex).name], History.Stay)
                 stackView.focus = true
             }
 

@@ -37,15 +37,7 @@ Utils.NavigableFocusScope {
     }
 
     function goToView( parent ) {
-        history.push({
-            view: "music",
-            viewProperties: {
-                 view: "albums",
-                 viewProperties: {
-                     parentId: parent
-                 }
-             },
-        }, History.Go)
+        history.push([ "music", "albums", { parentId: parent } ], History.Go)
     }
 
     Utils.SelectableDelegateModel {
@@ -74,15 +66,7 @@ Utils.NavigableFocusScope {
                     medialib.addAndPlay( model.id )
                 }
                 onItemDoubleClicked: {
-                    history.push({
-                        view: "music",
-                        viewProperties: {
-                             view: "albums",
-                             viewProperties: {
-                                 parentId: model.id
-                             }
-                         },
-                    }, History.Go)
+                    history.push(["music", "albums", { parentId: model.id } ], History.Go)
                 }
                 onAddToPlaylistClicked: {
                     medialib.addToPlaylist( model.id );
@@ -136,15 +120,7 @@ Utils.NavigableFocusScope {
                     medialib.addAndPlay( model.id )
                 }
                 onItemDoubleClicked: {
-                    history.push({
-                        view: "music",
-                        viewProperties: {
-                             view: "albums",
-                             viewProperties: {
-                                 parentId: model.id
-                             }
-                         },
-                    }, History.Go)
+                    history.push([ "music", "albums", { parentId: model.id } ], History.Go)
                 }
                 onAddToPlaylistClicked: {
                     console.log('Clicked on addToPlaylist : '+model.name);

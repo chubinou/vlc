@@ -73,12 +73,7 @@ Utils.NavigableFocusScope {
                 medialib.addAndPlay( list )
             } else {
                 if (type != delegateModel.items.get(index).model.type) {
-                    history.push({
-                        view: "network",
-                        viewProperties: {
-                            mrl: delegateModel.items.get(index).model.mrl
-                         },
-                    }, History.Go);
+                    history.push(["network", { mrl: delegateModel.items.get(index).model.mrl }], History.Go);
                 } else {
                     medialib.addAndPlay( mrl );
                 }

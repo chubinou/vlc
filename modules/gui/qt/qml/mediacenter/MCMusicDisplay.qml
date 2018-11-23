@@ -147,13 +147,7 @@ Utils.NavigableFocusScope {
                                 }
                                 onClicked: {
                                     stackView.replace(model.url)
-                                    history.push({
-                                        view: "music",
-                                        viewProperties: {
-                                            view: model.name,
-                                            viewProperties: {}
-                                        },
-                                    }, History.Stay)
+                                    history.push(["music", model.name ], History.Stay)
                                     stackView.focus = true
                                 }
                                 checked: (model.name === root.view)

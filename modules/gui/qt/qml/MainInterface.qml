@@ -129,12 +129,6 @@ Rectangle {
 
     Component.onCompleted: {
         //set the initial view
-        history.push({
-                    view : "music",
-                    viewProperties : {
-                        view : "albums",
-                        viewProperties : {}
-                    }
-                }, History.Go)
+        history.push(["music", "album"], History.Go)
     }
 }
