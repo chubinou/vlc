@@ -44,29 +44,11 @@ Utils.NavigableFocusScope {
         }
     }
 
-    StackView {
+    Utils.StackViewExt {
         id: stack_id
         initialItem: controlbarComp_id
         anchors.fill: parent
         focus: true
-
-        replaceEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to:1
-                duration: 200
-            }
-        }
-
-        replaceExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to:0
-                duration: 200
-            }
-        }
     }
 
     state: "control"

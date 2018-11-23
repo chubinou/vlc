@@ -37,7 +37,7 @@ Utils.NavigableFocusScope {
     }
 
     function goToView( parent ) {
-        history.push([ "music", "albums", { parentId: parent } ], History.Go)
+        history.push([ "mc", "music", "albums", { parentId: parent } ], History.Go)
     }
 
     Utils.SelectableDelegateModel {
@@ -66,7 +66,7 @@ Utils.NavigableFocusScope {
                     medialib.addAndPlay( model.id )
                 }
                 onItemDoubleClicked: {
-                    history.push(["music", "albums", { parentId: model.id } ], History.Go)
+                    history.push(["mc", "music", "albums", { parentId: model.id } ], History.Go)
                 }
                 onAddToPlaylistClicked: {
                     medialib.addToPlaylist( model.id );
@@ -120,7 +120,7 @@ Utils.NavigableFocusScope {
                     medialib.addAndPlay( model.id )
                 }
                 onItemDoubleClicked: {
-                    history.push([ "music", "albums", { parentId: model.id } ], History.Go)
+                    history.push([ "mc", "music", "albums", { parentId: model.id } ], History.Go)
                 }
                 onAddToPlaylistClicked: {
                     console.log('Clicked on addToPlaylist : '+model.name);
@@ -208,31 +208,13 @@ Utils.NavigableFocusScope {
     }
 
 
-    StackView {
+    Utils.StackViewExt {
         id: view
 
         anchors.fill: parent
         focus: true
 
         initialItem: medialib.gridView ? gridComponent : listComponent
-
-        replaceEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to:1
-                duration: 500
-            }
-        }
-
-        replaceExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to:0
-                duration: 500
-            }
-        }
 
         Connections {
             target: medialib

@@ -73,7 +73,7 @@ Utils.NavigableFocusScope {
                 medialib.addAndPlay( list )
             } else {
                 if (delegateModel.items.get(index).model.type != MLNetworkModel.TYPE_FILE)  {
-                    history.push(["network", { mrl: delegateModel.items.get(index).model.mrl }], History.Go);
+                    history.push(["mc", "network", { mrl: delegateModel.items.get(index).model.mrl }], History.Go);
                 } else {
                     medialib.addAndPlay( delegateModel.items.get(index).model.mrl );
                 }

@@ -34,7 +34,7 @@ import "qrc:///style/"
 import "qrc:///mediacenter/" as MC
 import "qrc:///playlist/" as PL
 import "qrc:///controlbar/" as CB
-import "qrc:///about/"
+import "qrc:///about/" as AB
 
 Rectangle {
     id: root
@@ -42,28 +42,7 @@ Rectangle {
 
     Component {
         id: medialibComp
-        FocusScope {
-            focus: true
-            Row {
-                anchors.fill: parent
-                MC.MCMainDisplay {
-                    id: medialibId
-                    onActionRight: playlist.focus = true
-                    focus: true
-                    width: parent.width * (2. / 3)
-                    height: parent.height
-                    onShowAbout: mainStackViewId.replace(aboutComp)
-                }
-
-                PL.PlaylistListView {
-                    id: playlist
-                    focus: false
-                    width: parent.width / 3
-                    height: parent.height
-                    onActionLeft: medialibId.focus = true
-                }
-            }
-        }
+        MC.MCMainDisplay {}
     }
 
     Component {
@@ -76,47 +55,53 @@ Rectangle {
 
     Component {
         id: aboutComp
-        About {
+        AB.About {
             focus: true
-            onActionCancel:  mainStackViewId.replace(medialibComp)
+            onActionCancel: {
+                console.log("onActionCancel")
+                history.pop(History.Go)
+            }
         }
     }
 
-    StackView {
-        id: mainStackViewId
-        anchors.fill: parent
+    readonly property var pageModel: [
+        { name: "about", component: aboutComp },
+        { name: "mc", component: medialibComp },
+    ]
 
-        initialItem: medialibComp
+    function loadCurrentHistoryView() {
+        var current = history.current
+        if ( !current || !current.view ) {
+            console.warn("unable to load requested view, undefined")
+            return
+        }
+        stackView.loadView(root.pageModel, current.view, current.viewProperties)
+    }
+
+    Connections {
+        target: history
+        onCurrentChanged: loadCurrentHistoryView()
+    }
+
+    Component.onCompleted: {
+        //set the initial view
+        history.push(["mc", "music", "albums"], History.Go)
+    }
+
+    Utils.StackViewExt {
+        id: stackView
+        anchors.fill: parent
         focus: true
         property int prevPlayerState: PlayerControler.PLAYING_STATE_STOPPED
-
 
         Connections {
             target: player
             onPlayingStateChanged: {
                 if (state == PlayerControler.PLAYING_STATE_STOPPED )
-                    mainStackViewId.replace(medialibComp)
-                else if (mainStackViewId.prevPlayerState == PlayerControler.PLAYING_STATE_STOPPED)
-                    mainStackViewId.replace(audioplayerComp)
-                mainStackViewId.prevPlayerState = state
-            }
-        }
-
-        replaceEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to:1
-                duration: 200
-            }
-        }
-
-        replaceExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to:0
-                duration: 200
+                    loadCurrentHistoryView()
+                else if (stackView.prevPlayerState == PlayerControler.PLAYING_STATE_STOPPED)
+                    stackView.replace(audioplayerComp)
+                stackView.prevPlayerState = state
             }
         }
     }
@@ -125,10 +110,5 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
-    }
-
-    Component.onCompleted: {
-        //set the initial view
-        history.push(["music", "album"], History.Go)
     }
 }

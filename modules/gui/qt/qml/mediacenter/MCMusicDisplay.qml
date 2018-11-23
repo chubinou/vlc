@@ -36,51 +36,30 @@ Utils.NavigableFocusScope {
     property string view: "albums"
     property var viewProperties: QtObject {}
 
+    readonly property var pageModel: [
+        { name: "albums" , url: "qrc:///mediacenter/MusicAlbumsDisplay.qml"},
+        { name: "artists", url: "qrc:///mediacenter/MusicArtistsDisplay.qml"},
+        { name: "genres" , url: "qrc:///mediacenter/MusicGenresDisplay.qml"},
+        { name: "tracks" , url: "qrc:///mediacenter/MusicTrackListDisplay.qml"}
+    ]
+
     property var tabModel: ListModel {
         ListElement {
             displayText: qsTr("Albums")
             name: "albums"
-            url: "qrc:///mediacenter/MusicAlbumsDisplay.qml"
         }
-
         ListElement {
             displayText: qsTr("Artists")
             name: "artists"
-            url: "qrc:///mediacenter/MusicArtistsDisplay.qml"
         }
-
         ListElement {
             displayText: qsTr("Genres")
             name: "genres"
-            url: "qrc:///mediacenter/MusicGenresDisplay.qml"
         }
-
         ListElement {
             displayText: qsTr("Tracks")
             name: "tracks"
-            url: "qrc:///mediacenter/MusicTrackListDisplay.qml"
         }
-    }
-
-    function loadView(name, viewProperties)
-    {
-        var found = false
-        for (var tab = 0; tab < tabModel.count; tab++ )
-            if (tabModel.get(tab).name === name) {
-                //we can't use push(url, properties) as Qt interprets viewProperties
-                //as a second component to load
-                var component = Qt.createComponent(tabModel.get(tab).url)
-                if (component.status === Component.Ready ) {
-                    var page = component.createObject(stackView, viewProperties)
-                    stackView.replace(page)
-                    root.view = name
-                    found = true
-                    break;
-                }
-            }
-        if (!found)
-            console.warn("unable to load view " + name)
-        return found
     }
 
     ColumnLayout {
@@ -146,8 +125,8 @@ Utils.NavigableFocusScope {
                                     }
                                 }
                                 onClicked: {
-                                    stackView.replace(model.url)
-                                    history.push(["music", model.name ], History.Stay)
+                                    stackView.replace(pageModel[index].url)
+                                    history.push(["mc", "music", model.name ], History.Stay)
                                     stackView.focus = true
                                 }
                                 checked: (model.name === root.view)
@@ -226,34 +205,16 @@ Utils.NavigableFocusScope {
         }
 
         /* The data elements */
-        StackView  {
+        Utils.StackViewExt  {
             id: stackView
             Layout.fillWidth: true
             Layout.fillHeight: true
             focus: true
 
             Component.onCompleted: {
-                var found = loadView(view, viewProperties)
+                var found = stackView.loadView(root.pageModel, view, viewProperties)
                 if (!found)
-                    push(tabModel.get(0).url)
-            }
-
-            replaceEnter: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 0
-                    to:1
-                    duration: 200
-                }
-            }
-
-            replaceExit: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 1
-                    to:0
-                    duration: 200
-                }
+                    push(pageModel[0])
             }
         }
 

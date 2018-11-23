@@ -52,7 +52,7 @@ Utils.ListItem {
         this.forceActiveFocus()
     }
     onItemDoubleClicked: {
-        history.push( ["network", { mrl: model.mrl } ], History.Go)
+        history.push( ["mc", "network", { mrl: model.mrl } ], History.Go)
     }
 
     Component {

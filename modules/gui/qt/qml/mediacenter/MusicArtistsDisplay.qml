@@ -262,31 +262,13 @@ Utils.NavigableFocusScope {
             onActionCancel: root.actionCancel(index)
         }
 
-        StackView {
+        Utils.StackViewExt {
             id: view
             width: parent.width * 0.75
             height: parent.height
             focus: true
 
             initialItem: artistGridComponent
-
-            replaceEnter: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 0
-                    to:1
-                    duration: 200
-                }
-            }
-
-            replaceExit: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 1
-                    to:0
-                    duration: 200
-                }
-            }
         }
     }
 }

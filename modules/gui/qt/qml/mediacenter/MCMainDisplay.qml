@@ -28,149 +28,133 @@ import org.videolan.medialib 0.1
 import "qrc:///style/"
 import "qrc:///qml/"
 import "qrc:///utils/" as Utils
-
+import "qrc:///playlist/" as PL
 
 Utils.NavigableFocusScope {
     id: root
+    focus: true
 
     //name and properties of the tab to be initially loaded
-    property string view: "music"
-    property var viewProperties: QtObject {}
+    property string view: ""
+    property var viewProperties: QtObject{}
 
-    signal showAbout()
+    Component {
+        id: musicComp
+        MCMusicDisplay {}
+    }
+
+    Component {
+        id: videoComp
+        MCVideoDisplay {}
+    }
+
+    Component {
+        id: networkComp
+        MCNetworkDisplay {}
+    }
+
+    readonly property var pageModel: [
+        {name: "music",   component: musicComp },
+        {name: "video",   component: videoComp },
+        {name: "network", component: networkComp }
+    ]
 
     property var tabModel: ListModel {
         ListElement {
             displayText: qsTr("Music")
             pic: "qrc:///sidebar/music.svg"
             name: "music"
-            url: "qrc:///mediacenter/MCMusicDisplay.qml"
         }
         ListElement {
             displayText: qsTr("Video")
             pic: "qrc:///sidebar/movie.svg"
             name: "video"
-            url: "qrc:///mediacenter/MCVideoDisplay.qml"
         }
         ListElement {
             displayText: qsTr("Network")
             pic: "qrc:///sidebar/screen.svg"
             name: "network"
-            url: "qrc:///mediacenter/MCNetworkDisplay.qml"
         }
     }
 
-    Connections {
-        target: history
-        onCurrentChanged: {
-            if ( !current || !current.view ) {
-                console.warn("unable to load requested view, undefined")
-                return
-            }
-            stackView.loadView(current.view, current.viewProperties)
-        }
-    }
-
-    Component.onCompleted: {
-        console.warn("Component.onCompleted")
-        if (!history.empty) {
-            console.warn("reload from history")
-            stackView.loadView(history.current.view, history.current.viewProperties)
-        }
-    }
-
-    ColumnLayout {
-        id: column
+    Row {
         anchors.fill: parent
 
-        Layout.minimumWidth: VLCStyle.minWidthMediacenter
-        spacing: 0
 
-        /* Source selection*/
-        BannerSources {
-            id: sourcesBanner
-
-            Layout.preferredHeight: height
-            Layout.minimumHeight: height
-            Layout.maximumHeight: height
-            Layout.fillWidth: true
-
-            need_toggleView_button: true
-
-            model: root.tabModel
-
-            onSelectedIndexChanged: {
-                stackView.replace(root.tabModel.get(selectedIndex).url)
-                history.push([root.tabModel.get(selectedIndex).name], History.Stay)
-                stackView.focus = true
-            }
-
-            onActionDown: stackView.focus = true
-
-            onActionLeft: root.actionLeft(index)
-            onActionRight: root.actionRight(index)
-            onActionUp: root.actionUp(index)
-            onActionCancel: root.actionCancel(index)
-            onShowAbout: root.showAbout()
-        }
-
-        StackView {
-            id: stackView
-            Layout.fillWidth: true
-            Layout.fillHeight: true
+        Utils.NavigableFocusScope {
             focus: true
+            id: medialibId
+            width: parent.width * (2. / 3)
+            height: parent.height
+            onActionRight: playlist.focus = true
 
-            replaceEnter: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 0
-                    to:1
-                    duration: 200
-                }
-            }
 
-            replaceExit: Transition {
-                PropertyAnimation {
-                    property: "opacity"
-                    from: 1
-                    to:0
-                    duration: 200
-                }
-            }
+            ColumnLayout {
+                id: column
+                anchors.fill: parent
 
-            function loadView(name, viewProperties)
-            {
-                var found = false
-                for (var tab = 0; tab < root.tabModel.count; tab++ )
-                    if (root.tabModel.get(tab).name === name) {
-                        //we can't use push(url, properties) as Qt interprets viewProperties
-                        //as a second component to load
-                        var component = Qt.createComponent(root.tabModel.get(tab).url)
-                        if (component.status === Component.Ready ) {
-                            var page = component.createObject(stackView, viewProperties)
-                            stackView.replace(page)
-                            view = name
-                            found = true
-                            break;
-                        }
+                Layout.minimumWidth: VLCStyle.minWidthMediacenter
+                spacing: 0
+
+                /* Source selection*/
+                BannerSources {
+                    id: sourcesBanner
+
+                    Layout.preferredHeight: height
+                    Layout.minimumHeight: height
+                    Layout.maximumHeight: height
+                    Layout.fillWidth: true
+
+                    need_toggleView_button: true
+
+                    model: root.tabModel
+
+                    onSelectedIndexChanged: {
+                        var name = root.tabModel.get(selectedIndex).name
+                        stackView.replace(root.pageModel[selectedIndex].component)
+                        history.push(["mc", name], History.Stay)
+                        stackView.focus = true
                     }
-                if (!found)
-                    console.warn("unable to load view " + name)
-                return found
+
+                    onActionDown: stackView.focus = true
+
+                    onActionLeft: root.actionLeft(index)
+                    onActionRight: root.actionRight(index)
+                    onActionUp: root.actionUp(index)
+                    onActionCancel: root.actionCancel(index)
+                    onShowAbout: history.push(["about"], History.Go)
+                }
+
+                Utils.StackViewExt {
+                    id: stackView
+                    Layout.fillWidth: true
+                    Layout.fillHeight: true
+                    focus: true
+                    Component.onCompleted: {
+                        var found = stackView.loadView(root.pageModel, root.view, root.viewProperties)
+                    }
+                }
             }
 
+            Connections {
+                target: stackView.currentItem
+                ignoreUnknownSignals: true
+
+                onActionUp:     sourcesBanner.focus = true
+                onActionCancel: sourcesBanner.focus = true
+
+                onActionLeft:   medialibId.actionLeft(index)
+                onActionRight:  medialibId.actionRight(index)
+                onActionDown:   medialibId.actionDown(index)
+            }
         }
-    }
 
-    Connections {
-        target: stackView.currentItem
-        ignoreUnknownSignals: true
-
-        onActionUp:     sourcesBanner.focus = true
-        onActionCancel: sourcesBanner.focus = true
-
-        onActionLeft:   root.actionLeft(index)
-        onActionRight:  root.actionRight(index)
-        onActionDown:   root.actionDown(index)
+        PL.PlaylistListView {
+            id: playlist
+            focus: false
+            width: parent.width / 3
+            height: parent.height
+            onActionLeft: medialibId.focus = true
+        }
     }
 }

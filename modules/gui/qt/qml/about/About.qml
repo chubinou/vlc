@@ -1,6 +1,7 @@
 import QtQuick 2.10
 import QtQuick.Controls 2.4
 import QtQuick.Layouts 1.3
+import org.videolan.medialib 0.1
 import org.videolan.vlc 0.1
 
 import "qrc:///style/"
@@ -79,7 +80,7 @@ Utils.NavigableFocusScope {
                     KeyNavigation.right: textScroll
 
                     onClicked: {
-                        root.actionCancel()
+                        history.pop(History.Go)
                     }
                 }
             }

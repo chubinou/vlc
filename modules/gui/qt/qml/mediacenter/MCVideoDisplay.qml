@@ -164,24 +164,6 @@ Utils.NavigableFocusScope {
 
         initialItem: medialib.gridView ? gridComponent : listComponent
 
-        replaceEnter: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 0
-                to:1
-                duration: 500
-            }
-        }
-
-        replaceExit: Transition {
-            PropertyAnimation {
-                property: "opacity"
-                from: 1
-                to:0
-                duration: 500
-            }
-        }
-
         Connections {
             target: medialib
             onGridViewChanged: {
