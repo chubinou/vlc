@@ -55,7 +55,7 @@ QVariant MLNetworkModel::data( const QModelIndex& index, int role ) const
         case NETWORK_NAME:
             return item.name;
         case NETWORK_MRL:
-            return item.mrl;
+            return item.mainMrl;
         case NETWORK_INDEXED:
             return item.indexed;
         case NETWORK_CANINDEX:
@@ -105,7 +105,7 @@ bool MLNetworkModel::setData( const QModelIndex& idx, const QVariant& value, int
     assert( ml != nullptr );
     auto enabled = value.toBool();
     assert( m_items[idx.row()].indexed != enabled );
-    QString mrl = m_items[idx.row()].mrl;
+    QString mrl = m_items[idx.row()].mainMrl;
     int res;
     if ( enabled )
         res = vlc_ml_add_folder( ml, qtu(mrl) );
@@ -202,36 +202,41 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
     assert( parent == nullptr );
 
     Item item;
-    item.mrl = qfu(p_item->psz_uri);
+    item.mainMrl = qfu(p_item->psz_uri);
+    if ( *item.mainMrl.crbegin() != '/' )
+        item.mainMrl += '/';
     item.name = qfu(p_item->psz_name);
+    item.mrls.push_back( item.mainMrl );
     item.indexed = false;
     item.canBeIndexed = canBeIndexed( p_item->psz_uri );
     item.type = TYPE_SHARE;
     auto protocolEnd = strchr( p_item->psz_uri, ':' );
     if ( protocolEnd != nullptr )
         item.protocol = QString::fromUtf8( p_item->psz_uri, (size_t)(protocolEnd - p_item->psz_uri ) );
-    if ( *item.mrl.crbegin() != '/' )
-        item.mrl += '/';
-    if ( m_entryPoints != nullptr )
-    {
-        for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
-        {
-            if ( ep.b_present && ep.b_banned == false &&
-                 strcasecmp( ep.psz_mrl, qtu(item.mrl) ) == 0 )
-            {
-                item.indexed = true;
-                break;
-            }
-        }
-    }
 
-    callAsync([this, item = std::move( item )]() {
+    callAsync([this, item = std::move( item )]() mutable {
         auto it = std::find_if( begin( m_items ), end( m_items ), [&item](const Item& i) {
-            return i.mrl == item.mrl;
+            return strcasecmp( qtu( item.name ), qtu( i.name ) ) == 0 &&
+                    areProtocolEqual( qtu( item.mainMrl ), qtu( i.mainMrl ) ) == true;
         });
         if ( it != end( m_items ) )
+        {
+            (*it).mrls.push_back( item.mainMrl );
+            filterMainMrl( ( *it ) );
             return;
-
+        }
+        if ( m_entryPoints != nullptr )
+        {
+            for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
+            {
+                if ( ep.b_present && ep.b_banned == false &&
+                     strcasecmp( ep.psz_mrl, qtu(item.mainMrl) ) == 0 )
+                {
+                    item.indexed = true;
+                    break;
+                }
+            }
+        }
         beginInsertRows( {}, m_items.size(), m_items.size() );
         m_items.push_back( std::move( item ) );
         endInsertRows();
@@ -243,10 +248,23 @@ void MLNetworkModel::onItemRemoved( input_item_t* p_item )
     input_item_Hold( p_item );
     callAsync([this, p_item]() {
         auto it = std::find_if( begin( m_items ), end( m_items ), [p_item](const Item& i) {
-            return i.mrl == p_item->psz_uri;
+            return strcasecmp( p_item->psz_name, qtu( i.name ) ) == 0 &&
+                    areProtocolEqual( p_item->psz_uri, qtu( i.mainMrl ) ) == true;
+        });
+        if ( it == end( m_items ) )
+        {
+            input_item_Release( p_item );
+            return;
+        }
+        auto mrlIt = std::find_if( begin( (*it).mrls ), end( (*it).mrls),
+                                   [p_item]( const QString& mrl ) {
+            return mrl == p_item->psz_name;
         });
         input_item_Release( p_item );
-        if ( it == end( m_items ) )
+        if ( mrlIt == end( (*it).mrls ) )
+            return;
+        (*it).mrls.erase( mrlIt );
+        if ( (*it).mrls.empty() == false )
             return;
         auto idx = std::distance( begin( m_items ), it );
         beginRemoveRows({}, idx, idx );
@@ -264,24 +282,23 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
     for ( auto i = 0; i < event->subitems->i_children; ++i )
     {
         auto it = event->subitems->pp_children[i]->p_item;
-        Item item {
-            it->psz_name,
-            it->psz_uri,
-            "", //protocol
-            false,
-            (it->i_type == ITEM_TYPE_DIRECTORY || it->i_type == ITEM_TYPE_NODE) ?
-                TYPE_DIR : TYPE_FILE,
-            canBeIndexed( it->psz_uri )
-        };
-        if ( *item.mrl.crbegin() != '/' )
-            item.mrl += '/';
+        Item item;
+        item.name = it->psz_name;
+        item.mainMrl = it->psz_uri;
+        item.protocol = "";
+        item.indexed = false;
+        item.type = (it->i_type == ITEM_TYPE_DIRECTORY || it->i_type == ITEM_TYPE_NODE) ?
+                TYPE_DIR : TYPE_FILE;
+        item.canBeIndexed = canBeIndexed( it->psz_uri );
+        if ( *item.mainMrl.crbegin() != '/' )
+            item.mainMrl += '/';
 
         if ( m_entryPoints != nullptr )
         {
             for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
             {
                 if ( ep.b_present && ep.b_banned == false &&
-                     strncasecmp( ep.psz_mrl, qtu(item.mrl), strlen(ep.psz_mrl) ) == 0 )
+                     strncasecmp( ep.psz_mrl, qtu(item.mainMrl), strlen(ep.psz_mrl) ) == 0 )
                 {
                     item.indexed = true;
                     break;
@@ -321,5 +338,65 @@ void MLNetworkModel::onInputEvent( input_thread_t* input,
 bool MLNetworkModel::canBeIndexed(const char* psz_mrl)
 {
     return strncasecmp( psz_mrl, "smb:", 4 ) == 0 ||
-           strncasecmp( psz_mrl, "ftp:", 4 ) == 0;
+            strncasecmp( psz_mrl, "ftp:", 4 ) == 0;
+}
+
+void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item )
+{
+    assert( item.mrls.empty() == false );
+    if ( item.mrls.size() == 1 )
+        return;
+    // We're looking for the mrl which is a (netbios) name, not an IP
+    for ( const auto& mrl : item.mrls )
+    {
+        auto protocolIndex = mrl.indexOf( "://" );
+        if ( protocolIndex < 0 )
+            continue;
+
+        unsigned int nbSemiColon = 0;
+        unsigned int nbLetters = 0;
+        unsigned int nbDots = 0;
+        for ( auto i = protocolIndex + 3; i < mrl.length(); ++i )
+        {
+            if ( mrl[i] == ':' )
+            {
+                nbSemiColon++;
+                if ( nbSemiColon > 1 )
+                    break;
+            }
+            if ( mrl[i] == '.' )
+                nbDots++;
+            if ( mrl[i].isLetter() )
+                nbLetters++;
+        }
+        // Tolerate 1 ':' for the port. More would be an ipv6
+        if ( nbSemiColon > 1 || ( nbDots == 3 && nbLetters == 0 ) )
+            continue;
+        item.mainMrl = mrl;
+        item.canBeIndexed = canBeIndexed( qtu( mrl ) );
+        return;
+    }
+    // If we can't get a cannonical name, don't attempt to index this as we
+    // would fail to get a unique associated device in the medialibrary
+    item.canBeIndexed = false;
+}
+
+bool MLNetworkModel::areProtocolEqual( const char* lhs, const char* rhs )
+{
+    const auto protocol1End = strchr( lhs, ':' );
+    const auto protocol2End = strchr( rhs, ':' );
+    if ( protocol1End == nullptr || protocol2End == nullptr ||
+         ( protocol1End - lhs ) != ( protocol2End - rhs ) )
+        return false;
+    for ( auto i = 0u; lhs[i]; ++i )
+    {
+        if ( lhs[i] != rhs[i] )
+            return false;
+        if ( lhs[i] == ':' )
+        {
+            assert( rhs[i] == ':' );
+            return true;
+        }
+    }
+    return false;
 }
