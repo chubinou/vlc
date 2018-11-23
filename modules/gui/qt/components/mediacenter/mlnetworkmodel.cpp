@@ -225,7 +225,7 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
             filterMainMrl( ( *it ), std::distance( begin( m_items ), it ) );
             return;
         }
-        if ( m_entryPoints != nullptr )
+        if ( item.canBeIndexed == true && m_entryPoints != nullptr )
         {
             for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
             {
@@ -293,7 +293,7 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
         if ( *item.mainMrl.crbegin() != '/' )
             item.mainMrl += '/';
 
-        if ( m_entryPoints != nullptr )
+        if ( item.canBeIndexed == true && m_entryPoints != nullptr )
         {
             for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
             {
