@@ -13,6 +13,9 @@ Utils.NavigableFocusScope {
 
     property bool showPlaylistButton: false
 
+    property bool forceNoAutoHide: false
+    property bool noAutoHide: state !== "control" || forceNoAutoHide
+
     Component {
         id: controlbarComp_id
         ControlBar {

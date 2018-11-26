@@ -105,7 +105,8 @@ Utils.NavigableFocusScope {
                     Utils.IconToolButton {
                         id: playBtn
                         size: VLCStyle.icon_large
-                        text: player.playingState === PlayerControler.PLAYING_STATE_PLAYING
+                        text: (player.playingState !== PlayerControler.PLAYING_STATE_PAUSED
+                               && player.playingState !== PlayerControler.PLAYING_STATE_STOPPED)
                                      ? VLCIcons.pause
                                      : VLCIcons.play
                         onClicked: playlistCtrl.togglePlayPause()

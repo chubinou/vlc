@@ -38,20 +38,33 @@ import "qrc:///about/" as AB
 
 Rectangle {
     id: root
-    color: VLCStyle.colors.bg
+    color: "transparent"
 
     Component {
         id: medialibComp
-        MC.MCMainDisplay {}
+        FocusScope {
+            focus: true
+            property alias viewProperties: mainview.viewProperties
+            property alias view: mainview.view
+            Rectangle {
+                color: VLCStyle.colors.bg
+                anchors.fill: parent
+                //focus: true
+                MC.MCMainDisplay {
+                    id: mainview
+                    focus: true
+                    anchors.fill: parent
+                }
+            }
+        }
     }
 
     Component {
         id: audioplayerComp
-        AudioPlayer {
+        CB.Player {
             focus: true
         }
     }
-
 
     Component {
         id: aboutComp

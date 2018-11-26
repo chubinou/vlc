@@ -32,7 +32,6 @@ import "qrc:///playlist/" as PL
 
 Utils.NavigableFocusScope {
     id: root
-    focus: true
 
     //name and properties of the tab to be initially loaded
     property string view: ""
