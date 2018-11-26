@@ -75,20 +75,28 @@ NavigableFocusScope {
                 }
             } else if (event.key === Qt.Key_PageUp || event.matches(StandardKey.MoveToPreviousPage) ||event.matches(StandardKey.SelectPreviousPage)) {
                 newIndex = Math.max(0, currentIndex - _colCount * 5)
-            } else if (event.key === Qt.Key_Space || event.matches(StandardKey.InsertParagraphSeparator)) { //enter/return/space
-                actionAtIndex(currentIndex)
-                event.accepted = true
             }
 
             if (newIndex != -1 && newIndex != currentIndex) {
                 var oldIndex = currentIndex
                 currentIndex = newIndex
-                selectionUpdated(event.modifiers, oldIndex, newIndex)
                 event.accepted = true
+                selectionUpdated(event.modifiers, oldIndex, newIndex)
             }
 
             if (!event.accepted)
                 defaultKeyAction(event, currentIndex)
+        }
+
+        Keys.onReleased: {
+            if (event.matches(StandardKey.SelectAll)) {
+                event.accepted = true
+                selectAll()
+            } else if (event.key === Qt.Key_Space || event.matches(StandardKey.InsertParagraphSeparator)) { //enter/return/space
+                event.accepted = true
+                actionAtIndex(currentIndex)
+            }
+
         }
     }
 

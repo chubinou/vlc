@@ -20,20 +20,20 @@ FocusScope {
         if (event.accepted)
             return
         if ( event.key === Qt.Key_Down || event.matches(StandardKey.MoveToNextLine) ||event.matches(StandardKey.SelectNextLine) ) {
+            event.accepted = true
             actionDown( index )
-            event.accepted = true
         } else if ( event.key === Qt.Key_Up || event.matches(StandardKey.MoveToPreviousLine) ||event.matches(StandardKey.SelectPreviousLine) ) {
+            event.accepted = true
             actionUp( index  )
-            event.accepted = true
         } else if (event.key === Qt.Key_Right || event.matches(StandardKey.MoveToNextChar) ) {
+            event.accepted = true
             actionRight( index )
-            event.accepted = true
         } else if (event.key === Qt.Key_Left || event.matches(StandardKey.MoveToPreviousChar) ) {
+            event.accepted = true
             actionLeft( index )
-            event.accepted = true
         } else if ( event.key === Qt.Key_Back || event.key === Qt.Key_Cancel || event.matches(StandardKey.Back) || event.matches(StandardKey.Cancel)) {
-            actionCancel( index )
             event.accepted = true
+            actionCancel( index )
         }
     }
 }

@@ -57,6 +57,7 @@ Utils.NavigableFocusScope {
             anchors.fill: parent
 
             Utils.IconToolButton {
+                id: history_back
                 size: VLCStyle.icon_normal
                 text: VLCIcons.dvd_prev
 
@@ -106,7 +107,7 @@ Utils.NavigableFocusScope {
                         }
 
                         background: Rectangle {
-                            implicitHeight: parent.height
+                            height: parent.height
                             width: parent.contentItem.width
                             //color: (control.hovered || control.activeFocus) ? VLCStyle.colors.bgHover : VLCStyle.colors.banner
                             color: VLCStyle.colors.banner

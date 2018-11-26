@@ -179,4 +179,20 @@ NavigableFocusScope {
         onActionCancel: root.actionCancel(index)
         onActionAtIndex: root.actionForSelection( delegateModel.selectedGroup )
     }
+
+    /*
+     *define the intial position/selection
+     * This is done on activeFocus rather than Component.onCompleted because delegateModel.
+     * selectedGroup update itself after this event
+     */
+    onActiveFocusChanged: {
+        if (activeFocus && delegateModel.items.count > 0 && delegateModel.selectedGroup.count === 0) {
+            var initialIndex = 0
+            if (view.currentIndex !== -1)
+                initialIndex = view.currentIndex
+            delegateModel.items.get(initialIndex).inSelected = true
+            view.currentIndex = initialIndex
+        }
+    }
+
 }
