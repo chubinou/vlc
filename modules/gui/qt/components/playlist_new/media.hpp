@@ -85,7 +85,7 @@ public:
 
     operator bool() const
     {
-        return ptr;
+        return static_cast<bool>(ptr);
     }
 
     input_item_t *raw() const
