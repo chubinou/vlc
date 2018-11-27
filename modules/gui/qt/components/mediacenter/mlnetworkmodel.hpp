@@ -61,7 +61,7 @@ public:
     Qt::ItemFlags flags( const QModelIndex& idx ) const override;
     bool setData( const QModelIndex& idx,const QVariant& value, int role ) override;
 
-    Q_INVOKABLE void setContext(QmlMainContext* ctx, QString parentMrl);
+    Q_INVOKABLE void setContext(QmlMainContext* ctx, QUrl parentMrl);
 
 private:
     struct Item
@@ -111,7 +111,7 @@ private:
     std::vector<Item> m_items;
     std::unique_ptr<vlc_ml_entry_point_list_t, decltype(&vlc_ml_entry_point_list_release)> m_entryPoints;
     QmlMainContext* m_ctx = nullptr;
-    QString m_parentMrl;
+    QUrl m_parentMrl;
     using SdPtr = std::unique_ptr<services_discovery_t, decltype(&vlc_sd_Destroy)>;
     std::vector<SdPtr> m_sds;
     std::unique_ptr<input_thread_t, decltype(&input_Close)> m_input;

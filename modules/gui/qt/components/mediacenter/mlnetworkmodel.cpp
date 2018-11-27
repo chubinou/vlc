@@ -181,7 +181,7 @@ bool MLNetworkModel::initializeDeviceDiscovery()
 bool MLNetworkModel::initializeFolderDiscovery()
 {
     std::unique_ptr<input_item_t, decltype(&input_item_Release)> inputItem{
-        input_item_New( qtu( m_parentMrl ), NULL ),
+        input_item_New( qtu( m_parentMrl.toString(QUrl::None) ), NULL ),
         &input_item_Release
     };
     inputItem->i_preparse_depth = 1;
@@ -192,6 +192,32 @@ bool MLNetworkModel::initializeFolderDiscovery()
                                           this, inputItem.get() ) );
     if ( m_input == nullptr )
         return false;
+
+    Item item;
+    if ( m_parentMrl.path().isEmpty())
+    {
+        item.name = "..";
+        item.mainMrl = QUrl{};
+        item.mrls = {QUrl{}};
+        item.protocol = m_parentMrl.scheme();
+        item.indexed = false;
+        item.type = TYPE_DIR;
+        item.canBeIndexed = false;
+    }
+    else
+    {
+        item.name = "..";
+        item.mainMrl = m_parentMrl.resolved(QUrl(".."));
+        item.mrls = {m_parentMrl.resolved(QUrl(".."))};
+        item.protocol = m_parentMrl.scheme();
+        item.indexed = false;
+        item.type = TYPE_DIR;
+        item.canBeIndexed = false;
+    }
+    beginInsertRows( {}, 0, 0 );
+    m_items.push_back(item);
+    endInsertRows();
+
     input_Start( m_input.get() );
     return true;
 }
