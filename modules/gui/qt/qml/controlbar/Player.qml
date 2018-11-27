@@ -146,7 +146,7 @@ Utils.NavigableFocusScope {
                 id: controllerBarId
                 color: VLCStyle.colors.banner
                 width: parent.width
-                height: 80
+                height: 90
 
                 CB.ModalControlBar {
                     id: controllerId
