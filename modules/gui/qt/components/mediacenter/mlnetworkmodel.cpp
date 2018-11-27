@@ -194,7 +194,7 @@ bool MLNetworkModel::initializeFolderDiscovery()
         return false;
 
     Item item;
-    if ( m_parentMrl.path().isEmpty())
+    if ( m_parentMrl.path().isEmpty() || m_parentMrl.path() == "/" )
     {
         item.name = QString::fromUtf8(u8"⮤"); //arrow up ^_
         item.mainMrl = QUrl{};
