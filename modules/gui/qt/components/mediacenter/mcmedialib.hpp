@@ -51,10 +51,12 @@ public:
 
     Q_INVOKABLE void addToPlaylist(const MLParentId &itemId);
     Q_INVOKABLE void addToPlaylist(const QString& mrl);
+    Q_INVOKABLE void addToPlaylist(const QUrl& mrl);
     Q_INVOKABLE void addToPlaylist(const QVariantList& itemIdList);
 
     Q_INVOKABLE void addAndPlay(const MLParentId &itemId);
     Q_INVOKABLE void addAndPlay(const QString& mrl);
+    Q_INVOKABLE void addAndPlay(const QUrl& mrl);
     Q_INVOKABLE void addAndPlay(const QVariantList&itemIdList);
 
 

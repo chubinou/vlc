@@ -105,7 +105,7 @@ bool MLNetworkModel::setData( const QModelIndex& idx, const QVariant& value, int
     assert( ml != nullptr );
     auto enabled = value.toBool();
     assert( m_items[idx.row()].indexed != enabled );
-    QString mrl = m_items[idx.row()].mainMrl;
+    QString mrl = m_items[idx.row()].mainMrl.toString(QUrl::None);
     int res;
     if ( enabled )
         res = vlc_ml_add_folder( ml, qtu(mrl) );
@@ -116,7 +116,7 @@ bool MLNetworkModel::setData( const QModelIndex& idx, const QVariant& value, int
     return res == VLC_SUCCESS;
 }
 
-void MLNetworkModel::setContext(QmlMainContext* ctx, QString parentMrl)
+void MLNetworkModel::setContext(QmlMainContext* ctx, QUrl parentMrl)
 {
 
     assert(!m_ctx);
@@ -202,22 +202,18 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
     assert( parent == nullptr );
 
     Item item;
-    item.mainMrl = qfu(p_item->psz_uri);
-    if ( *item.mainMrl.crbegin() != '/' )
-        item.mainMrl += '/';
+    item.mainMrl = QUrl::fromEncoded(p_item->psz_uri);
     item.name = qfu(p_item->psz_name);
     item.mrls.push_back( item.mainMrl );
     item.indexed = false;
-    item.canBeIndexed = canBeIndexed( p_item->psz_uri );
+    item.canBeIndexed = canBeIndexed( item.mainMrl );
     item.type = TYPE_SHARE;
-    auto protocolEnd = strchr( p_item->psz_uri, ':' );
-    if ( protocolEnd != nullptr )
-        item.protocol = QString::fromUtf8( p_item->psz_uri, (size_t)(protocolEnd - p_item->psz_uri ) );
+    item.protocol = item.mainMrl.scheme();
 
     callAsync([this, item = std::move( item )]() mutable {
         auto it = std::find_if( begin( m_items ), end( m_items ), [&item](const Item& i) {
-            return strcasecmp( qtu( item.name ), qtu( i.name ) ) == 0 &&
-                    areProtocolEqual( qtu( item.mainMrl ), qtu( i.mainMrl ) ) == true;
+            return QString::compare(item.name , i.name, Qt::CaseInsensitive ) == 0 &&
+                    item.mainMrl.scheme() == i.mainMrl.scheme();
         });
         if ( it != end( m_items ) )
         {
@@ -230,7 +226,7 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
             for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
             {
                 if ( ep.b_present && ep.b_banned == false &&
-                     strcasecmp( ep.psz_mrl, qtu(item.mainMrl) ) == 0 )
+                     QUrl::fromEncoded(ep.psz_mrl) == item.mainMrl )
                 {
                     item.indexed = true;
                     break;
@@ -247,9 +243,10 @@ void MLNetworkModel::onItemRemoved( input_item_t* p_item )
 {
     input_item_Hold( p_item );
     callAsync([this, p_item]() {
-        auto it = std::find_if( begin( m_items ), end( m_items ), [p_item](const Item& i) {
-            return strcasecmp( p_item->psz_name, qtu( i.name ) ) == 0 &&
-                    areProtocolEqual( p_item->psz_uri, qtu( i.mainMrl ) ) == true;
+        QUrl itemUri = QUrl::fromEncoded(p_item->psz_uri);
+        auto it = std::find_if( begin( m_items ), end( m_items ), [p_item, itemUri](const Item& i) {
+            return QString::compare( qfu(p_item->psz_name), i.name, Qt::CaseInsensitive ) == 0 &&
+                itemUri.scheme() == i.mainMrl.scheme();
         });
         if ( it == end( m_items ) )
         {
@@ -257,8 +254,8 @@ void MLNetworkModel::onItemRemoved( input_item_t* p_item )
             return;
         }
         auto mrlIt = std::find_if( begin( (*it).mrls ), end( (*it).mrls),
-                                   [p_item]( const QString& mrl ) {
-            return mrl == p_item->psz_name;
+                                   [itemUri]( const QUrl& mrl ) {
+            return mrl == itemUri;
         });
         input_item_Release( p_item );
         if ( mrlIt == end( (*it).mrls ) )
@@ -284,21 +281,19 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
         auto it = event->subitems->pp_children[i]->p_item;
         Item item;
         item.name = it->psz_name;
-        item.mainMrl = it->psz_uri;
+        item.mainMrl = QUrl::fromEncoded(it->psz_uri);
         item.protocol = "";
         item.indexed = false;
         item.type = (it->i_type == ITEM_TYPE_DIRECTORY || it->i_type == ITEM_TYPE_NODE) ?
                 TYPE_DIR : TYPE_FILE;
-        item.canBeIndexed = canBeIndexed( it->psz_uri );
-        if ( *item.mainMrl.crbegin() != '/' )
-            item.mainMrl += '/';
+        item.canBeIndexed = canBeIndexed( item.mainMrl );
 
         if ( item.canBeIndexed == true && m_entryPoints != nullptr )
         {
             for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
             {
                 if ( ep.b_present && ep.b_banned == false &&
-                     strncasecmp( ep.psz_mrl, qtu(item.mainMrl), strlen(ep.psz_mrl) ) == 0 )
+                     QUrl::fromEncoded(ep.psz_mrl) == item.mainMrl )
                 {
                     item.indexed = true;
                     break;
@@ -335,10 +330,9 @@ void MLNetworkModel::onInputEvent( input_thread_t* input,
     self->onInputEvent( input, event );
 }
 
-bool MLNetworkModel::canBeIndexed(const char* psz_mrl)
+bool MLNetworkModel::canBeIndexed(const QUrl& url)
 {
-    return strncasecmp( psz_mrl, "smb:", 4 ) == 0 ||
-            strncasecmp( psz_mrl, "ftp:", 4 ) == 0;
+    return url.scheme() == "smb" || url.scheme() == "ftp";
 }
 
 void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item , size_t itemIndex )
@@ -346,34 +340,24 @@ void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item , size_t itemInde
     assert( item.mrls.empty() == false );
     if ( item.mrls.size() == 1 )
         return;
+
+    //maybe we should rather use QHostAddress, but this adds a dependency uppon QNetwork that we don't require at the moment
+    //https://stackoverflow.com/a/17871737/148173
+    QRegExp ipv4("((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])");
+    QRegExp ipv6("(([0-9a-fA-F]{1,4}:){7,7}[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,7}:|([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}|([0-9a-fA-F]{1,4}:){1,5}(:[0-9a-fA-F]{1,4}){1,2}|([0-9a-fA-F]{1,4}:){1,4}(:[0-9a-fA-F]{1,4}){1,3}|([0-9a-fA-F]{1,4}:){1,3}(:[0-9a-fA-F]{1,4}){1,4}|([0-9a-fA-F]{1,4}:){1,2}(:[0-9a-fA-F]{1,4}){1,5}|[0-9a-fA-F]{1,4}:((:[0-9a-fA-F]{1,4}){1,6})|:((:[0-9a-fA-F]{1,4}){1,7}|:)|fe80:(:[0-9a-fA-F]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-fA-F]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))");
+
     // We're looking for the mrl which is a (netbios) name, not an IP
     for ( const auto& mrl : item.mrls )
     {
-        auto protocolIndex = mrl.indexOf( "://" );
-        if ( protocolIndex < 0 )
+        if (mrl.scheme() == "")
             continue;
 
-        unsigned int nbSemiColon = 0;
-        unsigned int nbLetters = 0;
-        unsigned int nbDots = 0;
-        for ( auto i = protocolIndex + 3; i < mrl.length(); ++i )
-        {
-            if ( mrl[i] == ':' )
-            {
-                nbSemiColon++;
-                if ( nbSemiColon > 1 )
-                    break;
-            }
-            if ( mrl[i] == '.' )
-                nbDots++;
-            if ( mrl[i].isLetter() )
-                nbLetters++;
-        }
-        // Tolerate 1 ':' for the port. More would be an ipv6
-        if ( nbSemiColon > 1 || ( nbDots == 3 && nbLetters == 0 ) )
+        QString host = mrl.host();
+        if (ipv4.exactMatch(host) || ipv6.exactMatch(host))
             continue;
+
         item.mainMrl = mrl;
-        item.canBeIndexed = canBeIndexed( qtu( mrl ) );
+        item.canBeIndexed = canBeIndexed( mrl  );
         auto idx = index( static_cast<int>( itemIndex ), 0 );
         emit dataChanged( idx, idx, { NETWORK_MRL } );
         return;
@@ -385,22 +369,3 @@ void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item , size_t itemInde
     emit dataChanged( idx, idx, { NETWORK_CANINDEX } );
 }
 
-bool MLNetworkModel::areProtocolEqual( const char* lhs, const char* rhs )
-{
-    const auto protocol1End = strchr( lhs, ':' );
-    const auto protocol2End = strchr( rhs, ':' );
-    if ( protocol1End == nullptr || protocol2End == nullptr ||
-         ( protocol1End - lhs ) != ( protocol2End - rhs ) )
-        return false;
-    for ( auto i = 0u; lhs[i]; ++i )
-    {
-        if ( lhs[i] != rhs[i] )
-            return false;
-        if ( lhs[i] == ':' )
-        {
-            assert( rhs[i] == ':' );
-            return true;
-        }
-    }
-    return false;
-}

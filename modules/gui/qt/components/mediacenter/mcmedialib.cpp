@@ -70,7 +70,14 @@ void MCMediaLib::openMRLFromMedia(const vlc_ml_media_t& media, bool start )
 
 void MCMediaLib::addToPlaylist(const QString& mrl)
 {
-    Open::openMRL(m_intf, qtu(mrl), false);
+    vlc::playlist::Media media{ mrl, mrl };
+    m_intf->p_sys->p_mainPlaylistControler->append( {media}, false );
+}
+
+void MCMediaLib::addToPlaylist(const QUrl& mrl)
+{
+    vlc::playlist::Media media{ mrl.toString(QUrl::None), mrl.fileName() };
+    m_intf->p_sys->p_mainPlaylistControler->append( {media} , false );
 }
 
 // A specific item has been asked to be added to the playlist
@@ -108,10 +115,15 @@ void MCMediaLib::addToPlaylist(const QVariantList& itemIdList)
 {
     for (const QVariant& varValue: itemIdList)
     {
-        if (varValue.canConvert<QString>())
+        if (varValue.canConvert<QUrl>())
+        {
+            auto mrl = varValue.value<QUrl>();
+            addToPlaylist(mrl);
+        }
+        else if (varValue.canConvert<QString>())
         {
             auto mrl = varValue.value<QString>();
-            Open::openMRL(m_intf, qtu(mrl), false);
+            addToPlaylist(mrl);
         }
         else if (varValue.canConvert<MLParentId>())
         {
@@ -153,7 +165,14 @@ void MCMediaLib::addAndPlay(const MLParentId & itemId )
 
 void MCMediaLib::addAndPlay(const QString& mrl)
 {
-    Open::openMRL(m_intf, qtu(mrl), true);
+    vlc::playlist::Media media{ mrl, mrl };
+    m_intf->p_sys->p_mainPlaylistControler->append( {media}, true );
+}
+
+void MCMediaLib::addAndPlay(const QUrl& mrl)
+{
+    vlc::playlist::Media media{ mrl.toString(QUrl::None), mrl.fileName() };
+    m_intf->p_sys->p_mainPlaylistControler->append( {media}, true );
 }
 
 
@@ -162,11 +181,21 @@ void MCMediaLib::addAndPlay(const QVariantList& itemIdList)
     bool b_start = true;
     for (const QVariant& varValue: itemIdList)
     {
+        if (varValue.canConvert<QUrl>())
+        {
+            auto mrl = varValue.value<QUrl>();
+            if (b_start)
+                addAndPlay(mrl);
+            else
+                addToPlaylist(mrl);
+        }
         if (varValue.canConvert<QString>())
         {
             auto mrl = varValue.value<QString>();
-            Open::openMRL(m_intf, qtu(mrl), b_start);
-            b_start = false;
+            if (b_start)
+                addAndPlay(mrl);
+            else
+                addToPlaylist(mrl);
         }
         else if (varValue.canConvert<MLParentId>())
         {
@@ -175,8 +204,10 @@ void MCMediaLib::addAndPlay(const QVariantList& itemIdList)
                 addAndPlay(itemId);
             else
                 addToPlaylist(itemId);
-            b_start = false;
+        } else {
+            continue;
         }
+        b_start = false;
     }
 }
 

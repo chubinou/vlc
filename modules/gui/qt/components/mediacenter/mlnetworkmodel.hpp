@@ -67,8 +67,8 @@ private:
     struct Item
     {
         QString name;
-        QString mainMrl;
-        std::vector<QString> mrls;
+        QUrl mainMrl;
+        std::vector<QUrl> mrls;
         QString protocol;
         bool indexed;
         ItemType type;
@@ -101,9 +101,8 @@ private:
 
     static void onInputEvent( input_thread_t* input, const vlc_input_event *event,
                               void *data );
-    static bool canBeIndexed( const char* psz_mrl );
+    static bool canBeIndexed(const QUrl& url );
     void filterMainMrl( Item& item, size_t itemIndex );
-    static bool areProtocolEqual( const char* lhs, const char* rhs );
 
 signals:
     void contextChanged();
