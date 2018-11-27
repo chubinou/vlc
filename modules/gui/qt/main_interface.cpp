@@ -324,6 +324,9 @@ void MainInterface::onInputChanged( bool hasInput )
 
 void MainInterface::createMainWidget( QSettings *creationSettings )
 {
+    qRegisterMetaType<VLCTick>();
+    qmlRegisterUncreatableType<VLCTick>("org.videolan.vlc", 0, 1, "VLCTick", "");
+
     qRegisterMetaType<MLParentId>();
     qmlRegisterType<MLAlbumModel>( "org.videolan.medialib", 0, 1, "MLAlbumModel" );
     qmlRegisterType<MLArtistModel>( "org.videolan.medialib", 0, 1, "MLArtistModel" );

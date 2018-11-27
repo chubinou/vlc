@@ -39,6 +39,7 @@
 #include <vlc_cxx_helpers.hpp>
 #include "util/input_models.hpp"
 #include "util/vlc_var_choice_model.hpp"
+#include "util/vlctick.hpp"
 
 class QSignalMapper;
 
@@ -112,9 +113,9 @@ public:
     Q_PROPERTY(float rate READ getRate WRITE setRate NOTIFY rateChanged)
     Q_PROPERTY(MediaStopAction mediaStopAction READ getMediaStopAction WRITE setMediaStopAction NOTIFY mediaStopActionChanged)
 
-    Q_PROPERTY(vlc_tick_t time READ getTime WRITE setTime NOTIFY timeChanged)
+    Q_PROPERTY(VLCTick time READ getTime WRITE setTime NOTIFY timeChanged)
     Q_PROPERTY(float position READ getPosition WRITE setPosition NOTIFY positionChanged)
-    Q_PROPERTY(vlc_tick_t length READ getLength NOTIFY lengthChanged)
+    Q_PROPERTY(VLCTick length READ getLength NOTIFY lengthChanged)
 
     Q_PROPERTY(bool seekable READ isSeekable NOTIFY seekableChanged)
     Q_PROPERTY(bool rewindable READ isRewindable NOTIFY rewindableChanged)
@@ -127,8 +128,8 @@ public:
     Q_PROPERTY(TrackListModel* audioTracks READ getAudioTracks CONSTANT)
     Q_PROPERTY(TrackListModel* subtitleTracks READ getSubtitleTracks CONSTANT)
 
-    Q_PROPERTY(vlc_tick_t audioDelay READ getAudioDelay WRITE setAudioDelay NOTIFY audioDelayChanged)
-    Q_PROPERTY(vlc_tick_t subtitleDelay READ getSubtitleDelay WRITE setSubtitleDelay NOTIFY subtitleDelayChanged)
+    Q_PROPERTY(VLCTick audioDelay READ getAudioDelay WRITE setAudioDelay NOTIFY audioDelayChanged)
+    Q_PROPERTY(VLCTick subtitleDelay READ getSubtitleDelay WRITE setSubtitleDelay NOTIFY subtitleDelayChanged)
     Q_PROPERTY(float subtitleFPS READ getSubtitleFPS WRITE setSubtitleFPS NOTIFY subtitleFPSChanged)
 
     //title/chapters/menu
@@ -170,8 +171,8 @@ public:
     //misc
     Q_PROPERTY(bool recording READ isRecording WRITE setRecording NOTIFY recordingChanged)
     Q_PROPERTY(ABLoopState ABloopState READ getABloopState WRITE setABloopState NOTIFY ABLoopStateChanged)
-    Q_PROPERTY(vlc_tick_t ABLoopA READ getABLoopA NOTIFY ABLoopAChanged)
-    Q_PROPERTY(vlc_tick_t ABLoopB READ getABLoopB NOTIFY ABLoopBChanged)
+    Q_PROPERTY(VLCTick ABLoopA READ getABLoopA NOTIFY ABLoopAChanged)
+    Q_PROPERTY(VLCTick ABLoopB READ getABLoopB NOTIFY ABLoopBChanged)
 
     /* exposed actions */
 public slots:
@@ -184,7 +185,7 @@ public slots:
 
     Q_INVOKABLE void jumpFwd();
     Q_INVOKABLE void jumpBwd();
-    Q_INVOKABLE void jumpToTime( vlc_tick_t i_time );
+    Q_INVOKABLE void jumpToTime( VLCTick i_time );
     Q_INVOKABLE void jumpToPos( float );
     Q_INVOKABLE void frameNext();
 
@@ -261,11 +262,11 @@ public slots:
     void setRate( float );
     MediaStopAction getMediaStopAction() const;
     void setMediaStopAction(MediaStopAction );
-    vlc_tick_t getTime() const;
-    void setTime(vlc_tick_t);
+    VLCTick getTime() const;
+    void setTime(VLCTick);
     float getPosition() const;
     void setPosition(float);
-    vlc_tick_t getLength() const;
+    VLCTick getLength() const;
     bool isSeekable() const;
     bool isRewindable() const;
     bool isPausable() const;
@@ -277,10 +278,10 @@ public slots:
     TrackListModel* getAudioTracks();
     TrackListModel* getSubtitleTracks();
 
-    vlc_tick_t getAudioDelay() const;
-    void setAudioDelay( vlc_tick_t );
-    vlc_tick_t getSubtitleDelay() const;
-    void setSubtitleDelay( vlc_tick_t );
+    VLCTick getAudioDelay() const;
+    void setAudioDelay( VLCTick );
+    VLCTick getSubtitleDelay() const;
+    void setSubtitleDelay( VLCTick );
     float getSubtitleFPS( ) const;
     void setSubtitleFPS( float );
 
@@ -333,8 +334,8 @@ public slots:
     void setRecording(bool record);
     void setABloopState(ABLoopState);
     ABLoopState getABloopState() const;
-    vlc_tick_t getABLoopA() const;
-    vlc_tick_t getABLoopB() const;
+    VLCTick getABLoopA() const;
+    VLCTick getABLoopB() const;
 
 signals:
     //playback
@@ -345,10 +346,10 @@ signals:
     void rateChanged( float );
     void mediaStopActionChanged( MediaStopAction );
 
-    void timeChanged( vlc_tick_t );
+    void timeChanged( VLCTick );
     void positionChanged( float );
-    void lengthChanged( vlc_tick_t );
-    void positionUpdated( float , vlc_tick_t, int );
+    void lengthChanged( VLCTick );
+    void positionUpdated( float , VLCTick, int );
     void seekRequested( float pos ); //not exposed through Q_PROPERTY
 
     void remainingTimeChanged( bool );  //FIXME
@@ -360,8 +361,8 @@ signals:
     void rateChangableChanged( bool );
 
     //tracks
-    void audioDelayChanged(vlc_tick_t);
-    void subtitleDelayChanged(vlc_tick_t);
+    void audioDelayChanged(VLCTick);
+    void subtitleDelayChanged(VLCTick);
     void subtitleFPSChanged(float);
 
     //title/chapters/menu
@@ -393,13 +394,13 @@ signals:
     //misc
     void recordingChanged( bool );
     void ABLoopStateChanged(ABLoopState);
-    void ABLoopAChanged(vlc_tick_t);
-    void ABLoopBChanged(vlc_tick_t);
+    void ABLoopAChanged(VLCTick);
+    void ABLoopBChanged(VLCTick);
 
     // Other signals
 
     // You can resume playback
-    void resumePlayback( vlc_tick_t );
+    void resumePlayback( VLCTick );
     // Statistics are updated
     void statisticsUpdated( const input_stats_t& stats );
     void infoChanged( input_item_t* );

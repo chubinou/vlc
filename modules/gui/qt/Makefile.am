@@ -182,6 +182,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/util/qvlcframe.hpp \
 	gui/qt/util/qvlcapp.hpp \
 	gui/qt/util/singleton.hpp \
+	gui/qt/util/vlctick.cpp \
+	gui/qt/util/vlctick.hpp \
 	gui/qt/util/vlc_var_choice_model.cpp \
 	gui/qt/util/vlc_var_choice_model.hpp \
 	gui/qt/util/vlc_var_observer.cpp \
@@ -290,6 +292,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/util/qvlcapp.moc.cpp \
 	gui/qt/util/vlc_var_choice_model.moc.cpp \
 	gui/qt/util/vlc_var_observer.moc.cpp \
+	gui/qt/util/vlctick.moc.cpp \
 	gui/qt/util/validators.moc.cpp \
 	gui/qt/util/buttons/RoundButton.moc.cpp \
 	gui/qt/util/buttons/DeckButtonsLayout.moc.cpp \

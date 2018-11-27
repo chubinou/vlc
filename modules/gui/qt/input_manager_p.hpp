@@ -61,7 +61,7 @@ public:
 
 public slots:
     void menusUpdateAudio( const QString& );
-    void AtoBLoop( float, vlc_tick_t, int );
+    void AtoBLoop( float, VLCTick, int );
 
 
 public:
@@ -80,9 +80,9 @@ public:
     float           m_rate = 1.f;
     InputManager::MediaStopAction m_mediaStopAction = InputManager::MEDIA_STOPPED_CONTINUE;
 
-    vlc_tick_t      m_time = 0;
+    VLCTick      m_time = 0;
     float           m_position = 0.f;
-    vlc_tick_t      m_length= 0;
+    VLCTick      m_length= 0;
 
     int             m_capabilities = 0;
 
@@ -91,8 +91,8 @@ public:
     TrackListModel m_audioTracks;
     TrackListModel m_subtitleTracks;
 
-    vlc_tick_t      m_audioDelay = 0;
-    vlc_tick_t      m_subtitleDelay = 0;
+    VLCTick      m_audioDelay = 0;
+    VLCTick      m_subtitleDelay = 0;
     float           m_subtitleFPS = 1.0;
 
     //title/chapters/menu
@@ -132,8 +132,8 @@ public:
     //misc
     bool            m_recording = false;
     InputManager::ABLoopState m_ABLoopState = InputManager::ABLOOP_STATE_NONE;
-    vlc_tick_t m_ABLoopA = VLC_TICK_INVALID;
-    vlc_tick_t m_ABLoopB = VLC_TICK_INVALID;
+    VLCTick m_ABLoopA = VLC_TICK_INVALID;
+    VLCTick m_ABLoopB = VLC_TICK_INVALID;
 
     //others
     QString         m_artUrl;

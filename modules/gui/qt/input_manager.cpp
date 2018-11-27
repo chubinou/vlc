@@ -928,7 +928,7 @@ void InputManager::normalRate()
 }
 
 
-void InputManager::setTime(vlc_tick_t new_time)
+void InputManager::setTime(VLCTick new_time)
 {
     Q_D(InputManager);
     vlc_player_locker lock{ d->m_player };
@@ -964,7 +964,7 @@ void InputManager::jumpBwd()
     }
 }
 
-void InputManager::jumpToTime(vlc_tick_t i_time)
+void InputManager::jumpToTime(VLCTick i_time)
 {
     Q_D(InputManager);
     msg_Info( d->p_intf, "jumpToTime");
@@ -992,14 +992,14 @@ void InputManager::frameNext()
 
 //TRACKS
 
-void InputManager::setAudioDelay(vlc_tick_t delay)
+void InputManager::setAudioDelay(VLCTick delay)
 {
     Q_D(InputManager);
     vlc_player_locker lock{ d->m_player };
     vlc_player_SetAudioDelay( d->m_player, delay, VLC_PLAYER_WHENCE_ABSOLUTE );
 }
 
-void InputManager::setSubtitleDelay(vlc_tick_t delay)
+void InputManager::setSubtitleDelay(VLCTick delay)
 {
     Q_D(InputManager);
     vlc_player_locker lock{ d->m_player };
@@ -1424,11 +1424,11 @@ QABSTRACTLIST_GETTER( VLCVarChoiceModel, getAudioVisualizations, m_audioVisualiz
 
 PRIMITIVETYPE_GETTER(InputManager::PlayingState, getPlayingState, m_playing_status)
 PRIMITIVETYPE_GETTER(QString, getName, m_name)
-PRIMITIVETYPE_GETTER(vlc_tick_t, getTime, m_time)
+PRIMITIVETYPE_GETTER(VLCTick, getTime, m_time)
 PRIMITIVETYPE_GETTER(float, getPosition, m_position)
-PRIMITIVETYPE_GETTER(vlc_tick_t, getLength, m_length)
-PRIMITIVETYPE_GETTER(vlc_tick_t, getAudioDelay, m_audioDelay)
-PRIMITIVETYPE_GETTER(vlc_tick_t, getSubtitleDelay, m_subtitleDelay)
+PRIMITIVETYPE_GETTER(VLCTick, getLength, m_length)
+PRIMITIVETYPE_GETTER(VLCTick, getAudioDelay, m_audioDelay)
+PRIMITIVETYPE_GETTER(VLCTick, getSubtitleDelay, m_subtitleDelay)
 PRIMITIVETYPE_GETTER(bool, isSeekable, m_capabilities & VLC_INPUT_CAPABILITIES_SEEKABLE)
 PRIMITIVETYPE_GETTER(bool, isRewindable, m_capabilities & VLC_INPUT_CAPABILITIES_REWINDABLE)
 PRIMITIVETYPE_GETTER(bool, isPausable, m_capabilities & VLC_INPUT_CAPABILITIES_PAUSEABLE)
@@ -1449,8 +1449,8 @@ PRIMITIVETYPE_GETTER(bool, hasMenu, m_hasMenu)
 PRIMITIVETYPE_GETTER(bool, isEncrypted, m_encrypted)
 PRIMITIVETYPE_GETTER(bool, isRecording, m_recording)
 PRIMITIVETYPE_GETTER(InputManager::ABLoopState, getABloopState, m_ABLoopState)
-PRIMITIVETYPE_GETTER(vlc_tick_t, getABLoopA, m_ABLoopA)
-PRIMITIVETYPE_GETTER(vlc_tick_t, getABLoopB, m_ABLoopB)
+PRIMITIVETYPE_GETTER(VLCTick, getABLoopA, m_ABLoopA)
+PRIMITIVETYPE_GETTER(VLCTick, getABLoopB, m_ABLoopB)
 PRIMITIVETYPE_GETTER(bool, isTeletextEnabled, m_teletextEnabled)
 PRIMITIVETYPE_GETTER(bool, isTeletextAvailable, m_teletextAvailable)
 PRIMITIVETYPE_GETTER(int, getTeletextPage, m_teletextPage)
