@@ -360,7 +360,8 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     QWidget* mainWidget = new QWidget(this);
 
     QStackedLayout *stackedLayout = new QStackedLayout;
-    //stackedLayout->setStackingMode(QStackedLayout::StackAll);
+    stackedLayout->setContentsMargins(0,0,0,0);
+    stackedLayout->setStackingMode(QStackedLayout::StackAll);
     mainWidget->setLayout(stackedLayout);
     setCentralWidget( mainWidget );
 
@@ -368,8 +369,10 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     MCMediaLib *medialib = new MCMediaLib(p_intf,  this);
     QmlMainContext* mainCtx = new QmlMainContext(p_intf, this);
 
-
     mediacenterView = new QQuickWidget();
+    mediacenterView->setClearColor(Qt::transparent);
+    mediacenterView->setAttribute(Qt::WA_NoBackground);
+
     QQmlContext *rootCtx = mediacenterView->rootContext();
     rootCtx->setContextProperty( "medialib", medialib );
     rootCtx->setContextProperty( "history", navigation_history );
@@ -380,55 +383,19 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     mediacenterView->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
     mediacenterWrapper = new QWidget(this);
+    mediacenterWrapper->setAttribute(Qt::WA_NativeWindow);
+    mediacenterWrapper->setAttribute(Qt::WA_DontCreateNativeAncestors);
+
     QHBoxLayout  *front_wrapper_layout = new QHBoxLayout(mediacenterWrapper);
     front_wrapper_layout->addWidget(mediacenterView);
-
-
-    /* Create the main Widget and the mainLayout */
-    QWidget* videoSplitWidget = new QWidget(this);
-    videoLayout = new QVBoxLayout;
-    videoSplitWidget->setLayout(videoLayout);
+    front_wrapper_layout->setContentsMargins(0,0,0,0);
 
     videoWidget = new VideoWidget( p_intf, this );
-    videoWidget ->setAttribute(Qt::WA_NativeWindow);
-    videoWidget ->setAttribute(Qt::WA_DontCreateNativeAncestors);
-
-    toolbarView = new QQuickWidget(this);
-    toolbarView->setMinimumHeight(80);
-    QQmlContext* toolbarCtx = toolbarView->rootContext();
-    toolbarCtx->setContextProperty( "history", navigation_history );
-    toolbarCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
-    toolbarCtx->setContextProperty( "mainctx", mainCtx);
-    toolbarView->setSource( QUrl ( QStringLiteral("qrc:/controlbar/VideoControler.qml") ) );
-    toolbarView->setResizeMode( QQuickWidget::SizeRootObjectToView );
-
-    QQuickItem* toolbarRootObj = toolbarView->rootObject();
-    connect(toolbarRootObj, SIGNAL(visibilityChanged(bool)), this, SLOT(onToolbarVisibilityChanged(bool)));
-
-    videoLayout->addWidget(videoWidget);
-    videoLayout->addWidget(toolbarView);
-    videoLayout->setSpacing(0);
-
     stackedLayout->addWidget(mediacenterWrapper);
-    stackedLayout->addWidget(videoSplitWidget);
-
-    connect(p_intf->p_sys->p_mainPlayerControler, &InputManager::hasVideoOutputChanged, [=] (bool videoPresent) {
-        stackedLayout->setCurrentIndex(videoPresent ? 1 : 0);
-        if (videoPresent) {
-            toolbarView->setFocus();
-        } else {
-            mediacenterView->setFocus();
-        }
-    });
+    stackedLayout->addWidget(videoWidget);
 
     if ( b_interfaceOnTop )
         setWindowFlags( windowFlags() | Qt::WindowStaysOnTopHint );
-}
-
-void MainInterface::onToolbarVisibilityChanged( bool visible )
-{
-    toolbarView->setMinimumHeight(visible ? 80 : 0);
-    toolbarView->setMaximumHeight(visible ? 80 : 0);
 }
 
 inline void MainInterface::initSystray()

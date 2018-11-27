@@ -212,8 +212,6 @@ protected slots:
 
     void onInputChanged( bool );
 
-    void onToolbarVisibilityChanged( bool );
-
 signals:
     void askGetVideo( struct vout_window_t *, unsigned, unsigned, bool,
                       bool * );

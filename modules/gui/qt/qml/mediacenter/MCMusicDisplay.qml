@@ -174,7 +174,7 @@ Utils.NavigableFocusScope {
                     }
 
                     /* Selector to choose a specific sorting operation */
-                    ComboBox {
+                    Utils.ComboBoxExt {
                         id: combo
 
                         //Layout.fillHeight: true
