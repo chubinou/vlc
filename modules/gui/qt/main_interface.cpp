@@ -65,7 +65,7 @@
 
 #include "components/playlist/qml_main_context.hpp"
 
-
+#include "util/qmleventfilter.hpp"
 
 #include "menus.hpp"                            // Menu creation
 #include "recents.hpp"                          // RecentItems when DnD
@@ -359,6 +359,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
 
     qmlRegisterType<AboutModel>( "org.videolan.vlc", 0, 1, "AboutModel" );
 
+    qmlRegisterType<QmlEventFilter>( "org.videolan.vlc", 0, 1, "EventFilter" );
 
     QWidget* mainWidget = new QWidget(this);
 
@@ -380,6 +381,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     rootCtx->setContextProperty( "history", navigation_history );
     rootCtx->setContextProperty( "player", p_intf->p_sys->p_mainPlayerControler );
     rootCtx->setContextProperty( "mainctx", mainCtx);
+    rootCtx->setContextProperty( "rootWindow", mediacenterView);
 
     mediacenterView->setSource( QUrl ( QStringLiteral("qrc:/qml/MainInterface.qml") ) );
     mediacenterView->setResizeMode( QQuickWidget::SizeRootObjectToView );

@@ -227,11 +227,28 @@ Utils.NavigableFocusScope {
                 return;
             controlBarView.state = "hidden"
         }
+
+        function setVisible() {
+            controlBarView.state = "visible"
+            toolbarAutoHide.restart()
+        }
     }
 
-    Keys.priority: Keys.BeforeItem
-    Keys.onPressed: {
-        controlBarView.state = "visible"
-        toolbarAutoHide.restart()
+    Component.onCompleted: {
+        filter.source = rootWindow
     }
+
+    EventFilter {
+        id: filter
+        filterEnabled: true
+
+        //only handle key release to avoid underneath button to be
+        //triggered as it gains focus between events
+        Keys.onReleased: {
+            if (controlBarView.state === "hidden")
+                event.accepted = true
+            toolbarAutoHide.setVisible()
+        }
+    }
+
 }
