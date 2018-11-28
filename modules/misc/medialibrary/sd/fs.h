@@ -48,7 +48,6 @@ using namespace ::medialibrary::fs;
 class SDFileSystemFactory : public IFileSystemFactory {
 public:
     SDFileSystemFactory(vlc_object_t *parent,
-                        const std::string &name,
                         const std::string &scheme);
 
     std::shared_ptr<IDirectory>
@@ -87,16 +86,19 @@ public:
 
 private:
     vlc_object_t *const parent;
-    const std::string m_name;
     const std::string m_scheme;
-    std::unique_ptr<services_discovery_t, decltype(&vlc_sd_Destroy)> sd {
-        nullptr, vlc_sd_Destroy
-    };
+    using SdPtr = std::unique_ptr<services_discovery_t, decltype(&vlc_sd_Destroy)>;
+    std::vector<SdPtr> m_sds;
     IFileSystemFactoryCb *callbacks;
 
     vlc::threads::mutex mutex;
     vlc::threads::condition_variable itemAddedCond;
-    std::vector<std::shared_ptr<IDevice>> devices;
+    struct Device
+    {
+        std::vector<std::string> mrls;
+        std::shared_ptr<IDevice> device;
+    };
+    std::vector<Device> devices;
 };
 
   } /* namespace medialibrary */

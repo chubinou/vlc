@@ -31,7 +31,7 @@ using namespace ::medialibrary::fs;
 class SDDevice : public IDevice
 {
 public:
-    SDDevice(const std::string &mrl);
+    SDDevice(const std::string& uuid, const std::string &mrl);
 
     const std::string &uuid() const override;
     bool isRemovable() const override;

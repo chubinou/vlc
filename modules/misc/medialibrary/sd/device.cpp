@@ -27,8 +27,8 @@
 namespace vlc {
   namespace medialibrary {
 
-SDDevice::SDDevice(const std::string &mrl)
-    : m_uuid(mrl)
+SDDevice::SDDevice(const std::string& uuid, const std::string &mrl)
+    : m_uuid(uuid)
     , m_mountpoint(mrl)
 {
     // Ensure the mountpoint always ends with a '/' to avoid mismatch between
