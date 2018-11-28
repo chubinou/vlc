@@ -306,11 +306,14 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
         auto it = event->subitems->pp_children[i]->p_item;
         Item item;
         item.name = it->psz_name;
-        item.mainMrl = QUrl::fromEncoded(it->psz_uri);
         item.protocol = "";
         item.indexed = false;
         item.type = (it->i_type == ITEM_TYPE_DIRECTORY || it->i_type == ITEM_TYPE_NODE) ?
                 TYPE_DIR : TYPE_FILE;
+        item.mainMrl = item.type == TYPE_DIR ?
+                    QUrl::fromEncoded(QByteArray(it->psz_uri).append('/')) :
+                    QUrl::fromEncoded(it->psz_uri);
+
         item.canBeIndexed = canBeIndexed( item.mainMrl );
 
         if ( item.canBeIndexed == true && m_entryPoints != nullptr )
