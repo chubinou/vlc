@@ -46,8 +46,4 @@ ToolButton {
         implicitWidth: control.size
         color: "transparent"
     }
-
-    Keys.onReturnPressed: {
-        control.clicked()
-    }
 }

@@ -36,9 +36,4 @@ ToolButton {
         width: parent.contentItem.width
         color: "transparent"
     }
-
-
-    Keys.onReturnPressed: {
-        control.clicked()
-    }
 }
