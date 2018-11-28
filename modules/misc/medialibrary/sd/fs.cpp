@@ -247,11 +247,11 @@ SDFileSystemFactory::onDeviceRemoved(input_item_t *media)
 
     {
         vlc::threads::mutex_locker locker(mutex);
-        auto it = std::remove_if(devices.begin(), devices.end(),
+        auto it = std::find_if(devices.cbegin(), devices.cend(),
                 [&name](const Device& device) {
                     return strcasecmp( name, device.device->uuid().c_str() ) == 0;
                 });
-        if ( it != devices.end() )
+        if ( it != devices.cend() )
             (*it).device->setPresent( false );
     }
 
