@@ -60,7 +60,8 @@ Utils.NavigableFocusScope {
         id: trackTypeTumbler
         anchors.right: trackTumble.left
         anchors.verticalCenter: parent.verticalCenter
-        width: 100
+        //fixme hardcoded
+        width: 100 * VLCStyle.scale
         height: parent.height
 
         //Layout.fillHeight: true

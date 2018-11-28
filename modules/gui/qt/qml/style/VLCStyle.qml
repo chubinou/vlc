@@ -4,25 +4,27 @@ import QtQuick 2.7
 Item {
     id: vlc_style
 
-    TextMetrics { id: fontMetrics_xxsmall; font.pixelSize: 6;  text: "lq"}
-    TextMetrics { id: fontMetrics_xsmall;  font.pixelSize: 8;  text: "lq"}
-    TextMetrics { id: fontMetrics_small;   font.pixelSize: 10; text: "lq"}
-    TextMetrics { id: fontMetrics_normal;  font.pixelSize: 12; text: "lq"}
-    TextMetrics { id: fontMetrics_large;   font.pixelSize: 14; text: "lq"}
-    TextMetrics { id: fontMetrics_xlarge;  font.pixelSize: 16; text: "lq"}
-    TextMetrics { id: fontMetrics_xxlarge;  font.pixelSize: 20; text: "lq"}
-    TextMetrics { id: fontMetrics_xxxlarge;  font.pixelSize: 30; text: "lq"}
+    property double scale: 1.0
+
+    TextMetrics { id: fontMetrics_xxsmall; font.pixelSize: 6 * scale;  text: "lq"}
+    TextMetrics { id: fontMetrics_xsmall;  font.pixelSize: 8 * scale;  text: "lq"}
+    TextMetrics { id: fontMetrics_small;   font.pixelSize: 10 * scale; text: "lq"}
+    TextMetrics { id: fontMetrics_normal;  font.pixelSize: 12 * scale; text: "lq"}
+    TextMetrics { id: fontMetrics_large;   font.pixelSize: 14 * scale; text: "lq"}
+    TextMetrics { id: fontMetrics_xlarge;  font.pixelSize: 16 * scale; text: "lq"}
+    TextMetrics { id: fontMetrics_xxlarge;  font.pixelSize: 20 * scale; text: "lq"}
+    TextMetrics { id: fontMetrics_xxxlarge;  font.pixelSize: 30 * scale; text: "lq"}
 
     property VLCColors colors: VLCColors {}
 
     // Sizes
-    property double margin_xxxsmall: 2;
-    property double margin_xxsmall: 4;
-    property double margin_xsmall: 8;
-    property double margin_small: 12;
-    property double margin_normal: 16;
-    property double margin_large: 24;
-    property double margin_xlarge: 32;
+    property double margin_xxxsmall: 2 * scale;
+    property double margin_xxsmall: 4 * scale;
+    property double margin_xsmall: 8 * scale;
+    property double margin_small: 12 * scale;
+    property double margin_normal: 16 * scale;
+    property double margin_large: 24 * scale;
+    property double margin_xlarge: 32 * scale;
 
     property int fontSize_xsmall: fontMetrics_xxsmall.font.pixelSize
     property int fontSize_small:  fontMetrics_small.font.pixelSize
@@ -41,39 +43,39 @@ Item {
     property int fontHeight_xxxlarge: Math.ceil(fontMetrics_xxxlarge.height)
 
 
-    property int heightAlbumCover_xsmall: 32;
-    property int heightAlbumCover_small: 64;
-    property int heightAlbumCover_normal: 128;
-    property int heightAlbumCover_large: 255;
-    property int heightAlbumCover_xlarge: 512;
+    property int heightAlbumCover_xsmall: 32 * scale;
+    property int heightAlbumCover_small: 64 * scale;
+    property int heightAlbumCover_normal: 128 * scale;
+    property int heightAlbumCover_large: 255 * scale;
+    property int heightAlbumCover_xlarge: 512 * scale;
 
-    property int icon_xsmall: 8;
-    property int icon_small: 16;
-    property int icon_normal: 32;
-    property int icon_large: 64;
-    property int icon_xlarge: 128;
+    property int icon_xsmall: 8 * scale;
+    property int icon_small: 16 * scale;
+    property int icon_normal: 32 * scale;
+    property int icon_large: 64 * scale;
+    property int icon_xlarge: 128 * scale;
 
-    property int cover_xxsmall: 32;
-    property int cover_xsmall: 64;
-    property int cover_small: 96;
-    property int cover_normal: 128;
-    property int cover_large: 160;
-    property int cover_xlarge: 192;
+    property int cover_xxsmall: 32 * scale;
+    property int cover_xsmall: 64 * scale;
+    property int cover_small: 96 * scale;
+    property int cover_normal: 128 * scale;
+    property int cover_large: 160 * scale;
+    property int cover_xlarge: 192 * scale;
 
-    property int heightBar_xsmall: 8;
-    property int heightBar_small: 16;
-    property int heightBar_normal: 32;
-    property int heightBar_large: 64;
-    property int heightBar_xlarge: 128;
-    property int heightBar_xxlarge: 256;
+    property int heightBar_xsmall: 8 * scale;
+    property int heightBar_small: 16 * scale;
+    property int heightBar_normal: 32 * scale;
+    property int heightBar_large: 64 * scale;
+    property int heightBar_xlarge: 128 * scale;
+    property int heightBar_xxlarge: 256 * scale;
 
-    property int minWidthMediacenter: 500;
-    property int maxWidthPlaylist: 400;
-    property int defaultWidthPlaylist: 300;
-    property int closedWidthPlaylist: 20;
+    property int minWidthMediacenter: 500 * scale;
+    property int maxWidthPlaylist: 400 * scale;
+    property int defaultWidthPlaylist: 300 * scale;
+    property int closedWidthPlaylist: 20 * scale;
 
-    property int widthSearchInput: 200;
-    property int widthSortBox: 150;
+    property int widthSearchInput: 200 * scale;
+    property int widthSortBox: 150 * scale;
 
 
     //timings

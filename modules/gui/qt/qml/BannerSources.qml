@@ -106,6 +106,8 @@ Utils.NavigableFocusScope {
                             root.selectedIndex = model.index
                         }
 
+                        font.pixelSize: VLCStyle.fontSize_normal
+
                         background: Rectangle {
                             height: parent.height
                             width: parent.contentItem.width

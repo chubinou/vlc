@@ -6,6 +6,8 @@ import "qrc:///style/"
 ToolButton {
     id: control
 
+    font.pixelSize: VLCStyle.fontSize_normal
+
     contentItem: Label {
         text: control.text
         font: control.font

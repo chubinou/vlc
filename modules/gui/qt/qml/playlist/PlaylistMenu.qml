@@ -70,6 +70,8 @@ FocusScope{
 
                 KeyNavigation.down: clearButton
                 icon.source: "qrc:///toolbar/play_b.svg"
+                icon.width: VLCStyle.icon_normal
+                icon.height: VLCStyle.icon_normal
                 onClicked: {
                     play()
                     _exitMenu()
@@ -91,6 +93,8 @@ FocusScope{
 
                 KeyNavigation.down: selectButton
                 icon.source: "qrc:///toolbar/clear.svg"
+                icon.width: VLCStyle.icon_normal
+                icon.height: VLCStyle.icon_normal
                 onClicked: {
                     clear()
                     _exitMenu()
@@ -111,6 +115,8 @@ FocusScope{
 
                 KeyNavigation.down: moveButton
                 icon.source: "qrc:///toolbar/playlist.svg"
+                icon.width: VLCStyle.icon_normal
+                icon.height: VLCStyle.icon_normal
 
                 checkable: true
                 checked: false
@@ -132,6 +138,8 @@ FocusScope{
 
                 KeyNavigation.down: backButton
                 icon.source: "qrc:///toolbar/space.svg"
+                icon.width: VLCStyle.icon_normal
+                icon.height: VLCStyle.icon_normal
 
                 checkable: true
                 checked: false
@@ -151,6 +159,8 @@ FocusScope{
                 x: root._hiddentX
 
                 icon.source: "qrc:///menu/exit.svg"
+                icon.width: VLCStyle.icon_normal
+                icon.height: VLCStyle.icon_normal
 
                 onClicked:  _exitMenu()
 
@@ -164,9 +174,7 @@ FocusScope{
         }
     }
 
-    onStateChanged: console.log("new overlay state is", state)
     state: "hidden"
-
     states: [
         State {
             name: "hidden"

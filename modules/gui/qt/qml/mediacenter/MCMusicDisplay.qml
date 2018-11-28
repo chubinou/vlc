@@ -103,6 +103,7 @@ Utils.NavigableFocusScope {
                             TabButton {
                                 id: control
                                 text: model.displayText
+                                font.pixelSize: VLCStyle.fontSize_normal
                                 background: Rectangle {
                                     color: control.hovered ? VLCStyle.colors.bannerHover : VLCStyle.colors.banner
                                 }
