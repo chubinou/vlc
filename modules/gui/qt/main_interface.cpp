@@ -364,7 +364,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
 
     QStackedLayout *stackedLayout = new QStackedLayout;
     stackedLayout->setContentsMargins(0,0,0,0);
-    stackedLayout->setStackingMode(QStackedLayout::StackAll);
     mainWidget->setLayout(stackedLayout);
     setCentralWidget( mainWidget );
 
@@ -386,9 +385,6 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     mediacenterView->setResizeMode( QQuickWidget::SizeRootObjectToView );
 
     mediacenterWrapper = new QWidget(this);
-    mediacenterWrapper->setAttribute(Qt::WA_NativeWindow);
-    mediacenterWrapper->setAttribute(Qt::WA_DontCreateNativeAncestors);
-
     QHBoxLayout  *front_wrapper_layout = new QHBoxLayout(mediacenterWrapper);
     front_wrapper_layout->addWidget(mediacenterView);
     front_wrapper_layout->setContentsMargins(0,0,0,0);
