@@ -105,12 +105,11 @@ bool MLNetworkModel::setData( const QModelIndex& idx, const QVariant& value, int
     assert( ml != nullptr );
     auto enabled = value.toBool();
     assert( m_items[idx.row()].indexed != enabled );
-    QString mrl = m_items[idx.row()].mainMrl.toString(QUrl::None);
     int res;
     if ( enabled )
-        res = vlc_ml_add_folder( ml, qtu(mrl) );
+        res = vlc_ml_add_folder( ml, m_items[idx.row()].mainMrl.toEncoded().constData() );
     else
-        res = vlc_ml_remove_folder( ml, qtu(mrl) );
+        res = vlc_ml_remove_folder( ml, m_items[idx.row()].mainMrl.toEncoded().constData() );
     m_items[idx.row()].indexed = enabled;
     emit dataChanged(idx, idx, { NETWORK_INDEXED });
     return res == VLC_SUCCESS;
@@ -181,7 +180,7 @@ bool MLNetworkModel::initializeDeviceDiscovery()
 bool MLNetworkModel::initializeFolderDiscovery()
 {
     std::unique_ptr<input_item_t, decltype(&input_item_Release)> inputItem{
-        input_item_New( qtu( m_parentMrl.toString(QUrl::None) ), NULL ),
+        input_item_New( m_parentMrl.toEncoded().constData(), NULL ),
         &input_item_Release
     };
     inputItem->i_preparse_depth = 1;
