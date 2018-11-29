@@ -53,26 +53,35 @@ Utils.NavigableFocusScope {
     }
 
     readonly property var pageModel: [
-        {name: "music",   component: musicComp },
-        {name: "video",   component: videoComp },
-        {name: "network", component: networkComp }
+        {
+            displayText: qsTr("Music"),
+            pic: "qrc:///sidebar/music.svg",
+            name: "music",
+            component: musicComp
+        }, {
+            displayText: qsTr("Video"),
+            pic: "qrc:///sidebar/movie.svg",
+            name: "video",
+            component: videoComp
+        }, {
+            displayText: qsTr("Network"),
+            pic: "qrc:///sidebar/screen.svg",
+            name: "network",
+            component: networkComp
+        }
     ]
 
     property var tabModel: ListModel {
-        ListElement {
-            displayText: qsTr("Music")
-            pic: "qrc:///sidebar/music.svg"
-            name: "music"
-        }
-        ListElement {
-            displayText: qsTr("Video")
-            pic: "qrc:///sidebar/movie.svg"
-            name: "video"
-        }
-        ListElement {
-            displayText: qsTr("Network")
-            pic: "qrc:///sidebar/screen.svg"
-            name: "network"
+        id: tabModelid
+        Component.onCompleted: {
+            pageModel.forEach(function(e) {
+                append({
+                    displayText: e.displayText,
+                    pic: e.pic,
+                    name: e.name,
+                    selected: (e.name === root.view)
+                })
+            })
         }
     }
 

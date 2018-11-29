@@ -36,29 +36,39 @@ Utils.NavigableFocusScope {
     property string view: "albums"
     property var viewProperties: QtObject {}
 
-    readonly property var pageModel: [
-        { name: "albums" , url: "qrc:///mediacenter/MusicAlbumsDisplay.qml"},
-        { name: "artists", url: "qrc:///mediacenter/MusicArtistsDisplay.qml"},
-        { name: "genres" , url: "qrc:///mediacenter/MusicGenresDisplay.qml"},
-        { name: "tracks" , url: "qrc:///mediacenter/MusicTrackListDisplay.qml"}
+    Component { id: albumComp; MusicAlbumsDisplay{ } }
+    Component { id: artistComp; MusicArtistsDisplay{ } }
+    Component { id: genresComp; MusicGenresDisplay{ } }
+    Component { id: tracksComp; MusicTrackListDisplay{ } }
+
+    readonly property var pageModel: [{
+            displayText: qsTr("Albums"),
+            name: "albums",
+            component: albumComp
+        }, {
+            displayText: qsTr("Artists"),
+            name: "artists",
+            component: artistComp
+        }, {
+            displayText: qsTr("Genres"),
+            name: "genres" ,
+            component: genresComp
+        }, {
+            displayText: qsTr("Tracks"),
+            name: "tracks" ,
+            component: tracksComp
+        }
     ]
 
     property var tabModel: ListModel {
-        ListElement {
-            displayText: qsTr("Albums")
-            name: "albums"
-        }
-        ListElement {
-            displayText: qsTr("Artists")
-            name: "artists"
-        }
-        ListElement {
-            displayText: qsTr("Genres")
-            name: "genres"
-        }
-        ListElement {
-            displayText: qsTr("Tracks")
-            name: "tracks"
+        Component.onCompleted: {
+            pageModel.forEach(function(e) {
+                append({
+                    displayText: e.displayText,
+                    name: e.name,
+                    selected: (e.name === root.view)
+                })
+            })
         }
     }
 
@@ -126,12 +136,16 @@ Utils.NavigableFocusScope {
                                     }
                                 }
                                 onClicked: {
-                                    stackView.replace(pageModel[index].url)
+                                    stackView.replace(pageModel[index].component)
                                     history.push(["mc", "music", model.name ], History.Stay)
                                     stackView.focus = true
                                 }
                                 checked: (model.name === root.view)
                                 activeFocusOnTab: true
+                                Component.onCompleted: {
+                                    if (model.selected)
+                                        bar.currentIndex = index
+                                }
                             }
                         }
 
@@ -216,7 +230,7 @@ Utils.NavigableFocusScope {
             Component.onCompleted: {
                 var found = stackView.loadView(root.pageModel, view, viewProperties)
                 if (!found)
-                    push(pageModel[0])
+                    push(pageModel[0].component)
             }
         }
 

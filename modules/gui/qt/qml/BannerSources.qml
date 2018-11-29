@@ -97,7 +97,14 @@ Utils.NavigableFocusScope {
 
                         //initial focus
                         focusPolicy: Qt.StrongFocus
-                        focus: index === 0
+                        //focus: index === 1
+                        focus: model.selected
+
+                        Component.onCompleted: {
+                            if (model.selected) {
+                                buttonView.currentIndex = index
+                            }
+                        }
 
                         checkable: true
                         padding: 0
