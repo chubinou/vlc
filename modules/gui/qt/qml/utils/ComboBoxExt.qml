@@ -6,6 +6,8 @@ import "qrc:///style/"
 ComboBox {
     id: control
 
+    font.pixelSize: VLCStyle.fontSize_normal
+
     delegate: ItemDelegate {
         width: control.width
         leftPadding: control.leftPadding

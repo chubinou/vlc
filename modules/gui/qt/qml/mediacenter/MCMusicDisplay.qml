@@ -149,6 +149,7 @@ Utils.NavigableFocusScope {
                         Layout.alignment: Qt.AlignVCenter  | Qt.AlignRight
 
                         id: searchBox
+                        font.pixelSize: VLCStyle.fontSize_normal
 
                         color: VLCStyle.colors.buttonText
                         placeholderText: qsTr("filter")
