@@ -45,6 +45,9 @@ NavigableFocusScope {
         clip: true
         ScrollBar.vertical: ScrollBar { id: scroll_id }
 
+        highlightMoveDuration: 300 //ms
+        highlightMoveVelocity: 1000 //px/s
+
         Connections {
             target: view.currentItem
             ignoreUnknownSignals: true

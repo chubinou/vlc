@@ -102,8 +102,6 @@ NavigableFocusScope {
 
         anchors.fill: parent
 
-        highlightMoveVelocity: 1000
-
         focus: true
 
         model : delegateModel.parts.list
