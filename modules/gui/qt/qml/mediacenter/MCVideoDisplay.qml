@@ -156,7 +156,7 @@ Utils.NavigableFocusScope {
         }
     }
 
-    StackView {
+    Utils.StackViewExt {
         id: view
 
         anchors.fill: parent

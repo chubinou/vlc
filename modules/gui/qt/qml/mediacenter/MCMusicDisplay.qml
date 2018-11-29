@@ -230,7 +230,7 @@ Utils.NavigableFocusScope {
             Component.onCompleted: {
                 var found = stackView.loadView(root.pageModel, view, viewProperties)
                 if (!found)
-                    push(pageModel[0].component)
+                    replace(pageModel[0].component)
             }
         }
 
