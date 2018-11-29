@@ -145,6 +145,7 @@ void MCMediaLib::addAndPlay(const MLParentId & itemId )
         if (item) {
             QVector<vlc::playlist::Media> medias = { vlc::playlist::Media(item) };
             m_intf->p_sys->p_mainPlaylistControler->append(medias, true);
+            input_item_Release( item );
         }
     }
     else
@@ -157,7 +158,10 @@ void MCMediaLib::addAndPlay(const MLParentId & itemId )
         QVector<vlc::playlist::Media> medias;
         std::transform(mediaRange.begin(), mediaRange.end(), std::back_inserter(medias), [&](vlc_ml_media_t& m) {
             input_item_t* item = vlc_ml_get_input_item( m_ml, m.i_id );
-            return vlc::playlist::Media(item);
+            auto res = vlc::playlist::Media(item);
+            if ( item )
+                input_item_Release( item );
+            return res;
         });
         m_intf->p_sys->p_mainPlaylistControler->append(medias, true);
     }
