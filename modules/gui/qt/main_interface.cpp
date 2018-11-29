@@ -271,8 +271,6 @@ MainInterface::~MainInterface()
     /* Save playlist state */
     settings->setValue( "playlist-visible", playlistVisible );
 
-    settings->setValue( "status-bar-visible", b_statusbarVisible );
-
     /* Save the stackCentralW sizes */
     settings->endGroup();
 

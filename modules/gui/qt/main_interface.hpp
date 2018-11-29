@@ -169,7 +169,6 @@ protected:
     bool                 b_plDocked;            ///< Is the playlist docked ?
 
     bool                 b_hasPausedWhenMinimized;
-    bool                 b_statusbarVisible;
 
     static const Qt::Key kc[10]; /* easter eggs */
     int i_kc_offset;
