@@ -37,7 +37,7 @@ enum Role {
 
 MLNetworkModel::MLNetworkModel( QObject* parent )
     : QAbstractListModel( parent )
-    , m_entryPoints( nullptr, &vlc_ml_entry_point_list_release )
+    , m_ml( nullptr )
     , m_input( nullptr, &input_Close )
 {
 }
@@ -122,23 +122,12 @@ void MLNetworkModel::setContext(QmlMainContext* ctx, QUrl parentMrl)
     if (ctx) {
         m_ctx = ctx;
         m_parentMrl = parentMrl;
-        initializeKnownEntrypoints();
+        m_ml = vlc_ml_instance_get( m_ctx->getIntf() );
         if ( m_parentMrl.isEmpty() )
             initializeDeviceDiscovery();
         else
             initializeFolderDiscovery();
     }
-}
-
-bool MLNetworkModel::initializeKnownEntrypoints()
-{
-    auto ml = vlc_ml_instance_get( m_ctx->getIntf() );
-    assert( ml != nullptr );
-    vlc_ml_entry_point_list_t *entryPoints;
-    if ( vlc_ml_list_folder( ml, &entryPoints ) != VLC_SUCCESS )
-        return false;
-    m_entryPoints.reset( entryPoints );
-    return true;
 }
 
 bool MLNetworkModel::initializeDeviceDiscovery()
@@ -227,7 +216,7 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
     assert( parent == nullptr );
 
     Item item;
-    item.mainMrl = QUrl::fromEncoded(p_item->psz_uri);
+    item.mainMrl = QUrl::fromEncoded( QByteArray{ p_item->psz_uri }.append( '/' ) );
     item.name = qfu(p_item->psz_name);
     item.mrls.push_back( item.mainMrl );
     item.indexed = false;
@@ -246,17 +235,11 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
             filterMainMrl( ( *it ), std::distance( begin( m_items ), it ) );
             return;
         }
-        if ( item.canBeIndexed == true && m_entryPoints != nullptr )
+        if ( item.canBeIndexed == true )
         {
-            for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
-            {
-                if ( ep.b_present && ep.b_banned == false &&
-                     QUrl::fromEncoded(ep.psz_mrl) == item.mainMrl )
-                {
-                    item.indexed = true;
-                    break;
-                }
-            }
+            if ( vlc_ml_is_indexed( m_ml, item.mainMrl.toEncoded().constData(),
+                                    &item.indexed ) != VLC_SUCCESS )
+                item.indexed = false;
         }
         beginInsertRows( {}, m_items.size(), m_items.size() );
         m_items.push_back( std::move( item ) );
@@ -316,17 +299,11 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
 
         item.canBeIndexed = canBeIndexed( item.mainMrl );
 
-        if ( item.canBeIndexed == true && m_entryPoints != nullptr )
+        if ( item.canBeIndexed == true )
         {
-            for ( const auto& ep : ml_range_iterate<vlc_ml_entry_point_t>( m_entryPoints ) )
-            {
-                if ( ep.b_present && ep.b_banned == false &&
-                     QUrl::fromEncoded(ep.psz_mrl) == item.mainMrl )
-                {
-                    item.indexed = true;
-                    break;
-                }
-            }
+            if ( vlc_ml_is_indexed( m_ml, item.mainMrl.toEncoded().constData(),
+                                    &item.indexed ) != VLC_SUCCESS )
+                item.indexed = false;
         }
         items.push_back( std::move( item ) );
     }

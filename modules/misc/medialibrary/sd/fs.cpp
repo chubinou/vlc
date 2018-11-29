@@ -89,11 +89,11 @@ SDFileSystemFactory::createDevice(const std::string &uuid)
     while ( true )
     {
         auto it = std::find_if(devices.cbegin(), devices.cend(),
-                [&uuid](const Device& device) {
-                    return strcasecmp( uuid.c_str(), device.device->uuid().c_str() ) == 0;
+                [&uuid](const std::shared_ptr<IDevice>& device) {
+                    return strcasecmp( uuid.c_str(), device->uuid().c_str() ) == 0;
                 });
         if (it != devices.cend())
-            return (*it).device;
+            return (*it);
         /* wait a bit, maybe the device is not detected yet */
         int timeout = itemAddedCond.timedwait(mutex, deadline);
         if (timeout)
@@ -111,15 +111,12 @@ SDFileSystemFactory::createDeviceFromMrl(const std::string &mrl)
     while ( true )
     {
         auto it = std::find_if(devices.cbegin(), devices.cend(),
-                [&mrl](const Device& device) {
-                    return std::find_if( cbegin( device.mrls ), cend( device.mrls ),
-                            [&mrl]( const std::string& deviceMrl ) {
-                                return strncasecmp( mrl.c_str(), deviceMrl.c_str(),
-                                                    deviceMrl.length() ) == 0;
-                            }) != cend( device.mrls );
+                [&mrl](const std::shared_ptr<IDevice>& device) {
+                    auto match = device->matchesMountpoint( mrl );
+                    return std::get<0>( match );
                 });
         if (it != devices.cend())
-            return (*it).device;
+            return (*it);
         /* wait a bit, maybe the device is not detected yet */
         int timeout = itemAddedCond.timedwait(mutex, deadline);
         if (timeout)
@@ -214,25 +211,18 @@ SDFileSystemFactory::onDeviceAdded(input_item_t *media)
     {
         vlc::threads::mutex_locker locker(mutex);
         auto it = std::find_if(devices.begin(), devices.end(),
-                [name](const Device& device) {
-                    return strcasecmp( name, device.device->uuid().c_str() ) == 0;
+                [name](const std::shared_ptr<IDevice>& device) {
+                    return strcasecmp( name, device->uuid().c_str() ) == 0;
                 });
         if (it != devices.end())
         {
             auto& device = (*it);
-            auto mrlIt = std::find_if( cbegin( device.mrls ), cend( device.mrls ),
-                                       [mrl]( const std::string& deviceMrl ) {
-                                            return strcasecmp( deviceMrl.c_str(),
-                                                               mrl.c_str() ) == 0;
-                                       });
-            if ( mrlIt == cend( device.mrls ) )
-                device.mrls.push_back( std::move( mrl ) );
-            device.device->setPresent( true );
+            auto match = device->matchesMountpoint( mrl );
+            if ( std::get<0>( match ) == false )
+                device->addMountpoint( std::move( mrl ) );
             return; /* already exists */
         }
-        Device device;
-        device.device = std::make_shared<SDDevice>( name, mrl );
-        device.mrls.push_back( std::move( mrl ) );
+        auto device = std::make_shared<SDDevice>( name, std::move( mrl ) );
         devices.push_back( device );
     }
 
@@ -247,12 +237,12 @@ SDFileSystemFactory::onDeviceRemoved(input_item_t *media)
 
     {
         vlc::threads::mutex_locker locker(mutex);
-        auto it = std::find_if(devices.cbegin(), devices.cend(),
-                [&name](const Device& device) {
-                    return strcasecmp( name, device.device->uuid().c_str() ) == 0;
+        auto it = std::find_if(devices.begin(), devices.end(),
+                [&name](const std::shared_ptr<IDevice>& device) {
+                    return strcasecmp( name, device->uuid().c_str() ) == 0;
                 });
-        if ( it != devices.cend() )
-            (*it).device->setPresent( false );
+        if ( it != devices.end() )
+            (*it)->removeMountpoint( media->psz_uri );
     }
 
     callbacks->onDeviceUnplugged( name );

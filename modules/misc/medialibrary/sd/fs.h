@@ -93,12 +93,7 @@ private:
 
     vlc::threads::mutex mutex;
     vlc::threads::condition_variable itemAddedCond;
-    struct Device
-    {
-        std::vector<std::string> mrls;
-        std::shared_ptr<IDevice> device;
-    };
-    std::vector<Device> devices;
+    std::vector<std::shared_ptr<IDevice>> devices;
 };
 
   } /* namespace medialibrary */
