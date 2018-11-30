@@ -134,8 +134,7 @@ SDFileSystemFactory::refreshDevices()
 bool
 SDFileSystemFactory::isMrlSupported(const std::string &path) const
 {
-    auto s = m_scheme + ":";
-    return !path.compare(0, s.length(), s);
+    return !path.compare(0, m_scheme.length(), m_scheme);
 }
 
 bool
@@ -204,8 +203,7 @@ SDFileSystemFactory::onDeviceAdded(input_item_t *media)
     if ( *mrl.crbegin() != '/' )
         mrl += '/';
 
-    if ( strncasecmp( mrl.c_str(), m_scheme.c_str(), m_scheme.length() ) != 0 ||
-         mrl[m_scheme.length()] != ':' )
+    if ( strncasecmp( mrl.c_str(), m_scheme.c_str(), m_scheme.length() ) != 0 )
         return;
 
     {
