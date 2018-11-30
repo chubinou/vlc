@@ -234,6 +234,9 @@ void
 SDFileSystemFactory::onDeviceRemoved(input_item_t *media)
 {
     auto name = media->psz_name;
+    auto mrl = std::string{ media->psz_uri };
+    if ( *mrl.crbegin() != '/' )
+        mrl += '/';
 
     {
         vlc::threads::mutex_locker locker(mutex);
@@ -242,10 +245,8 @@ SDFileSystemFactory::onDeviceRemoved(input_item_t *media)
                     return strcasecmp( name, device->uuid().c_str() ) == 0;
                 });
         if ( it != devices.end() )
-            (*it)->removeMountpoint( media->psz_uri );
+            (*it)->removeMountpoint( mrl );
     }
-
-    callbacks->onDeviceUnplugged( name );
 }
 
   } /* namespace medialibrary */
