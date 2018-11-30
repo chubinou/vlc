@@ -239,6 +239,9 @@ SDFileSystemFactory::onDeviceRemoved(input_item_t *media)
     if ( *mrl.crbegin() != '/' )
         mrl += '/';
 
+    if ( strncasecmp( mrl.c_str(), m_scheme.c_str(), m_scheme.length() ) != 0 )
+        return;
+
     {
         vlc::threads::mutex_locker locker(mutex);
         auto it = std::find_if(devices.begin(), devices.end(),
