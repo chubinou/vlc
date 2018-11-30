@@ -219,15 +219,18 @@ SDFileSystemFactory::onDeviceAdded(input_item_t *media)
             auto& device = (*it);
             auto match = device->matchesMountpoint( mrl );
             if ( std::get<0>( match ) == false )
-                device->addMountpoint( std::move( mrl ) );
+            {
+                device->addMountpoint( mrl );
+                callbacks->onDeviceMounted( *device, mrl );
+            }
             return; /* already exists */
         }
-        auto device = std::make_shared<SDDevice>( name, std::move( mrl ) );
+        auto device = std::make_shared<SDDevice>( name, mrl );
         devices.push_back( device );
+        callbacks->onDeviceMounted( *device, mrl );
     }
 
     itemAddedCond.signal();
-    callbacks->onDevicePlugged( name );
 }
 
 void
@@ -245,7 +248,10 @@ SDFileSystemFactory::onDeviceRemoved(input_item_t *media)
                     return strcasecmp( name, device->uuid().c_str() ) == 0;
                 });
         if ( it != devices.end() )
+        {
             (*it)->removeMountpoint( mrl );
+            callbacks->onDeviceUnmounted( *(*it), mrl );
+        }
     }
 }
 
