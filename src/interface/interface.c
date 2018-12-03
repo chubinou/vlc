@@ -62,40 +62,19 @@ static int AddIntfCallback( vlc_object_t *, char const *,
 static vlc_mutex_t lock = VLC_STATIC_MUTEX;
 
 /**
- * Creates the playlist if necessary, and return a pointer to it.
- * @note The playlist is not reference-counted. So the pointer is only valid
- * until intf_DestroyAll() destroys interfaces.
+ * Create and start an interface.
+ *
+ * @param playlist playlist and parent object for the interface
+ * @param chain configuration chain string
+ * @return VLC_SUCCESS or an error code
  */
-static playlist_t *intf_GetPlaylist(libvlc_int_t *libvlc)
+int intf_Create( libvlc_int_t *libvlc, const char *chain )
 {
-    playlist_t *playlist;
-
-    vlc_mutex_lock(&lock);
-    playlist = libvlc_priv(libvlc)->playlist;
-    if (playlist == NULL)
-    {
-        playlist = playlist_Create(VLC_OBJECT(libvlc));
-        libvlc_priv(libvlc)->playlist = playlist;
-    }
-    vlc_mutex_unlock(&lock);
-
-    return playlist;
-}
-
-static int intf_CreateInternal( libvlc_int_t *libvlc, playlist_t *playlist,
-                                const char *chain )
-{
-    assert( !!libvlc != !!playlist );
-    if (!playlist)
-    {
-        playlist = intf_GetPlaylist(libvlc);
-        if (!playlist)
-            return VLC_EGENERIC;
-    }
-    libvlc_priv_t *priv = libvlc_priv(vlc_object_instance(playlist));
+    assert( libvlc );
+    libvlc_priv_t *priv = libvlc_priv(libvlc);
 
     /* Allocate structure */
-    intf_thread_t *p_intf = vlc_custom_create( playlist, sizeof( *p_intf ),
+    intf_thread_t *p_intf = vlc_custom_create( libvlc, sizeof( *p_intf ),
                                                "interface" );
     if( unlikely(p_intf == NULL) )
         return VLC_ENOMEM;
@@ -119,7 +98,7 @@ static int intf_CreateInternal( libvlc_int_t *libvlc, playlist_t *playlist,
     var_Change( p_intf, "intf-add", VLC_VAR_ADDCHOICE, val,
                 _("Mouse Gestures") );
 
-    var_AddCallback( p_intf, "intf-add", AddIntfCallback, playlist );
+    var_AddCallback( p_intf, "intf-add", AddIntfCallback, NULL );
 
     /* Choose the best module */
     char *module;
@@ -150,31 +129,15 @@ error:
 }
 
 /**
- * Create and start an interface.
- *
- * @param playlist playlist and parent object for the interface
- * @param chain configuration chain string
- * @return VLC_SUCCESS or an error code
- */
-int intf_Create( libvlc_int_t *libvlc, const char *chain )
-{
-    return intf_CreateInternal( libvlc, NULL, chain );
-}
-
-/**
  * Inserts an item in the playlist.
  *
- * This function is used during initialization. Unlike playlist_Add() and
- * variants, it inserts an item to the beginning of the playlist. That is
- * meant to compensate for the reverse parsing order of the command line.
- *
- * @note This function may <b>not</b> be called at the same time as
- * intf_DestroyAll().
+ * This function is used during initialization. It inserts an item to the
+ * beginning of the playlist. That is meant to compensate for the reverse
+ * parsing order of the command line.
  */
 int intf_InsertItem(libvlc_int_t *libvlc, const char *mrl, unsigned optc,
                     const char *const *optv, unsigned flags)
 {
-    playlist_t *playlist = intf_GetPlaylist(libvlc);
     input_item_t *item = input_item_New(mrl, NULL);
 
     if (unlikely(item == NULL))
@@ -184,11 +147,10 @@ int intf_InsertItem(libvlc_int_t *libvlc, const char *mrl, unsigned optc,
 
     if (input_item_AddOptions(item, optc, optv, flags) == VLC_SUCCESS)
     {
-        playlist_Lock(playlist);
-        if (playlist_NodeAddInput(playlist, item, playlist->p_playing,
-                                  0) != NULL)
-            ret = 0;
-        playlist_Unlock(playlist);
+        vlc_playlist_t *playlist = vlc_playlist_GetMainPlaylist(libvlc);
+        vlc_playlist_Lock(playlist);
+        ret = vlc_playlist_InsertOne(playlist, 0, item);
+        vlc_playlist_Unlock(playlist);
     }
     input_item_Release(item);
     return ret;
@@ -196,14 +158,17 @@ int intf_InsertItem(libvlc_int_t *libvlc, const char *mrl, unsigned optc,
 
 void libvlc_InternalPlay(libvlc_int_t *libvlc)
 {
-    playlist_t *pl;
-
-    vlc_mutex_lock(&lock);
-    pl = libvlc_priv(libvlc)->playlist;
-    vlc_mutex_unlock(&lock);
-
-    if (pl != NULL && var_GetBool(pl, "playlist-autostart"))
-        playlist_Control(pl, PLAYLIST_PLAY, false);
+    if (!var_InheritBool(VLC_OBJECT(libvlc), "playlist-autostart"))
+        return;
+    vlc_playlist_t *playlist = libvlc_priv(libvlc)->main_playlist;
+    vlc_playlist_Lock(playlist);
+    if (vlc_playlist_Count(playlist) > 0)
+    {
+        if (vlc_playlist_GetCurrentIndex(playlist) < 0)
+            vlc_playlist_GoTo(playlist, 0);
+        vlc_playlist_Start(playlist);
+    }
+    vlc_playlist_Unlock(playlist);
 }
 
 /**
@@ -211,14 +176,10 @@ void libvlc_InternalPlay(libvlc_int_t *libvlc)
  */
 int libvlc_InternalAddIntf(libvlc_int_t *libvlc, const char *name)
 {
-    playlist_t *playlist = intf_GetPlaylist(libvlc);
     int ret;
 
-    if (unlikely(playlist == NULL))
-        ret = VLC_ENOMEM;
-    else
     if (name != NULL)
-        ret = intf_CreateInternal(NULL, playlist, name);
+        ret = intf_Create(libvlc, name);
     else
     {   /* Default interface */
         char *intf = var_InheritString(libvlc, "intf");
@@ -230,7 +191,7 @@ int libvlc_InternalAddIntf(libvlc_int_t *libvlc, const char *name)
                 msg_Info(libvlc, _("Running vlc with the default interface. "
                          "Use 'cvlc' to use vlc without interface."));
         }
-        ret = intf_CreateInternal(NULL, playlist, intf);
+        ret = intf_Create(libvlc, intf);
         free(intf);
         name = "default";
     }
@@ -247,33 +208,23 @@ int libvlc_InternalAddIntf(libvlc_int_t *libvlc, const char *name)
 void intf_DestroyAll(libvlc_int_t *libvlc)
 {
     libvlc_priv_t *priv = libvlc_priv(libvlc);
-    playlist_t *playlist;
 
     vlc_mutex_lock(&lock);
-    playlist = libvlc_priv(libvlc)->playlist;
-    if (playlist != NULL)
+    intf_thread_t *intf, **pp = &priv->interfaces;
+
+    while ((intf = *pp) != NULL)
     {
-        intf_thread_t *intf, **pp = &priv->interfaces;
+        *pp = intf->p_next;
+        vlc_mutex_unlock(&lock);
 
-        while ((intf = *pp) != NULL)
-        {
-            *pp = intf->p_next;
-            vlc_mutex_unlock(&lock);
+        module_unneed(intf, intf->p_module);
+        config_ChainDestroy(intf->p_cfg);
+        var_DelCallback(intf, "intf-add", AddIntfCallback, NULL);
+        vlc_object_delete(intf);
 
-            module_unneed(intf, intf->p_module);
-            config_ChainDestroy(intf->p_cfg);
-            var_DelCallback(intf, "intf-add", AddIntfCallback, playlist);
-            vlc_object_delete(intf);
-
-            vlc_mutex_lock(&lock);
-        }
-
-        libvlc_priv(libvlc)->playlist = NULL;
+        vlc_mutex_lock(&lock);
     }
     vlc_mutex_unlock(&lock);
-
-    if (playlist != NULL)
-        playlist_Destroy(playlist);
 }
 
 /* Following functions are local */
@@ -281,13 +232,11 @@ void intf_DestroyAll(libvlc_int_t *libvlc)
 static int AddIntfCallback( vlc_object_t *obj, char const *var,
                             vlc_value_t old, vlc_value_t cur, void *data )
 {
-    playlist_t *playlist = data;
-
-    int ret = intf_CreateInternal( NULL, playlist, cur.psz_string );
+    int ret = intf_Create( vlc_object_instance(obj), cur.psz_string );
     if( ret )
         msg_Err( obj, "interface \"%s\" initialization failed",
                  cur.psz_string );
 
-    (void) var; (void) old;
+    (void) var; (void) old; (void) data;
     return ret;
 }
