@@ -108,7 +108,7 @@ void DialogModel::post_action2(DialogId dialogId)
 void DialogModel::setMainCtx(QmlMainContext* ctx)
 {
     if (ctx)
-        vlc_dialog_provider_set_callbacks(m_mainCtx->getIntf(), &cbs, this);
+        vlc_dialog_provider_set_callbacks(ctx->getIntf(), &cbs, this);
     else if (m_mainCtx)
         vlc_dialog_provider_set_callbacks(m_mainCtx->getIntf(), nullptr, nullptr);
     m_mainCtx = ctx;
