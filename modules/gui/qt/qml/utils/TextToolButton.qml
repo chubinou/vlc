@@ -34,8 +34,6 @@ ToolButton {
     }
 
     background: Rectangle {
-        implicitHeight: parent.height
-        width: parent.contentItem.width
         color: "transparent"
     }
 }
