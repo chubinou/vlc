@@ -53,9 +53,11 @@ StackView {
                 }
 
                 if (component.status === Component.Ready ) {
-                    var page = component.createObject(root, viewProperties)
-                    root.replace(page)
-                    view = view
+                    //note doesn't work with qt 5.9, you have to do the following, and beware
+                    //that page won 't be released when poped out
+                    //var page = component.createObject(root, viewProperties)
+                    //root.replace(page)
+                    root.replace(null, component, viewProperties)
                     found = true
                     break;
                 } else {
