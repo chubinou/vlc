@@ -107,9 +107,9 @@ bool MLNetworkModel::setData( const QModelIndex& idx, const QVariant& value, int
     assert( m_items[idx.row()].indexed != enabled );
     int res;
     if ( enabled )
-        res = vlc_ml_add_folder( ml, m_items[idx.row()].mainMrl.toEncoded().constData() );
+        res = vlc_ml_add_folder( ml, qtu( m_items[idx.row()].mainMrl.toString( QUrl::None ) ) );
     else
-        res = vlc_ml_remove_folder( ml, m_items[idx.row()].mainMrl.toEncoded().constData() );
+        res = vlc_ml_remove_folder( ml, qtu( m_items[idx.row()].mainMrl.toString( QUrl::None ) ) );
     m_items[idx.row()].indexed = enabled;
     emit dataChanged(idx, idx, { NETWORK_INDEXED });
     return res == VLC_SUCCESS;
@@ -169,7 +169,7 @@ bool MLNetworkModel::initializeDeviceDiscovery()
 bool MLNetworkModel::initializeFolderDiscovery()
 {
     std::unique_ptr<input_item_t, decltype(&input_item_Release)> inputItem{
-        input_item_New( m_parentMrl.toEncoded().constData(), NULL ),
+        input_item_New( qtu( m_parentMrl.toString( QUrl::None ) ), NULL ),
         &input_item_Release
     };
     inputItem->i_preparse_depth = 1;
@@ -237,7 +237,7 @@ void MLNetworkModel::onItemAdded( input_item_t* parent, input_item_t* p_item,
         }
         if ( item.canBeIndexed == true )
         {
-            if ( vlc_ml_is_indexed( m_ml, item.mainMrl.toEncoded().constData(),
+            if ( vlc_ml_is_indexed( m_ml, qtu( item.mainMrl.toString( QUrl::None ) ),
                                     &item.indexed ) != VLC_SUCCESS )
                 item.indexed = false;
         }
@@ -301,7 +301,7 @@ void MLNetworkModel::onInputEvent( input_thread_t*, const vlc_input_event* event
 
         if ( item.canBeIndexed == true )
         {
-            if ( vlc_ml_is_indexed( m_ml, item.mainMrl.toEncoded().constData(),
+            if ( vlc_ml_is_indexed( m_ml, qtu( item.mainMrl.toString( QUrl::None ) ),
                                     &item.indexed ) != VLC_SUCCESS )
                 item.indexed = false;
         }
