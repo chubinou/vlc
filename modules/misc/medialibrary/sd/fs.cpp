@@ -107,22 +107,14 @@ SDFileSystemFactory::createDeviceFromMrl(const std::string &mrl)
 {
     vlc::threads::mutex_locker locker(mutex);
 
-    vlc_tick_t deadline = vlc_tick_now() + VLC_TICK_FROM_SEC(5);
-    while ( true )
-    {
-        auto it = std::find_if(devices.cbegin(), devices.cend(),
-                [&mrl](const std::shared_ptr<IDevice>& device) {
-                    auto match = device->matchesMountpoint( mrl );
-                    return std::get<0>( match );
-                });
-        if (it != devices.cend())
-            return (*it);
-        /* wait a bit, maybe the device is not detected yet */
-        int timeout = itemAddedCond.timedwait(mutex, deadline);
-        if (timeout)
-            return nullptr;
-    }
-    vlc_assert_unreachable();
+    auto it = std::find_if(devices.cbegin(), devices.cend(),
+            [&mrl](const std::shared_ptr<IDevice>& device) {
+                auto match = device->matchesMountpoint( mrl );
+                return std::get<0>( match );
+            });
+    if (it != devices.cend())
+        return (*it);
+    return nullptr;
 }
 
 void
