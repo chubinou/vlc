@@ -78,8 +78,6 @@ DialogsProvider::DialogsProvider( intf_thread_t *_p_intf ) :
                                   miscPopupMenu( NULL )
 {
     b_isDying = false;
-
-    new DialogHandler (p_intf, this );
 }
 
 DialogsProvider::~DialogsProvider()

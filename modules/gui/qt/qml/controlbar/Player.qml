@@ -60,7 +60,7 @@ Utils.NavigableFocusScope {
             bottom: controlBarView.top
         }
         focus: false
-        expandHorizontally: true //Utils.Drawer.horizontal
+        expandHorizontally: true
 
         component: Rectangle {
             color: VLCStyle.colors.setColorAlpha(VLCStyle.colors.banner, 0.9)

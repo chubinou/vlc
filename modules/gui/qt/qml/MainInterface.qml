@@ -35,6 +35,7 @@ import "qrc:///mediacenter/" as MC
 import "qrc:///playlist/" as PL
 import "qrc:///controlbar/" as CB
 import "qrc:///about/" as AB
+import "qrc:///dialogs/" as DG
 
 Rectangle {
     id: root
@@ -123,5 +124,14 @@ Rectangle {
         anchors.left: parent.left
         anchors.right: parent.right
         anchors.bottom: parent.bottom
+    }
+
+    DG.Dialogs {
+        anchors.fill: parent
+        bgContent: root
+        onRestoreFocus: {
+            console.log("onRestoreFocus")
+            stackView.focus = true
+        }
     }
 }

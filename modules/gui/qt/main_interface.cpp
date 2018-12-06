@@ -59,6 +59,7 @@
 
 #include "components/mediacenter/navigation_history.hpp"
 #include "components/aboutmodel.hpp"
+#include "components/dialogmodel.hpp"
 
 #include "components/video_overlay.hpp"
 #include "components/playlist_new/playlist_model.hpp"
@@ -356,8 +357,11 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterType<PlaylistControlerModel>( "org.videolan.vlc", 0, 1, "PlaylistControlerModel" );
 
     qmlRegisterType<AboutModel>( "org.videolan.vlc", 0, 1, "AboutModel" );
+    qRegisterMetaType<DialogId>();
+    qmlRegisterType<DialogModel>("org.videolan.vlc", 0, 1, "DialogModel");
 
     qmlRegisterType<QmlEventFilter>( "org.videolan.vlc", 0, 1, "EventFilter" );
+
 
     QWidget* mainWidget = new QWidget(this);
 
