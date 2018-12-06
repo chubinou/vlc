@@ -63,7 +63,7 @@ Utils.NavigableFocusScope {
         expandHorizontally: true
 
         component: Rectangle {
-            color: VLCStyle.colors.setColorAlpha(VLCStyle.colors.banner, 0.9)
+            color: VLCStyle.colors.setColorAlpha(VLCStyle.colors.banner, 0.8)
             width: root.width/4
             height: playlistpopup.height
 
@@ -102,7 +102,7 @@ Utils.NavigableFocusScope {
 
         component: Rectangle {
             id: controllerBarId
-            color: VLCStyle.colors.banner
+            color: VLCStyle.colors.setColorAlpha(VLCStyle.colors.banner, 0.8)
             width: controlBarView.width
             height: 90 * VLCStyle.scale
             property alias noAutoHide: controllerId.noAutoHide

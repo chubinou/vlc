@@ -26,7 +26,7 @@ Slider {
         width: control.availableWidth
         implicitHeight: control.implicitHeight
         height: implicitHeight
-        color: VLCStyle.colors.banner
+        color: "transparent"
 
         Rectangle {
             width: control.visualPosition * parent.width
