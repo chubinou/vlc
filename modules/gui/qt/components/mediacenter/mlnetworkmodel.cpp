@@ -364,7 +364,7 @@ void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item , size_t itemInde
         item.mainMrl = mrl;
         item.canBeIndexed = canBeIndexed( mrl  );
         auto idx = index( static_cast<int>( itemIndex ), 0 );
-        emit dataChanged( idx, idx, { NETWORK_MRL } );
+        emit dataChanged( idx, idx, { NETWORK_MRL, NETWORK_CANINDEX } );
         return;
     }
     // If we can't get a cannonical name, don't attempt to index this as we
