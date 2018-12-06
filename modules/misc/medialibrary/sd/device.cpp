@@ -23,6 +23,9 @@
 #endif
 
 #include "device.h"
+#include <vlc_common.h>
+#include <vlc_url.h>
+
 #include <algorithm>
 #include <cassert>
 #include <strings.h>
@@ -79,11 +82,47 @@ void SDDevice::removeMountpoint( const std::string& mrl )
 std::tuple<bool, std::string>
 SDDevice::matchesMountpoint( const std::string& mrl ) const
 {
+    vlc_url_t probedUrl;
+    vlc_UrlParse( &probedUrl, mrl.c_str() );
+
     for ( const auto& m : m_mountpoints )
     {
-        if ( strncasecmp( m.c_str(), mrl.c_str(), m.length() ) == 0 )
-            return { true, m };
+        vlc_url_t url;
+        vlc_UrlParse( &url, m.c_str() );
+        if ( strcasecmp( probedUrl.psz_protocol, url.psz_protocol ) )
+        {
+            vlc_UrlClean( &url );
+            continue;
+        }
+        if ( strcasecmp( probedUrl.psz_host, url.psz_host ) )
+        {
+            vlc_UrlClean( &url );
+            continue;
+        }
+        if ( probedUrl.i_port != url.i_port )
+        {
+            unsigned int defaultPort = 0;
+            if ( !strcasecmp( probedUrl.psz_protocol, "smb" ) )
+                defaultPort = 445;
+            if ( defaultPort != 0 )
+            {
+                if ( probedUrl.i_port != 0 && probedUrl.i_port != defaultPort &&
+                     url.i_port != 0 && url.i_port != defaultPort )
+                {
+                    vlc_UrlClean( &url );
+                    continue;
+                }
+            }
+            else
+            {
+                vlc_UrlClean( &url );
+                continue;
+            }
+        }
+        vlc_UrlClean( &url );
+        return { true, m };
     }
+    vlc_UrlClean( &probedUrl );
     return { false, "" };
 }
 
