@@ -34,7 +34,7 @@ Utils.NavigableFocusScope {
 
     //name and properties of the tab to be initially loaded
     property string view: "albums"
-    property var viewProperties: QtObject {}
+    property var viewProperties: ({})
 
     Component { id: albumComp; MusicAlbumsDisplay{ } }
     Component { id: artistComp; MusicArtistsDisplay{ } }
