@@ -77,48 +77,13 @@ Item {
         }
     }
 
-    Dialog {
+    ModalDialog {
         id: loginDialog
         property var dialogId: undefined
         property string defaultUsername: ""
 
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-        padding: VLCStyle.margin_normal
-        margins: VLCStyle.margin_large
-
-        modal: true
-        focus: true
-
         onAboutToHide: restoreFocus()
-
-        Overlay.modal: GaussianBlur {
-            source: ShaderEffectSource {
-                sourceItem: root.bgContent
-                live: true
-            }
-            radius: 16
-            samples: 16
-        }
-
-        background: Rectangle {
-            color: VLCStyle.colors.banner
-        }
-
-        header: Label {
-            text: questionDialog.title
-            visible: questionDialog.title
-            elide: Label.ElideRight
-            font.bold: true
-            color: VLCStyle.colors.text
-            padding: 6
-            background: Rectangle {
-                x: 1; y: 1
-                width: parent.width - 2
-                height: parent.height - 1
-                color: VLCStyle.colors.banner
-            }
-        }
+        rootWindow: root.bgContent
 
         contentItem: GridLayout {
             columns: 2
@@ -207,17 +172,9 @@ Item {
         onRejected: {
             dialogModel.dismiss(dialogId)
         }
-
-        exit: Transition {
-            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-        }
-        enter: Transition {
-            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-        }
-
     }
 
-    Dialog {
+    ModalDialog {
         id: questionDialog
 
         property var dialogId: undefined
@@ -226,24 +183,9 @@ Item {
         property alias action1Txt: action1.text
         property alias action2Txt: action2.text
 
-        focus: true
-        modal: true
-
-        x: (parent.width - width) / 2
-        y: (parent.height - height) / 2
-        padding: VLCStyle.margin_normal
-        margins: VLCStyle.margin_large
+        rootWindow: root.bgContent
 
         onAboutToHide: restoreFocus()
-
-        Overlay.modal: GaussianBlur {
-            source: ShaderEffectSource {
-                sourceItem: root.bgContent
-                live: true
-            }
-            radius: 16
-            samples: 16
-        }
 
         contentItem: Text {
             id: content
@@ -251,25 +193,6 @@ Item {
             font.pixelSize: VLCStyle.fontSize_normal
             color: VLCStyle.colors.text
             wrapMode: Text.WordWrap
-        }
-
-        background: Rectangle {
-            color: VLCStyle.colors.banner
-        }
-
-        header: Label {
-            text: questionDialog.title
-            visible: questionDialog.title
-            elide: Label.ElideRight
-            font.bold: true
-            color: VLCStyle.colors.text
-            padding: 6
-            background: Rectangle {
-                x: 1; y: 1
-                width: parent.width - 2
-                height: parent.height - 1
-                color: VLCStyle.colors.banner
-            }
         }
 
         footer: FocusScope {
@@ -319,13 +242,6 @@ Item {
                 }
             }
         }
-
-        exit: Transition {
-            NumberAnimation { property: "opacity"; from: 1.0; to: 0.0 }
-        }
-        enter: Transition {
-            NumberAnimation { property: "opacity"; from: 0.0; to: 1.0 }
-        }
     }
 
     DialogModel {
@@ -336,8 +252,6 @@ Item {
             loginDialog.title = title
             loginDialog.defaultUsername = defaultUsername
             loginDialog.open()
-
-            //loginDialog.forceActiveFocus()
         }
 
         onErrorDisplayed: {

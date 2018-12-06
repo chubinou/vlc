@@ -529,6 +529,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/controlbar/VideoControler.qml \
 	gui/qt/qml/controlbar/AudioController.qml \
 	gui/qt/qml/dialogs/Dialogs.qml \
+	gui/qt/qml/dialogs/ModalDialog.qml \
 	gui/qt/qml/utils/BannerView.qml \
 	gui/qt/qml/utils/DNDLabel.qml \
 	gui/qt/qml/utils/ToolTipArea.qml \
