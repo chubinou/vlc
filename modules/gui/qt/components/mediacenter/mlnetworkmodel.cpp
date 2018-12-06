@@ -354,7 +354,7 @@ void MLNetworkModel::filterMainMrl( MLNetworkModel::Item& item , size_t itemInde
     // We're looking for the mrl which is a (netbios) name, not an IP
     for ( const auto& mrl : item.mrls )
     {
-        if (mrl.scheme() == "")
+        if (mrl.isEmpty() == true || mrl.scheme() == "")
             continue;
 
         QString host = mrl.host();
