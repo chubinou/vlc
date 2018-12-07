@@ -51,7 +51,7 @@ NavigableFocusScope {
 
             highlightColor: activeFocus ? VLCStyle.colors.buttonText : "transparent"
 
-            visible: mouse.containsMouse || root.activeFocus
+            //visible: mouse.containsMouse || root.activeFocus
             onClicked: root.addToPlaylistClicked()
         }
     }
@@ -62,7 +62,7 @@ NavigableFocusScope {
         IconToolButton {
             id: add_and_play_icon
             size: VLCStyle.icon_normal
-            visible: mouse.containsMouse  || root.activeFocus
+            //visible: mouse.containsMouse  || root.activeFocus
             text: VLCIcons.play
 
             focus: true
@@ -93,36 +93,38 @@ NavigableFocusScope {
 
         RowLayout {
             anchors.fill: parent
+
+            Loader {
+                Layout.preferredWidth: VLCStyle.icon_normal
+                Layout.preferredHeight: VLCStyle.icon_normal
+                sourceComponent: root.cover
+            }
             FocusScope {
                 id: presentation
-                Layout.preferredHeight: VLCStyle.icon_normal
+                Layout.fillHeight: true
+                Layout.fillWidth: true
                 focus: true
-                Row {
-                    spacing: VLCStyle.margin_normal
 
-                    Loader {
-                        width: VLCStyle.icon_normal
-                        height: VLCStyle.icon_normal
-                        sourceComponent: root.cover
+                Column {
+                    anchors.fill: parent
+
+                    Text{
+                        id: line1_text
+                        font.bold: true
+                        width: parent.width
+                        elide: Text.ElideRight
+                        color: VLCStyle.colors.text
+                        font.pixelSize: VLCStyle.fontSize_normal
+                        enabled: text !== ""
                     }
-
-                    Column {
-                        Text{
-                            id: line1_text
-                            font.bold: true
-                            elide: Text.ElideRight
-                            color: VLCStyle.colors.text
-                            font.pixelSize: VLCStyle.fontSize_normal
-                            enabled: text !== ""
-                        }
-                        Text{
-                            id: line2_text
-                            text: ""
-                            elide: Text.ElideRight
-                            color: VLCStyle.colors.text
-                            font.pixelSize: VLCStyle.fontSize_xsmall
-                            enabled: text !== ""
-                        }
+                    Text{
+                        id: line2_text
+                        width: parent.width
+                        text: ""
+                        elide: Text.ElideRight
+                        color: VLCStyle.colors.text
+                        font.pixelSize: VLCStyle.fontSize_xsmall
+                        enabled: text !== ""
                     }
                 }
 
@@ -137,15 +139,12 @@ NavigableFocusScope {
                 }
             }
 
-            Item {
-                Layout.fillWidth: true
-            }
-
             FocusScope {
                 id: toolButtons
                 Layout.preferredHeight: VLCStyle.icon_normal
                 Layout.preferredWidth: toolButtonsRow.implicitWidth
                 Layout.alignment: Qt.AlignVCenter
+                visible: mouse.containsMouse || root.activeFocus
                 property int focusIndex: 0
                 Row {
                     id: toolButtonsRow
