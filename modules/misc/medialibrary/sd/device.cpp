@@ -112,6 +112,17 @@ SDDevice::matchesMountpoint( const std::string& mrl ) const
                     vlc_UrlClean( &url );
                     continue;
                 }
+                else
+                {
+                    url.i_port = probedUrl.i_port;
+                    char* tmpUrl_psz = vlc_uri_compose(&url);
+                    vlc_UrlClean( &url );
+                    if (!tmpUrl_psz)
+                        continue;
+                    std::string tmpUrl(tmpUrl_psz);
+                    free(tmpUrl_psz);
+                    return { true, tmpUrl };
+                }
             }
             else
             {
