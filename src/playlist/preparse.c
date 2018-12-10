@@ -51,14 +51,24 @@ vlc_playlist_ExpandItem(vlc_playlist_t *playlist, size_t index,
                         input_item_node_t *node)
 {
     vlc_playlist_AssertLocked(playlist);
-    vlc_playlist_RemoveOne(playlist, index);
 
     playlist_item_vector_t flatten = VLC_VECTOR_INITIALIZER;
     vlc_playlist_CollectChildren(&flatten, node);
 
-    if (vlc_vector_insert_all(&playlist->items, index, flatten.data,
-                              flatten.size))
-        vlc_playlist_ItemsInserted(playlist, index, flatten.size);
+    if (flatten.size == 0)
+        vlc_playlist_RemoveOne(playlist, index);
+    else
+    {
+        /* the first item replaces the expanded item */
+        vlc_playlist_ReplaceItem(playlist, index, flatten.data[0]);
+        if (flatten.size > 1)
+        {
+            /* insert the remaining items */
+            if (vlc_vector_insert_all(&playlist->items, index + 1,
+                                      &flatten.data[1], flatten.size - 1))
+            vlc_playlist_ItemsInserted(playlist, index + 1, flatten.size - 1);
+        }
+    }
 
     vlc_vector_destroy(&flatten);
     return true;

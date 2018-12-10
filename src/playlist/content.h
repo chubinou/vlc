@@ -22,6 +22,7 @@
 #define VLC_PLAYLIST_CONTENT_H
 
 typedef struct vlc_playlist vlc_playlist_t;
+typedef struct vlc_playlist_item vlc_playlist_item_t;
 
 /* called by vlc_playlist_Delete() in playlist.c */
 void
@@ -31,5 +32,9 @@ vlc_playlist_ClearItems(vlc_playlist_t *playlist);
 void
 vlc_playlist_ItemsInserted(vlc_playlist_t *playlist, size_t index,
                            size_t count);
+
+/* replace the existing item at index by the given item */
+void vlc_playlist_ReplaceItem(vlc_playlist_t *playlist, size_t index,
+                              vlc_playlist_item_t *item);
 
 #endif

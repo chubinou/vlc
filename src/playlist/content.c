@@ -286,3 +286,16 @@ vlc_playlist_Remove(vlc_playlist_t *playlist, size_t index, size_t count)
 
     vlc_playlist_ItemsRemoved(playlist, index, count);
 }
+
+void vlc_playlist_ReplaceItem(vlc_playlist_t *playlist, size_t index,
+                              vlc_playlist_item_t *item)
+{
+    vlc_playlist_AssertLocked(playlist);
+    assert(index < playlist->items.size);
+
+    vlc_playlist_item_Release(playlist->items.data[index]);
+    playlist->items.data[index] = item;
+
+    vlc_playlist_Notify(playlist, on_items_updated, index,
+                        &playlist->items.data[index], 1);
+}
