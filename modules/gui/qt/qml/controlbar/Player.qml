@@ -52,6 +52,14 @@ Utils.NavigableFocusScope {
         }
     }
 
+    VideoSurface {
+        ctx: mainctx
+        visible: player.hasVideoOutput
+        anchors.centerIn: parent
+        width: sourceSize.width
+        height: sourceSize.height
+    }
+
     Utils.Drawer {
         id: playlistpopup
         anchors {

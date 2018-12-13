@@ -18,12 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston MA 02110-1301, USA.
  *****************************************************************************/
 #include "qml_main_context.hpp"
+#include "main_interface.hpp"
 
-QmlMainContext::QmlMainContext(intf_thread_t* intf, QObject *parent)
+QmlMainContext::QmlMainContext(intf_thread_t* intf, MainInterface* parent)
     : QObject(parent)
     , m_intf( intf )
     , m_playlist(intf->p_sys->p_playlist)
+    , m_mainInterface(parent)
 {
+}
+
+MainInterface*QmlMainContext::getMainInterface() const
+{
+    return m_mainInterface;
 }
 
 intf_thread_t*QmlMainContext::getIntf() const

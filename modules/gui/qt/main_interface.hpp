@@ -32,8 +32,9 @@
 
 #include <QSystemTrayIcon>
 #include <QStackedWidget>
-#include <QQuickView>
-#include <QQuickWidget>
+#include <QtQuick/QQuickView>
+#include <QtQuickWidgets/QQuickWidget>
+#include <QtQuick/QQuickWindow>
 
 #ifdef _WIN32
 # include <shobjidl.h>
@@ -71,6 +72,9 @@ public:
                    unsigned int i_width, unsigned int i_height, bool );
     void releaseVideo( void );
     int  controlVideo( int i_query, va_list args );
+
+    QQuickWindow* getRootQuickWindow();
+    VideoRendererGL* getVideoRendererGL() const;
 
     /* Getters */
     QSystemTrayIcon *getSysTray() { return sysTray; }
@@ -127,12 +131,10 @@ protected:
     QVBoxLayout         *mainLayout;
 
     VideoWidget         *videoWidget;
-    QQuickWidget        *toolbarView;
-    QVBoxLayout         *videoLayout;
+    VideoRendererGL     *m_videoRendererGL = nullptr;
 
     QQuickWidget        *mediacenterView;
     QWidget             *mediacenterWrapper;
-
 
     /* Status Bar */
     QLabel              *nameLabel;

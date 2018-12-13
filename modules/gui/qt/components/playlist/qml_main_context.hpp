@@ -25,6 +25,7 @@
 #include <QObject>
 #include <components/playlist_new/playlist_common.hpp>
 
+class MainInterface;
 /**
  * @brief The QmlMainContext class
  */
@@ -34,14 +35,16 @@ class QmlMainContext : public QObject
     Q_PROPERTY(PlaylistPtr playlist READ getPlaylist CONSTANT)
 
 public:
-    explicit QmlMainContext(intf_thread_t *intf,  QObject *parent = nullptr);
+    explicit QmlMainContext(intf_thread_t *intf,  MainInterface *parent = nullptr);
 
+    MainInterface* getMainInterface() const;
     intf_thread_t* getIntf() const;
     PlaylistPtr getPlaylist() const;
 
 private:
     intf_thread_t* m_intf;
     PlaylistPtr m_playlist;
+    MainInterface* m_mainInterface;
 };
 
 #endif // QML_MAIN_CONTEXT_HPP

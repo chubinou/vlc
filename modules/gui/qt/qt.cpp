@@ -62,6 +62,7 @@ extern "C" char **environ;
 
 #include <QVector>
 #include "components/playlist_new/playlist_item.hpp"
+#include "components/videorenderergl.hpp"
 
 #include <vlc_plugin.h>
 #include <vlc_vout_window.h>
@@ -650,10 +651,38 @@ static void *Thread( void *obj )
         var_Create( p_sys->p_player, "qt4-iface", VLC_VAR_ADDRESS );
         var_Create( p_sys->p_player, "window", VLC_VAR_STRING );
 
+
         if( known_type )
         {
+
             var_SetAddress( p_sys->p_player, "qt4-iface", p_intf );
             var_SetString( p_sys->p_player, "window", "qt,any" );
+
+            if (p_sys->voutWindowType == VOUT_WINDOW_TYPE_XID) {
+
+                var_Create( p_sys->p_player, "vout", VLC_VAR_STRING );
+                var_Create( p_sys->p_player, "gl", VLC_VAR_STRING );
+                var_Create( p_sys->p_player, "vgl-opaque", VLC_VAR_ADDRESS );
+                var_Create( p_sys->p_player, "vgl-setup-cb", VLC_VAR_ADDRESS );
+                var_Create( p_sys->p_player, "vgl-cleanup-cb", VLC_VAR_ADDRESS );
+                var_Create( p_sys->p_player, "vgl-resize-cb", VLC_VAR_ADDRESS );
+                var_Create( p_sys->p_player, "vgl-swap-cb", VLC_VAR_ADDRESS );
+                var_Create( p_sys->p_player, "vgl-make-current-cb", VLC_VAR_ADDRESS );
+                var_Create( p_sys->p_player, "vgl-get-proc-address-cb", VLC_VAR_ADDRESS );
+
+                var_SetString ( p_sys->p_player, "vout", "gl" );
+                var_SetString ( p_sys->p_player, "gl", "vgl");
+
+                p_sys->p_renderer = p_mi->getVideoRendererGL();
+                printf("set renderer to %p\n", p_sys->p_renderer);
+                var_SetAddress( p_sys->p_player, "vgl-opaque", p_sys->p_renderer );
+                var_SetAddress( p_sys->p_player, "vgl-setup-cb", (void*)&VideoRendererGL::setup_cb );
+                var_SetAddress( p_sys->p_player, "vgl-cleanup-cb", (void*)&VideoRendererGL::cleanup_cb );
+                var_SetAddress( p_sys->p_player, "vgl-resize-cb", (void*)&VideoRendererGL::resize_cb );
+                var_SetAddress( p_sys->p_player, "vgl-swap-cb", (void*)&VideoRendererGL::swap_cb );
+                var_SetAddress( p_sys->p_player, "vgl-make-current-cb", (void*)&VideoRendererGL::make_current_cb );
+                var_SetAddress( p_sys->p_player, "vgl-get-proc-address-cb", (void*)&VideoRendererGL::get_proc_address_cb );
+            }
         }
     }
 
@@ -780,10 +809,6 @@ static int WindowOpen( vout_window_t *p_wnd, const vout_window_cfg_t *cfg )
         return VLC_EGENERIC;
 
     MainInterface *p_mi = p_intf->p_sys->p_mi;
-    msg_Dbg( p_wnd, "requesting video window..." );
-
-    if( !p_mi->getVideo( p_wnd, cfg->width, cfg->height, cfg->is_fullscreen ) )
-        return VLC_EGENERIC;
 
     p_wnd->info.has_double_click = true;
     p_wnd->control = WindowControl;

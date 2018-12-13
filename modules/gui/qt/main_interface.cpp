@@ -64,6 +64,8 @@
 #include "components/video_overlay.hpp"
 #include "components/playlist_new/playlist_model.hpp"
 
+#include "components/videorenderergl.hpp"
+
 #include "components/playlist/qml_main_context.hpp"
 
 #include "util/qmleventfilter.hpp"
@@ -97,6 +99,7 @@
 
 #include <QTimer>
 #include <QtQml/QQmlContext>
+#include <QtQuick/QQuickItem>
 
 
 #include <vlc_actions.h>                    /* Wheel event */
@@ -325,6 +328,9 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
 {
     qRegisterMetaType<VLCTick>();
     qmlRegisterUncreatableType<VLCTick>("org.videolan.vlc", 0, 1, "VLCTick", "");
+
+    qmlRegisterType<VideoSurfaceGL>("org.videolan.vlc", 0, 1, "VideoSurface");
+    m_videoRendererGL = new VideoRendererGL(this, this);
 
     qRegisterMetaType<MLParentId>();
     qmlRegisterType<MLAlbumModel>( "org.videolan.medialib", 0, 1, "MLAlbumModel" );
@@ -579,6 +585,20 @@ int MainInterface::controlVideo( int i_query, va_list args )
         msg_Warn( p_intf, "unsupported control query" );
         return VLC_EGENERIC;
     }
+}
+
+QQuickWindow*MainInterface::getRootQuickWindow()
+{
+    //FIXME, thread safety
+    QQuickItem* rootObject = mediacenterView->rootObject();
+    if (!rootObject)
+        return nullptr;
+    return rootObject->window();
+}
+
+VideoRendererGL*MainInterface::getVideoRendererGL() const
+{
+    return m_videoRendererGL;
 }
 
 const Qt::Key MainInterface::kc[10] =
