@@ -53,11 +53,40 @@ Utils.NavigableFocusScope {
     }
 
     VideoSurface {
+        id: videoSurface
         ctx: mainctx
         visible: player.hasVideoOutput
         anchors.centerIn: parent
-        width: sourceSize.width
-        height: sourceSize.height
+        property double parentAspectRatio: parent.width / parent.height
+        property double sourceAspectRatio: sourceSize.width / sourceSize.height
+
+        state: "fit"
+        states: [
+            State {
+                name: "fill"
+                PropertyChanges {
+                    target: videoSurface
+                    width: parent.width
+                    height: parent.height
+                }
+            },
+            State {
+                name: "fit"
+                PropertyChanges {
+                    target: videoSurface
+                    width: (sourceAspectRatio > parentAspectRatio) ? parent.width : parent.height * sourceAspectRatio
+                    height: (sourceAspectRatio > parentAspectRatio) ? parent.width / sourceAspectRatio : parent.height
+                }
+            },
+            State {
+                name: "noScale"
+                PropertyChanges {
+                    target: videoSurface
+                    width: sourceSize.width
+                    height: sourceSize.height
+                }
+            }
+        ]
     }
 
     Utils.Drawer {

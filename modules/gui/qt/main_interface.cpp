@@ -982,10 +982,29 @@ void MainInterface::wheelEvent( QWheelEvent *e )
 
 void MainInterface::closeEvent( QCloseEvent *e )
 {
-//  hide();
-    emit askToQuit(); /* ask THEDP to quit, so we have a unique method */
-    /* Accept session quit. Otherwise we break the desktop mamager. */
-    e->accept();
+    PlaylistControlerModel* playlistControler = p_intf->p_sys->p_mainPlaylistControler;
+    InputManager* playerControler = p_intf->p_sys->p_mainPlayerControler;
+    //We need to make sure that noting is playing anymore otherwise the vout will be closed
+    //after the main interface, and it requires (at least with OpenGL) that the OpenGL context
+    //from the main window is still valid.
+    //vout_window_ReportClose is currently stubbed
+    if (playerControler->hasVideoOutput()) {
+
+        connect(playerControler, &InputManager::playingStateChanged, [this](InputManager::PlayingState state){
+            if (state == InputManager::PLAYING_STATE_STOPPED) {
+                QMetaObject::invokeMethod(this, &MainInterface::close, Qt::QueuedConnection, nullptr);
+            }
+        });
+        playlistControler->stop();
+
+        e->ignore();
+    }
+    else
+    {
+        emit askToQuit(); /* ask THEDP to quit, so we have a unique method */
+        /* Accept session quit. Otherwise we break the desktop mamager. */
+        e->accept();
+    }
 }
 
 bool MainInterface::eventFilter( QObject *obj, QEvent *event )

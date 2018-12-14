@@ -34,7 +34,7 @@ QSize VideoSurfaceGL::getSourceSize() const
 void VideoSurfaceGL::onSizeChanged(QSize newSize)
 {
     m_sourceSize = newSize;
-    m_sourceSizeChanged = true;
+    emit sourceSizeChanged(m_sourceSize);
 }
 
 QSGNode* VideoSurfaceGL::updatePaintNode(QSGNode* oldNode, QQuickItem::UpdatePaintNodeData*)
@@ -48,27 +48,24 @@ QSGNode* VideoSurfaceGL::updatePaintNode(QSGNode* oldNode, QQuickItem::UpdatePai
         return nullptr;
     }
 
-    if (m_sourceSizeChanged) {
-        m_sourceSizeChanged = false;
-        emit sourceSizeChanged(m_sourceSize);
-    }
-
     if (!node)
     {
         node = new QSGSimpleTextureNode();
         node->setTextureCoordinatesTransform(QSGSimpleTextureNode::MirrorVertically);
     }
 
-    QSGTexture* displayTexture = m_renderer->getDisplayTexture();
-    if (!displayTexture)
+    QSharedPointer<QSGTexture> newdisplayTexture = m_renderer->getDisplayTexture();
+    m_displayTexture = newdisplayTexture;
+    if (!newdisplayTexture)
     {
         printf("VideoSurfaceGL::updatePaintNode no display texture\n");
-        return nullptr;
+        return node;
     }
-
-    node->setTexture(displayTexture);
-    node->markDirty(QSGNode::DirtyMaterial);
-    node->setRect(boundingRect());
+    else {
+        node->setTexture(m_displayTexture.data());
+        node->setRect(boundingRect());
+        node->markDirty(QSGNode::DirtyMaterial);
+    }
     return node;
 }
 
@@ -92,7 +89,7 @@ VideoRendererGL::~VideoRendererGL()
     printf("VideoRendererGL::~VideoRendererGL\n");
 }
 
-QSGTexture* VideoRendererGL::getDisplayTexture()
+QSharedPointer<QSGTexture> VideoRendererGL::getDisplayTexture()
 {
     QMutexLocker lock(&m_lock);
     if (m_updated)
@@ -142,6 +139,7 @@ bool VideoRendererGL::setup_cb(void* data)
     printf("VideoSurfaceGL::setup_cb\n");
     VideoRendererGL* that = static_cast<VideoRendererGL*>(data);
 
+    QMutexLocker lock(&that->m_lock);
     that->m_window = that->m_mainInterface->getRootQuickWindow();
     if (! that->m_window)
         return false;
@@ -189,7 +187,6 @@ void VideoRendererGL::cleanup_cb(void* data)
         }
         if (that->m_textures[i])
         {
-            delete that->m_textures[i];
             that->m_textures[i] = nullptr;
         }
     }
@@ -212,10 +209,8 @@ void VideoRendererGL::resize_cb(void* data, unsigned width, unsigned height)
         {
             if (that->m_fbo[i])
                 delete that->m_fbo[i];
-            if (that->m_textures[i])
-                delete that->m_textures[i];
             that->m_fbo[i] = new QOpenGLFramebufferObject(newsize);
-            that->m_textures[i] = that->m_window->createTextureFromId(that->m_fbo[i]->texture(), newsize);
+            that->m_textures[i] = QSharedPointer<QSGTexture>(that->m_window->createTextureFromId(that->m_fbo[i]->texture(), newsize));
         }
         emit that->sizeChanged(newsize);
     }

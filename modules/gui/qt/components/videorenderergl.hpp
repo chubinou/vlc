@@ -20,7 +20,7 @@ public:
     ~VideoRendererGL();
 
 public:
-    QSGTexture* getDisplayTexture();
+    QSharedPointer<QSGTexture> getDisplayTexture();
 
     static bool make_current_cb(void* data, bool current);
     static void* get_proc_address_cb(void* data, const char* procName);
@@ -42,7 +42,7 @@ private:
     QQuickWindow* m_window = nullptr;
     QSize m_size;
 
-    QSGTexture* m_textures[3] ;
+    QSharedPointer<QSGTexture> m_textures[3] ;
     QOpenGLFramebufferObject* m_fbo[3];
 
     bool m_updated = false;
@@ -80,8 +80,7 @@ protected:
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
     QmlMainContext* m_mainCtx = nullptr;
     VideoRendererGL* m_renderer = nullptr;
-    QSGRectangleNode* m_noVideoNode = nullptr;
-    QSGRectangleNode* m_noVideoNode2 = nullptr;
+    QSharedPointer<QSGTexture> m_displayTexture;
 };
 
 
