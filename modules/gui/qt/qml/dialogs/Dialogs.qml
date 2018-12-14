@@ -147,6 +147,7 @@ Item {
                         KeyNavigation.right: loginOk
                         onClicked: {
                             dialogModel.dismiss(loginDialog.dialogId)
+                            loginDialog.dialogId = undefined
                             loginDialog.close()
                         }
                     }
@@ -159,6 +160,7 @@ Item {
                         KeyNavigation.up: savePassword
                         onClicked: {
                             dialogModel.post_login(loginDialog.dialogId, username.text, password.text, savePassword.checked)
+                            loginDialog.dialogId = undefined
                             loginDialog.close()
                         }
                     }
@@ -215,6 +217,7 @@ Item {
                         KeyNavigation.right: action1
                         onClicked: {
                             dialogModel.dismiss(questionDialog.dialogId)
+                            questionDialog.dialogId = undefined
                             questionDialog.close()
                         }
                     }
@@ -226,6 +229,7 @@ Item {
                         KeyNavigation.right: action2
                         onClicked: {
                             dialogModel.post_action1(questionDialog.dialogId)
+                            questionDialog.dialogId = undefined
                             questionDialog.close()
                         }
                     }
@@ -236,6 +240,7 @@ Item {
                         visible: action2.text !== ""
                         onClicked: {
                             dialogModel.post_action2(questionDialog.dialogId)
+                            questionDialog.dialogId = undefined
                             questionDialog.close()
                         }
                     }
@@ -287,6 +292,16 @@ Item {
                 dialogModel.dismiss(dialogId)
             } else {
                 dialogModel.dismiss(dialogId)
+            }
+        }
+
+        Component.onDestruction: {
+            if (questionDialog.dialogId) {
+                console.log("dialogModel.dismiss(questionDialog.dialogId)", questionDialog.dialogId)
+                dialogModel.dismiss(questionDialog.dialogId)
+            } if (loginDialog.dialogId) {
+                console.log("dialogModel.dismiss(loginDialog.dialogId)", loginDialog.dialogId)
+                dialogModel.dismiss(loginDialog.dialogId)
             }
         }
     }
