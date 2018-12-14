@@ -38,7 +38,7 @@ Rectangle {
     property alias hovered: mouse.containsMouse
 
     property var dragitem: null
-    signal dropedMovedAt(int target)
+    signal dropedMovedAt(int target, var drop)
 
 
     // Should the cover be displayed
@@ -155,7 +155,7 @@ Rectangle {
             }
             onExited: dropVisible = false
             onDropped: {
-                root.dropedMovedAt(model.index)
+                root.dropedMovedAt(model.index, drop)
                 dropVisible = false
             }
         }

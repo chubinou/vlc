@@ -26,7 +26,12 @@ Item {
         }
         onExited: foot._dropVisible = false
         onDropped: {
-            delegateModel.onDropMovedAtEnd()
+            if (drop.hasUrls) {
+                console.log("add urls", drop.urls)
+                delegateModel.onDropUrlAtEnd(drop.urls)
+            } else {
+                delegateModel.onDropMovedAtEnd()
+            }
             foot._dropVisible = false
         }
     }

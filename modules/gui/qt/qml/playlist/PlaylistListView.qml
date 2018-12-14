@@ -108,7 +108,12 @@ Utils.NavigableFocusScope {
                 onItemDoubleClicked:  delegateModel.onAction(index, true)
 
                 onDropedMovedAt: {
-                    delegateModel.onMoveSelectionAtPos(target)
+                    if (drop.hasUrls) {
+                        console.log("add urls", drop.urls)
+                        delegateModel.onDropUrlAtPos(drop.urls, target)
+                    } else {
+                        delegateModel.onMoveSelectionAtPos(target)
+                    }
                 }
             }
         }
@@ -123,6 +128,22 @@ Utils.NavigableFocusScope {
 
         function onDropMovedAtEnd() {
             onMoveSelectionAtPos(items.count)
+        }
+
+        function onDropUrlAtPos(urls, target) {
+            var list = []
+            for (var i = 0; i < urls.length; i++){
+                list.push(urls[i])
+            }
+            plControler.insert(target, list)
+        }
+
+        function onDropUrlAtEnd(urls) {
+            var list = []
+            for (var i = 0; i < urls.length; i++){
+                list.push(urls[i])
+            }
+            plControler.append(list)
         }
 
         function onDelete() {

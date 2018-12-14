@@ -24,8 +24,9 @@
 
 #include "playlist_controler.hpp"
 #include "playlist_controler_p.hpp"
-#include <algorithm>
 #include "vlc_player.h"
+#include <algorithm>
+#include <QVariant>
 
 namespace vlc {
   namespace playlist {
@@ -291,6 +292,47 @@ PlaylistItem PlaylistControlerModel::getCurrentItem() const
     Q_D(const PlaylistControlerModel);
     return d->m_currentItem;
 }
+
+void PlaylistControlerModel::append(const QVariantList& sourceList, bool startPlaying)
+{
+    QVector<Media> mediaList;
+    std::transform(sourceList.begin(), sourceList.end(),
+                   std::back_inserter(mediaList), [](const QVariant& value) {
+        if (value.canConvert<QUrl>())
+        {
+            auto mrl = value.value<QUrl>();
+            return Media(mrl.toString(QUrl::None), mrl.fileName());
+        }
+        else if (value.canConvert<QString>())
+        {
+            auto mrl = value.value<QString>();
+            return Media(mrl, mrl);
+        }
+        return Media{};
+    });
+    append(mediaList, startPlaying);
+}
+
+void PlaylistControlerModel::insert(unsigned index, const QVariantList& sourceList, bool startPlaying)
+{
+    QVector<Media> mediaList;
+    std::transform(sourceList.begin(), sourceList.end(),
+                   std::back_inserter(mediaList), [](const QVariant& value) {
+        if (value.canConvert<QUrl>())
+        {
+            auto mrl = value.value<QUrl>();
+            return Media(mrl.toString(QUrl::None), mrl.fileName());
+        }
+        else if (value.canConvert<QString>())
+        {
+            auto mrl = value.value<QString>();
+            return Media(mrl, mrl);
+        }
+        return Media{};
+    });
+    insert(index, mediaList, startPlaying);
+}
+
 
 void
 PlaylistControlerModel::append(const QVector<Media> &media, bool startPlaying)

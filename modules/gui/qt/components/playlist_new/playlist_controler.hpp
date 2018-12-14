@@ -98,6 +98,9 @@ public:
     Q_INVOKABLE void clear();
     Q_INVOKABLE void goTo(uint index, bool startPlaying = false);
 
+    Q_INVOKABLE void append(const QVariantList&, bool startPlaying = false);
+    Q_INVOKABLE void insert(unsigned index, const QVariantList&, bool startPlaying = false);
+
     void append(const QVector<Media> &, bool startPlaying = false);
     void insert(size_t index, const QVector<Media> &, bool startPlaying = false);
     void move(const QVector<PlaylistItem> &, size_t target, ssize_t indexHint);
