@@ -23,12 +23,7 @@ Utils.NavigableFocusScope {
         visible: !player.hasVideoOutput
         focus: false
         color: VLCStyle.colors.bg
-        anchors {
-            top: parent.top
-            right: parent.right
-            left: parent.left
-            bottom: controlBarView.top
-        }
+        anchors.fill: parent
 
         Image {
             id: cover

@@ -39,7 +39,6 @@
 #include "main_interface.hpp"
 
 /* The dialogs */
-#include "dialogs/playlist.hpp"
 #include "dialogs/bookmarks.hpp"
 #include "dialogs/preferences.hpp"
 #include "dialogs/mediainfo.hpp"
@@ -82,7 +81,6 @@ DialogsProvider::DialogsProvider( intf_thread_t *_p_intf ) :
 
 DialogsProvider::~DialogsProvider()
 {
-    PlaylistDialog::killInstance();
     MediaInfoDialog::killInstance();
     MessagesDialog::killInstance();
     BookmarksDialog::killInstance();
@@ -140,7 +138,9 @@ void DialogsProvider::customEvent( QEvent *event )
         case INTF_DIALOG_DIRECTORY:
             PLAppendDir(); break;
         case INTF_DIALOG_PLAYLIST:
-            playlistDialog(); break;
+            //FIXME
+            //playlistDialog(); break;
+            break;
         case INTF_DIALOG_MESSAGES:
             messagesDialog(); break;
         case INTF_DIALOG_FILEINFO:
@@ -214,11 +214,6 @@ void DialogsProvider::customEvent( QEvent *event )
  ****************************************************************************/
 const QEvent::Type DialogEvent::DialogEvent_Type =
         (QEvent::Type)QEvent::registerEventType();
-
-void DialogsProvider::playlistDialog()
-{
-    PlaylistDialog::getInstance( p_intf )->toggleVisible();
-}
 
 void DialogsProvider::prefsDialog()
 {

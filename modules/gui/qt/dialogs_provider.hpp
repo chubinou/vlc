@@ -119,7 +119,6 @@ private:
     void openDialog( int );
 
 public slots:
-    void playlistDialog();
     void bookmarksDialog();
     void mediaInfoDialog();
     void mediaCodecDialog();
