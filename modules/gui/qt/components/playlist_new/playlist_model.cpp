@@ -119,10 +119,7 @@ on_playlist_items_updated(vlc_playlist_t *playlist, size_t index,
             return;
         int count = updated.size();
         for (int i = 0; i < count; ++i)
-        {
-            assert(that->m_items[index + i].raw() == updated[i].raw());
             that->m_items[index + i] = updated[i]; /* sync metadata */
-        }
         that->notifyItemsChanged(index, count);
     });
 }
