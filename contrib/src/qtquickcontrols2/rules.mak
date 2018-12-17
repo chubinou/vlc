@@ -47,7 +47,6 @@ endif
 	cd $(PREFIX)/lib/pkgconfig; sed -i.orig \
 		-e 's/d\.a/.a/g' \
 		-e 's/-lQt\([^ ]*\)d/-lQt\1/g' \
-		-e 's/ -lQt5QuickControls2/ -lqtquickcontrolsplugin -lqtquickcontrols2plugin -lqtquicktemplates2plugin -lQt5QuickControls2/' \
+		-e 's/ -lQt5QuickControls2/ -lqtquickcontrols2plugin -lqtquicktemplates2plugin -lQt5QuickControls2/' \
 		Qt5QuickControls2.pc
 	touch $@
-
