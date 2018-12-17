@@ -39,6 +39,7 @@ public slots:
     void onMousePressed( int vlcButton );
     void onMouseReleased( int vlcButton );
     void onMouseMoved( float x, float y );
+    void onSurfaceSizeChanged(QSizeF size);
 
 private:
     QMutex m_lock;
@@ -82,13 +83,14 @@ protected:
     virtual void hoverMoveEvent(QHoverEvent *event) override;
     virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
 
-
 private slots:
-    void onSizeChanged(QSize);
+    void onSourceSizeChanged(QSize);
+    void onSurfaceSizeChanged();
 
 signals:
     void ctxChanged(QmlMainContext*);
     void sourceSizeChanged(QSize);
+    void surfaceSizeChanged(QSizeF);
 
     void mousePressed( int vlcButton );
     void mouseReleased( int vlcButton );

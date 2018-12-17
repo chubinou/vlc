@@ -98,10 +98,22 @@ void VideoSurfaceGL::mouseDoubleClickEvent(QMouseEvent* event)
         event->ignore();
 }
 
-void VideoSurfaceGL::onSizeChanged(QSize newSize)
+void VideoSurfaceGL::onSourceSizeChanged(QSize newSize)
 {
-    m_sourceSize = newSize;
-    emit sourceSizeChanged(m_sourceSize);
+    if (newSize != m_sourceSize) {
+        printf("VideoSurfaceGL::onSourceSizeChanged(%i,%i) was (%i,%i)\n",
+               newSize.width(), newSize.height(),
+               m_sourceSize.width(), m_sourceSize.height()
+               );
+        m_sourceSize = newSize;
+        emit sourceSizeChanged(m_sourceSize);
+    }
+}
+
+void VideoSurfaceGL::onSurfaceSizeChanged()
+{
+    printf("VideoRendererGL::onSurfaceSizeChanged(%f,%f)\n", size().width(), size().height());
+    emit surfaceSizeChanged(size());
 }
 
 QSGNode* VideoSurfaceGL::updatePaintNode(QSGNode* oldNode, QQuickItem::UpdatePaintNodeData*)
@@ -111,10 +123,16 @@ QSGNode* VideoSurfaceGL::updatePaintNode(QSGNode* oldNode, QQuickItem::UpdatePai
     if (m_renderer == nullptr) {
         m_renderer = m_mainCtx->getMainInterface()->getVideoRendererGL();
         connect(m_renderer, &VideoRendererGL::updated, this, &VideoSurfaceGL::update, Qt::QueuedConnection);
-        connect(m_renderer, &VideoRendererGL::sizeChanged, this, &VideoSurfaceGL::onSizeChanged, Qt::QueuedConnection);
-        connect(this, &VideoSurfaceGL::mouseMoved, m_renderer, &VideoRendererGL::onMouseMoved);
-        connect(this, &VideoSurfaceGL::mousePressed, m_renderer, &VideoRendererGL::onMousePressed);
-        connect(this, &VideoSurfaceGL::mouseReleased, m_renderer, &VideoRendererGL::onMouseReleased);
+
+        connect(m_renderer, &VideoRendererGL::sizeChanged, this, &VideoSurfaceGL::onSourceSizeChanged, Qt::QueuedConnection);
+
+        connect(this, &VideoSurfaceGL::mouseMoved, m_renderer, &VideoRendererGL::onMouseMoved, Qt::QueuedConnection);
+        connect(this, &VideoSurfaceGL::mousePressed, m_renderer, &VideoRendererGL::onMousePressed, Qt::QueuedConnection);
+        connect(this, &VideoSurfaceGL::mouseReleased, m_renderer, &VideoRendererGL::onMouseReleased, Qt::QueuedConnection);
+
+        connect(this, &VideoSurfaceGL::widthChanged, this, &VideoSurfaceGL::onSurfaceSizeChanged);
+        connect(this, &VideoSurfaceGL::heightChanged, this, &VideoSurfaceGL::onSurfaceSizeChanged);
+        connect(this, &VideoSurfaceGL::surfaceSizeChanged, m_renderer, &VideoRendererGL::onSurfaceSizeChanged, Qt::QueuedConnection);
 
         return nullptr;
     }
@@ -304,4 +322,11 @@ void VideoRendererGL::onMouseMoved(float x, float y)
     QMutexLocker lock(&m_lock);
     if (m_voutWindow)
         vout_window_ReportMouseMoved(m_voutWindow, x, y);
+}
+
+void VideoRendererGL::onSurfaceSizeChanged(QSizeF size)
+{
+    QMutexLocker lock(&m_lock);
+    if (m_voutWindow)
+        vout_window_ReportSize(m_voutWindow, size.width(), size.height());
 }
