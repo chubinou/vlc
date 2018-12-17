@@ -1,6 +1,7 @@
 #QtQuickControls 1
-QTQC_VERSION := 5.11.0
-QTQC_URL := http://download.qt.io/official_releases/qt/5.11/$(QTQC_VERSION)/submodules/qtquickcontrols-everywhere-src-$(QTQC_VERSION).tar.xz
+QTQC_VERSION_MAJOR := 5.12
+QTQC_VERSION := $(QTQC_VERSION_MAJOR).0
+QTQC_URL := http://download.qt.io/official_releases/qt/$(QTQC_VERSION_MAJOR)/$(QTQC_VERSION)/submodules/qtquickcontrols-everywhere-src-$(QTQC_VERSION).tar.xz
 
 DEPS_qtquickcontrols = qtquickcontrols2 $(DEPS_qtquickcontrols2)
 

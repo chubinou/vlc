@@ -1,7 +1,8 @@
 # QtQuickControls 2
 
-QTQC2_VERSION := 5.11.0
-QTQC2_URL := http://download.qt.io/official_releases/qt/5.11/$(QTQC2_VERSION)/submodules/qtquickcontrols2-everywhere-src-$(QTQC2_VERSION).tar.xz
+QTQC2_VERSION_MAJOR := 5.12
+QTQC2_VERSION := $(QTQC2_VERSION_MAJOR).0
+QTQC2_URL := http://download.qt.io/official_releases/qt/$(QTQC2_VERSION_MAJOR)/$(QTQC2_VERSION)/submodules/qtquickcontrols2-everywhere-src-$(QTQC2_VERSION).tar.xz
 
 ifdef HAVE_WIN32
 ifeq ($(findstring $(ARCH), arm aarch64),)

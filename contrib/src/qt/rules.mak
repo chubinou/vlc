@@ -1,6 +1,6 @@
 # Qt
 
-QT_VERSION_MAJOR := 5.11
+QT_VERSION_MAJOR := 5.12
 QT_VERSION := $(QT_VERSION_MAJOR).0
 # Insert potential -betaX suffix here:
 QT_VERSION_FULL := $(QT_VERSION)
@@ -28,8 +28,6 @@ qt: qt-$(QT_VERSION_FULL).tar.xz .sum-qt
 ifdef HAVE_WIN32
 	$(APPLY) $(SRC)/qt/0001-Windows-QPA-prefer-lower-value-when-rounding-fractio.patch
 	$(APPLY) $(SRC)/qt/0002-Windows-QPA-Disable-systray-notification-sounds.patch
-	$(APPLY) $(SRC)/qt/0003-configure-Treat-win32-clang-g-the-same-as-win32-g.patch
-	$(APPLY) $(SRC)/qt/0004-qmake-Fix-building-with-lld-with-mingw-makefiles.patch
 ifndef HAVE_WIN64
 	$(APPLY) $(SRC)/qt/0001-disable-qt_random_cpu.patch
 endif
@@ -73,7 +71,7 @@ QT_CONFIG += -release
 	cd $< && $(MAKE)
 	cd $< && $(MAKE) -C src sub-corelib-install_subtargets sub-gui-install_subtargets sub-widgets-install_subtargets sub-platformsupport-install_subtargets sub-zlib-install_subtargets sub-bootstrap-install_subtargets sub-network-install_subtargets sub-testlib-install_subtargets
 	# Install tools
-	cd $< && $(MAKE) -C src sub-moc-install_subtargets sub-rcc-install_subtargets sub-uic-install_subtargets
+	cd $< && $(MAKE) -C src sub-moc-install_subtargets sub-rcc-install_subtargets sub-uic-install_subtargets sub-qlalr-install_subtargets
 	# Install plugins
 	cd $< && $(MAKE) -C src/plugins sub-platforms-install_subtargets
 ifdef HAVE_WIN32
