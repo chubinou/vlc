@@ -2,18 +2,18 @@
 #include <QtQuick/QSGImageNode>
 #include <QtQuick/QSGRectangleNode>
 #include <QtQuick/QQuickWindow>
+#include <vlc_vout_window.h>
 #include "main_interface.hpp"
 
 VideoSurfaceGL::VideoSurfaceGL(QQuickItem* parent)
     : QQuickItem(parent)
 {
-    setFlag(ItemHasContents);
+    setAcceptHoverEvents(true);
+    setAcceptedMouseButtons(Qt::AllButtons);
+    setFlag(ItemAcceptsInputMethod, true);
+    setFlag(ItemHasContents, true);
 }
 
-VideoSurfaceGL::~VideoSurfaceGL()
-{
-    printf("VideoSurfaceGL::~VideoSurfaceGL");
-}
 
 QmlMainContext*VideoSurfaceGL::getCtx()
 {
@@ -31,6 +31,73 @@ QSize VideoSurfaceGL::getSourceSize() const
     return m_sourceSize;
 }
 
+int VideoSurfaceGL::qtMouseButton2VLC( Qt::MouseButton qtButton )
+{
+    switch( qtButton )
+    {
+        case Qt::LeftButton:
+            return 0;
+        case Qt::RightButton:
+            return 2;
+        case Qt::MiddleButton:
+            return 1;
+        default:
+            return -1;
+    }
+}
+
+void VideoSurfaceGL::mousePressEvent(QMouseEvent* event)
+{
+    int vlc_button = qtMouseButton2VLC( event->button() );
+    if( vlc_button >= 0 )
+    {
+        emit mousePressed(vlc_button);
+        event->accept();
+    }
+    else
+        event->ignore();
+}
+
+void VideoSurfaceGL::mouseReleaseEvent(QMouseEvent* event)
+{
+    int vlc_button = qtMouseButton2VLC( event->button() );
+    if( vlc_button >= 0 )
+    {
+        emit mouseReleased(vlc_button);
+        event->accept();
+    }
+    else
+        event->ignore();
+}
+
+void VideoSurfaceGL::mouseMoveEvent(QMouseEvent* event)
+{
+    QPointF current_pos = event->localPos();
+    emit mouseMoved(current_pos.x() , current_pos.y());
+    event->accept();
+}
+
+void VideoSurfaceGL::hoverMoveEvent(QHoverEvent* event)
+{
+    QPointF current_pos = event->posF();
+    float scaleW = m_sourceSize.width() / width();
+    float scaleH = m_sourceSize.height() / height();
+    emit mouseMoved(current_pos.x() * scaleW, current_pos.y() * scaleH);
+    event->accept();
+}
+
+void VideoSurfaceGL::mouseDoubleClickEvent(QMouseEvent* event)
+{
+    int vlc_button = qtMouseButton2VLC( event->button() );
+    if( vlc_button >= 0 )
+    {
+        emit mouseDblClicked(vlc_button);
+        event->accept();
+    }
+    else
+        event->ignore();
+}
+
 void VideoSurfaceGL::onSizeChanged(QSize newSize)
 {
     m_sourceSize = newSize;
@@ -45,6 +112,10 @@ QSGNode* VideoSurfaceGL::updatePaintNode(QSGNode* oldNode, QQuickItem::UpdatePai
         m_renderer = m_mainCtx->getMainInterface()->getVideoRendererGL();
         connect(m_renderer, &VideoRendererGL::updated, this, &VideoSurfaceGL::update, Qt::QueuedConnection);
         connect(m_renderer, &VideoRendererGL::sizeChanged, this, &VideoSurfaceGL::onSizeChanged, Qt::QueuedConnection);
+        connect(this, &VideoSurfaceGL::mouseMoved, m_renderer, &VideoRendererGL::onMouseMoved);
+        connect(this, &VideoSurfaceGL::mousePressed, m_renderer, &VideoRendererGL::onMousePressed);
+        connect(this, &VideoSurfaceGL::mouseReleased, m_renderer, &VideoRendererGL::onMouseReleased);
+
         return nullptr;
     }
 
@@ -84,11 +155,6 @@ VideoRendererGL::VideoRendererGL(MainInterface* p_mi, QObject* parent)
     }
 }
 
-VideoRendererGL::~VideoRendererGL()
-{
-    printf("VideoRendererGL::~VideoRendererGL\n");
-}
-
 QSharedPointer<QSGTexture> VideoRendererGL::getDisplayTexture()
 {
     QMutexLocker lock(&m_lock);
@@ -103,9 +169,9 @@ QSharedPointer<QSGTexture> VideoRendererGL::getDisplayTexture()
 bool VideoRendererGL::make_current_cb(void* data, bool current)
 {
     VideoRendererGL* that = static_cast<VideoRendererGL*>(data);
+    QMutexLocker lock(&that->m_lock);
     if (!that->m_ctx || !that->m_surface)
     {
-        printf("VideoSurfaceGL::make_current_cb invalid context\n");
         return false;
     }
 
@@ -136,7 +202,6 @@ void VideoRendererGL::swap_cb(void* data)
 
 bool VideoRendererGL::setup_cb(void* data)
 {
-    printf("VideoSurfaceGL::setup_cb\n");
     VideoRendererGL* that = static_cast<VideoRendererGL*>(data);
 
     QMutexLocker lock(&that->m_lock);
@@ -174,7 +239,6 @@ bool VideoRendererGL::setup_cb(void* data)
 
 void VideoRendererGL::cleanup_cb(void* data)
 {
-    printf("VideoSurfaceGL::cleanup_cb\n");
     VideoRendererGL* that = static_cast<VideoRendererGL*>(data);
 
     QMutexLocker lock(&that->m_lock);
@@ -196,11 +260,9 @@ void VideoRendererGL::cleanup_cb(void* data)
 
 void VideoRendererGL::resize_cb(void* data, unsigned width, unsigned height)
 {
-    printf("VideoSurfaceGL::resize_cb %ux%u\n", width, height);
     VideoRendererGL* that = static_cast<VideoRendererGL*>(data);
 
     QMutexLocker lock(&that->m_lock);
-
     QSize newsize(width, height);
     if (that->m_size != newsize)
     {
@@ -215,4 +277,31 @@ void VideoRendererGL::resize_cb(void* data, unsigned width, unsigned height)
         emit that->sizeChanged(newsize);
     }
     that->m_fbo[that->m_renderIdx]->bind();
+}
+
+void VideoRendererGL::setVoutWindow(vout_window_t* window)
+{
+    QMutexLocker lock(&m_lock);
+    m_voutWindow = window;
+}
+
+void VideoRendererGL::onMousePressed(int vlcButton)
+{
+    QMutexLocker lock(&m_lock);
+    if (m_voutWindow)
+        vout_window_ReportMousePressed(m_voutWindow, vlcButton);
+}
+
+void VideoRendererGL::onMouseReleased(int vlcButton)
+{
+    QMutexLocker lock(&m_lock);
+    if (m_voutWindow)
+        vout_window_ReportMouseReleased(m_voutWindow, vlcButton);
+}
+
+void VideoRendererGL::onMouseMoved(float x, float y)
+{
+    QMutexLocker lock(&m_lock);
+    if (m_voutWindow)
+        vout_window_ReportMouseMoved(m_voutWindow, x, y);
 }

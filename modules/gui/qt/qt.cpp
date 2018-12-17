@@ -810,6 +810,8 @@ static int WindowOpen( vout_window_t *p_wnd, const vout_window_cfg_t *cfg )
 
     MainInterface *p_mi = p_intf->p_sys->p_mi;
 
+    p_mi->getVideoRendererGL()->setVoutWindow(p_wnd);
+
     p_wnd->info.has_double_click = true;
     p_wnd->control = WindowControl;
     p_wnd->sys = (vout_window_sys_t*)p_mi;
@@ -849,5 +851,6 @@ static void WindowClose( vout_window_t *p_wnd )
         return;
     }
     msg_Dbg (p_wnd, "releasing video...");
+    p_mi->getVideoRendererGL()->setVoutWindow(nullptr);
     p_mi->releaseVideo();
 }

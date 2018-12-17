@@ -17,11 +17,11 @@ class VideoRendererGL : public QObject
     Q_OBJECT
 public:
     VideoRendererGL(MainInterface* p_mi,  QObject *parent = nullptr);
-    ~VideoRendererGL();
 
 public:
     QSharedPointer<QSGTexture> getDisplayTexture();
 
+    //openGL callbacks
     static bool make_current_cb(void* data, bool current);
     static void* get_proc_address_cb(void* data, const char* procName);
     static void swap_cb(void* data);
@@ -29,12 +29,22 @@ public:
     static void cleanup_cb(void* data);
     static void resize_cb(void* data, unsigned width, unsigned height);
 
+    void setVoutWindow(vout_window_t* window);
+
 signals:
     void updated();
     void sizeChanged(QSize);
 
+public slots:
+    void onMousePressed( int vlcButton );
+    void onMouseReleased( int vlcButton );
+    void onMouseMoved( float x, float y );
+
 private:
     QMutex m_lock;
+
+    vout_window_t* m_voutWindow = nullptr;
+
     QOpenGLContext* m_ctx = nullptr;
     QOffscreenSurface* m_surface = nullptr;
 
@@ -59,13 +69,19 @@ class VideoSurfaceGL : public QQuickItem
 
 public:
     VideoSurfaceGL(QQuickItem *parent = nullptr);
-    ~VideoSurfaceGL();
 
-public:
     QmlMainContext* getCtx();
     void setCtx(QmlMainContext* mainctx);
 
     QSize getSourceSize() const;
+
+protected:
+    virtual void mousePressEvent(QMouseEvent *event) override;
+    virtual void mouseReleaseEvent(QMouseEvent *event) override;
+    virtual void mouseMoveEvent(QMouseEvent *event) override;
+    virtual void hoverMoveEvent(QHoverEvent *event) override;
+    virtual void mouseDoubleClickEvent(QMouseEvent *event) override;
+
 
 private slots:
     void onSizeChanged(QSize);
@@ -74,10 +90,19 @@ signals:
     void ctxChanged(QmlMainContext*);
     void sourceSizeChanged(QSize);
 
-protected:
-    bool m_sourceSizeChanged;
-    QSize m_sourceSize;
+    void mousePressed( int vlcButton );
+    void mouseReleased( int vlcButton );
+    void mouseDblClicked( int vlcButton );
+    void mouseMoved( float x, float y );
+
+private:
+    int qtMouseButton2VLC( Qt::MouseButton qtButton );
     QSGNode *updatePaintNode(QSGNode *, UpdatePaintNodeData *) override;
+
+private:
+    bool m_sourceSizeChanged = false;
+    QSize m_sourceSize;
+
     QmlMainContext* m_mainCtx = nullptr;
     VideoRendererGL* m_renderer = nullptr;
     QSharedPointer<QSGTexture> m_displayTexture;
