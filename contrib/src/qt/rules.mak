@@ -28,13 +28,32 @@ qt: qt-$(QT_VERSION_FULL).tar.xz .sum-qt
 ifdef HAVE_WIN32
 	$(APPLY) $(SRC)/qt/0001-Windows-QPA-prefer-lower-value-when-rounding-fractio.patch
 	$(APPLY) $(SRC)/qt/0002-Windows-QPA-Disable-systray-notification-sounds.patch
+
 ifndef HAVE_WIN64
 	$(APPLY) $(SRC)/qt/0001-disable-qt_random_cpu.patch
+else
+	$(APPLY) $(SRC)/qt/0004-Fix-PMurHash.c-mingw-clang-64-bit-compilation.patch
 endif
+
+ifdef HAVE_CROSS_COMPILE
+	$(APPLY) $(SRC)/qt/0003-allow-cross-compilation-of-angle-with-wine.patch
+endif
+
 endif
 	$(MOVE)
 
+
+ifdef HAVE_WIN32
+ifneq ($(findstring $(ARCH), arm aarch64),)
+# There is no opengl available on windows on these architectures.
+QT_OPENGL := -no-opengl
+else
+QT_OPENGL := -angle
+endif
+
+else
 QT_OPENGL := -opengl desktop
+endif
 
 ifdef HAVE_MACOSX
 QT_SPEC := darwin-g++
@@ -52,10 +71,7 @@ ifneq ($(QT_SPEC),)
 QT_PLATFORM := -platform $(QT_SPEC)
 endif
 endif
-ifneq ($(findstring $(ARCH), arm aarch64),)
-# There is no opengl available on windows on these architectures.
-QT_OPENGL := -no-opengl
-endif
+
 endif
 
 QT_CONFIG := -static -opensource -confirm-license -no-pkg-config \
@@ -65,10 +81,14 @@ QT_CONFIG := -static -opensource -confirm-license -no-pkg-config \
 
 QT_CONFIG += -release
 
+ENV_VARS := $(HOSTVARS) DXSDK_DIR=$(PREFIX)/bin
+
 .qt: qt
-	cd $< && ./configure $(QT_PLATFORM) $(QT_CONFIG) -prefix $(PREFIX)
+	cp $(SRC)/qt/fxc.exe $(PREFIX)/bin
+	cp $(SRC)/qt/d3dcompiler_47.dll $(PREFIX)/bin
+	cd $< && $(ENV_VARS) ./configure $(QT_PLATFORM) $(QT_CONFIG) -prefix $(PREFIX) -I $(PREFIX)/include
 	# Make && Install libraries
-	cd $< && $(MAKE)
+	cd $< && $(ENV_VARS) $(MAKE)
 	cd $< && $(MAKE) -C src sub-corelib-install_subtargets sub-gui-install_subtargets sub-widgets-install_subtargets sub-platformsupport-install_subtargets sub-zlib-install_subtargets sub-bootstrap-install_subtargets sub-network-install_subtargets sub-testlib-install_subtargets
 	# Install tools
 	cd $< && $(MAKE) -C src sub-moc-install_subtargets sub-rcc-install_subtargets sub-uic-install_subtargets sub-qlalr-install_subtargets
@@ -87,11 +107,13 @@ ifdef HAVE_WIN32
 	# Clean Qt mess
 	rm -rf $(PREFIX)/lib/libQt5Bootstrap* $</lib/libQt5Bootstrap*
 	# Fix .pc files to remove debug version (d)
-	cd $(PREFIX)/lib/pkgconfig; for i in Qt5Core.pc Qt5Gui.pc Qt5Widgets.pc Qt5Test.pc Qt5Network.pc; do sed -i.orig -e 's/d\.a/.a/g' -e 's/d $$/ /' $$i; done
+	cd $(PREFIX)/lib/pkgconfig; for i in Qt5Core.pc Qt5Gui.pc Qt5Widgets.pc Qt5Test.pc Qt5Network.pc ; do sed -i.orig -e 's/d\.a/.a/g' -e 's/d $$/ /' -e "s/-llibEGLd -llibGLESv2d /-llibEGL -llibGLESv2 /g" $$i; done
 	# Fix Qt5Gui.pc file to include qwindows (QWindowsIntegrationPlugin) and platform support libraries
 	cd $(PREFIX)/lib/pkgconfig; sed -i.orig -e 's/ -lQt5Gui/ -lqwindows -lqjpeg -luxtheme -ldwmapi -lwtsapi32 -lQt5ThemeSupport -lQt5FontDatabaseSupport -lQt5EventDispatcherSupport -lQt5WindowsUIAutomationSupport -lqtfreetype -lQt5Gui/g' Qt5Gui.pc
 	# Fix Qt5Widget.pc file to include qwindowsvistastyle before Qt5Widget, as it depends on it
 	cd $(PREFIX)/lib/pkgconfig; sed -i.orig -e 's/ -lQt5Widget/ -lqwindowsvistastyle -lQt5Widget/' Qt5Widgets.pc
+	# Use ANGLE OpenGL provided by Qt
+	cd $(PREFIX)/lib/pkgconfig; sed -i.orig -e '/^Cflags:/ s#$$# -I$${includedir}/QtANGLE#' Qt5Gui.pc
 endif
 	# Install a qmake with correct paths set
 	cd $<; $(MAKE) sub-qmake-qmake-aux-pro-install_subtargets install_mkspecs

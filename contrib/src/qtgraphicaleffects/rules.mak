@@ -40,5 +40,6 @@ endif
 	rm -rf $(PREFIX)/qml
 	cd $(PREFIX)/lib/pkgconfig; sed -i.orig \
 		-e 's/ -lQt5QuickWidgets/ -lqtgraphicaleffectsplugin -lqtgraphicaleffectsprivate -lQt5QuickWidgets/' \
+		-e 's/-llibEGLd -llibGLESv2d/-llibEGL -llibGLESv2/' \
 		Qt5QuickWidgets.pc
 	touch $@
