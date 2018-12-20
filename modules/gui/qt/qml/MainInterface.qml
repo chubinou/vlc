@@ -48,7 +48,8 @@ Rectangle {
             property alias viewProperties: mainview.viewProperties
             property alias view: mainview.view
             Rectangle {
-                color: VLCStyle.colors.bg
+                //color: VLCStyle.colors.bg
+                color: "transparent"
                 anchors.fill: parent
                 //focus: true
                 MC.MCMainDisplay {

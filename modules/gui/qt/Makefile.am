@@ -193,10 +193,10 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/util/vlc_var_observer.hpp \
 	gui/qt/util/imagehelper.cpp gui/qt/util/imagehelper.hpp \
 	gui/qt/styles/seekstyle.cpp gui/qt/styles/seekstyle.hpp
-if HAVE_WIN32
-libqt_plugin_la_SOURCES += \
-	gui/qt/main_interface_win32.cpp gui/qt/main_interface_win32.hpp
-endif
+#if HAVE_WIN32
+#libqt_plugin_la_SOURCES += \
+#	gui/qt/main_interface_win32.cpp gui/qt/main_interface_win32.hpp
+#endif
 
 # Meta-object compilation
 
@@ -303,9 +303,9 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/util/buttons/BrowseButton.moc.cpp \
 	gui/qt/styles/seekstyle.moc.cpp
 
-if HAVE_WIN32
-nodist_libqt_plugin_la_SOURCES += gui/qt/main_interface_win32.moc.cpp
-endif
+#if HAVE_WIN32
+#nodist_libqt_plugin_la_SOURCES += gui/qt/main_interface_win32.moc.cpp
+#endif
 
 nodist_libqt_plugin_la_SOURCES += \
 	gui/qt/ui/equalizer.h \

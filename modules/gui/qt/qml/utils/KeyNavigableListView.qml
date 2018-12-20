@@ -17,6 +17,7 @@ NavigableFocusScope {
     property alias spacing: view.spacing
     property alias interactive: view.interactive
     property alias model: view.model
+    property alias delegate: view.delegate
 
     property alias originX: view.originX
     property alias originY: view.originY

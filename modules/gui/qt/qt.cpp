@@ -49,11 +49,11 @@ extern "C" char **environ;
 #include "input_manager.hpp"    /* THEMIM destruction */
 #include "components/playlist_new/playlist_controler.hpp" /* THEMPL creation */
 #include "dialogs_provider.hpp" /* THEDP creation */
-#ifdef _WIN32
-# include "main_interface_win32.hpp"
-#else
+//#ifdef _WIN32
+//# include "main_interface_win32.hpp"
+//#else
 # include "main_interface.hpp"   /* MainInterface creation */
-#endif
+//#endif
 #include "extensions_manager.hpp" /* Extensions manager */
 #include "managers/addons_manager.hpp" /* Addons manager */
 #include "dialogs/help.hpp"     /* Launch Update */
@@ -80,7 +80,6 @@ extern "C" char **environ;
   Q_IMPORT_PLUGIN(QSvgPlugin)
   Q_IMPORT_PLUGIN(QJpegPlugin)
   Q_IMPORT_PLUGIN(QtQuick2Plugin)
-  Q_IMPORT_PLUGIN(QtQuickControls1Plugin)
   Q_IMPORT_PLUGIN(QtQuickControls2Plugin)
   Q_IMPORT_PLUGIN(QtQuickLayoutsPlugin)
   Q_IMPORT_PLUGIN(QtQuick2WindowPlugin)
@@ -393,14 +392,14 @@ static bool active = false;
 
 static void *Thread( void * );
 
-#ifdef Q_OS_MAC
+//#ifdef Q_OS_MAC
 /* Used to abort the app.exec() on OSX after libvlc_Quit is called */
 #include "../../../lib/libvlc_internal.h" /* libvlc_SetExitHandler */
 static void Abort( void *obj )
 {
     QVLCApp::triggerQuit();
 }
-#endif
+//#endif
 
 /* Open Interface */
 static int Open( vlc_object_t *p_this, bool isDialogProvider )
@@ -550,17 +549,14 @@ static void *Thread( void *obj )
 #endif
     argv[argc] = NULL;
 
-#ifdef _WIN32
-    QQuickWindow::setSceneGraphBackend(QSGRendererInterface::Software);
-#endif
-
-
     Q_INIT_RESOURCE( vlc );
 
 #if HAS_QT56
     QApplication::setAttribute( Qt::AA_EnableHighDpiScaling );
     QApplication::setAttribute( Qt::AA_UseHighDpiPixmaps );
 #endif
+
+    QQuickWindow::setDefaultAlphaBuffer(true);
 
     /* Start the QApplication here */
     QVLCApp app( argc, argv );
@@ -623,11 +619,11 @@ static void *Thread( void *obj )
 
     if( !p_sys->b_isDialogProvider )
     {
-#ifdef _WIN32
-        p_mi = new MainInterfaceWin32( p_intf );
-#else
+//#ifdef _WIN32
+//        p_mi = new MainInterfaceWin32( p_intf );
+//#else
         p_mi = new MainInterface( p_intf );
-#endif
+//#endif
         p_sys->p_mi = p_mi;
 
         /* Check window type from the Qt platform back-end */
@@ -810,7 +806,16 @@ static int WindowOpen( vout_window_t *p_wnd, const vout_window_cfg_t *cfg )
 
     MainInterface *p_mi = p_intf->p_sys->p_mi;
 
-    p_mi->getVideoRendererGL()->setVoutWindow(p_wnd);
+    switch( p_intf->p_sys->voutWindowType )
+    {
+    case VOUT_WINDOW_TYPE_XID:
+        p_mi->getVideoRendererGL()->setVoutWindow(p_wnd);
+    break;
+    default:
+        if( !p_mi->getVideo( p_wnd, cfg->width, cfg->height, cfg->is_fullscreen ) )
+            return VLC_EGENERIC;
+    break;
+    }
 
     p_wnd->info.has_double_click = true;
     p_wnd->control = WindowControl;

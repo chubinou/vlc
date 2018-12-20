@@ -368,6 +368,7 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     QWidget* mainWidget = new QWidget(this);
 
     QStackedLayout *stackedLayout = new QStackedLayout;
+    stackedLayout->setStackingMode(QStackedLayout::StackAll);
     stackedLayout->setContentsMargins(0,0,0,0);
     mainWidget->setLayout(stackedLayout);
     setCentralWidget( mainWidget );
@@ -377,8 +378,12 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     QmlMainContext* mainCtx = new QmlMainContext(p_intf, this);
 
     mediacenterView = new QQuickWidget();
-    mediacenterView->setClearColor(Qt::transparent);
+    //QSurfaceFormat format;
+    //format.setAlphaBufferSize(8);
+    //mediacenterView->setFormat(format);;
+    //mediacenterView->setClearColor(Qt::transparent);
     mediacenterView->setAttribute(Qt::WA_NoBackground);
+    mediacenterView->setStyleSheet("background:transparent");
 
     QQmlContext *rootCtx = mediacenterView->rootContext();
     rootCtx->setContextProperty( "medialib", medialib );
@@ -392,12 +397,15 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
 
     mediacenterWrapper = new QWidget(this);
     QHBoxLayout  *front_wrapper_layout = new QHBoxLayout(mediacenterWrapper);
+    mediacenterWrapper->setAttribute(Qt::WA_NoBackground);
+    mediacenterWrapper->setStyleSheet("background:transparent");
+    mediacenterWrapper->setAttribute(Qt::WA_NativeWindow);
     front_wrapper_layout->addWidget(mediacenterView);
     front_wrapper_layout->setContentsMargins(0,0,0,0);
 
     videoWidget = new VideoWidget( p_intf, this );
-    stackedLayout->addWidget(mediacenterWrapper);
     stackedLayout->addWidget(videoWidget);
+    stackedLayout->addWidget(mediacenterWrapper);
 
     if ( b_interfaceOnTop )
         setWindowFlags( windowFlags() | Qt::WindowStaysOnTopHint );

@@ -47,12 +47,14 @@ Utils.NavigableFocusScope {
         }
     }
 
+    /*
     VideoSurface {
         id: videoSurface
         ctx: mainctx
         visible: player.hasVideoOutput
         anchors.fill: parent
     }
+    */
 
     Utils.Drawer {
         id: playlistpopup
