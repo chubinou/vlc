@@ -36,6 +36,7 @@ public:
     const std::string &mrl() const override;
     const std::string &name() const override;
     const std::string &extension() const override;
+    bool isNetwork() const override;
     unsigned int lastModificationDate() const override;
     unsigned int size() const override;
 

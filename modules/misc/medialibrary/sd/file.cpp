@@ -53,6 +53,12 @@ SDFile::extension() const
     return m_extension;
 }
 
+bool
+SDFile::isNetwork() const
+{
+    return false;
+}
+
 unsigned int
 SDFile::lastModificationDate() const
 {
