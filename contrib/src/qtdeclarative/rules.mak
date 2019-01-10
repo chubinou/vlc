@@ -1,18 +1,13 @@
 # QtDeclarative
 
-QTDECLARATIVE_VERSION := 5.11.0
-QTDECLARATIVE_URL := http://download.qt.io/official_releases/qt/5.11/$(QTDECLARATIVE_VERSION)/submodules/qtdeclarative-everywhere-src-$(QTDECLARATIVE_VERSION).tar.xz
+QTDECLARATIVE_VERSION_MAJOR := 5.12
+QTDECLARATIVE_VERSION := $(QTDECLARATIVE_VERSION_MAJOR).0
+QTDECLARATIVE_URL := http://download.qt.io/official_releases/qt/$(QTDECLARATIVE_VERSION_MAJOR)/$(QTDECLARATIVE_VERSION)/submodules/qtdeclarative-everywhere-src-$(QTDECLARATIVE_VERSION).tar.xz
 
 DEPS_qtdeclarative += qt $(DEPS_qt)
 
 ifdef HAVE_WIN32
-ifeq ($(findstring $(ARCH), arm aarch64),)
-# There is no opengl available on windows on these architectures.
-# QtDeclarative in itself should be usable without opengl though, but
-# our current build rules requires opengl (the "particles" feature
-# is unavailable if opengl is disabled).
 PKGS += qtdeclarative
-endif
 endif
 
 ifeq ($(call need_pkg,"Qt5Quick"),)
@@ -46,8 +41,9 @@ qtdeclarative: qtdeclarative-$(QTDECLARATIVE_VERSION).tar.xz .sum-qtdeclarative
 	cp $(PREFIX)/qml/QtQml/Models.2/libmodelsplugin.a $(PREFIX)/lib/
 	rm -rf $(PREFIX)/qml
 	cd $(PREFIX)/lib/pkgconfig; for i in Qt5Quick.pc Qt5Qml.pc Qt5QuickWidgets.pc; do \
-		sed -i.orig -e 's/d\.a/.a/g' -e 's/-lQt\([^ ]*\)d/-lQt\1/g' $$i; done
+	sed -i.orig -e 's/d\.a/.a/g' -e 's/-lQt\([^ ]*\)d[[:space:]]/-lQt\1 /g' -e 's/-llibEGLd -llibGLESv2d/-llibEGL -llibGLESv2/' $$i; done
 	cd $(PREFIX)/lib/pkgconfig; sed -i.orig -e 's/ -lQt5Quick/ -lqtquick2plugin -lqquicklayoutsplugin -lwindowplugin -lQt5Quick/' Qt5Quick.pc
 	cd $(PREFIX)/lib/pkgconfig; sed -i.orig -e 's/ -lQt5Qml/ -lmodelsplugin -lQt5Qml/' Qt5Qml.pc
+
 
 	touch $@
