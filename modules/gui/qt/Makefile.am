@@ -145,6 +145,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/util/buttons/RoundButton.hpp \
 	gui/qt/util/qvlcframe.hpp \
 	gui/qt/util/qvlcapp.hpp \
+	gui/qt/util/qmleventfilter.cpp \
+	gui/qt/util/qmleventfilter.hpp \
 	gui/qt/util/singleton.hpp \
 	gui/qt/util/vlctick.cpp \
 	gui/qt/util/vlctick.hpp \
@@ -231,6 +233,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/util/input_slider.moc.cpp \
 	gui/qt/util/timetooltip.moc.cpp \
 	gui/qt/util/customwidgets.moc.cpp \
+	gui/qt/util/qmleventfilter.moc.cpp \
 	gui/qt/util/searchlineedit.moc.cpp \
 	gui/qt/util/qmenuview.moc.cpp \
 	gui/qt/util/qvlcapp.moc.cpp \
