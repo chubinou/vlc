@@ -52,6 +52,7 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/recents.cpp gui/qt/recents.hpp \
 	gui/qt/adapters/seekpoints.cpp gui/qt/adapters/seekpoints.hpp \
 	gui/qt/adapters/chromaprint.cpp gui/qt/adapters/chromaprint.hpp \
+	gui/qt/adapters/var_common_p.hpp \
 	gui/qt/adapters/variables.cpp gui/qt/adapters/variables.hpp \
 	gui/qt/dialogs/playlist.cpp gui/qt/dialogs/playlist.hpp \
 	gui/qt/dialogs/bookmarks.cpp gui/qt/dialogs/bookmarks.hpp \
@@ -231,7 +232,6 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/util/searchlineedit.moc.cpp \
 	gui/qt/util/qmenuview.moc.cpp \
 	gui/qt/util/qvlcapp.moc.cpp \
-	gui/qt/util/pictureflow.moc.cpp \
 	gui/qt/util/vlctick.moc.cpp \
 	gui/qt/util/validators.moc.cpp \
 	gui/qt/util/buttons/RoundButton.moc.cpp \
