@@ -30,7 +30,7 @@
 #include "qt.hpp"
 #include "dialogs_provider.hpp"
 #include "components/player_controller.hpp" /* Load Subtitles */
-#include "components/playlist/playlist_controler.hpp"
+#include "components/playlist/playlist_controller.hpp"
 #include "menus.hpp"
 #include "recents.hpp"
 #include "util/qt_dirs.hpp"
@@ -53,7 +53,6 @@
 #include "dialogs/podcast_configuration.hpp"
 #include "dialogs/toolbar.hpp"
 #include "dialogs/plugins.hpp"
-#include "dialogs/external.hpp"
 #include "dialogs/epg.hpp"
 #include "dialogs/errors.hpp"
 
