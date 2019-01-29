@@ -164,6 +164,11 @@ if HAVE_WIN32
 libqt_plugin_la_SOURCES += \
 	gui/qt/main_interface_win32.cpp gui/qt/main_interface_win32.hpp
 endif
+if HAVE_WAYLAND
+libqt_plugin_la_SOURCES += \
+	gui/qt/components/voutwindow/qvoutwindowwayland.hpp \
+	gui/qt/components/voutwindow/qvoutwindowwayland.cpp
+endif
 
 # Meta-object compilation
 
@@ -255,6 +260,10 @@ nodist_libqt_plugin_la_SOURCES = \
 
 if HAVE_WIN32
 nodist_libqt_plugin_la_SOURCES += gui/qt/main_interface_win32.moc.cpp
+endif
+
+if HAVE_WAYLAND
+nodist_libqt_plugin_la_SOURCES += gui/qt/components/voutwindow/qvoutwindowwayland.moc.cpp
 endif
 
 nodist_libqt_plugin_la_SOURCES += \
