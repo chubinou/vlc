@@ -252,7 +252,7 @@ static int Start_LuaIntf( vlc_object_t *p_this, const char *name )
     }
 
     vlclua_set_this( L, p_intf );
-    vlc_playlist_t *playlist = vlc_intf_GetMainPlaylist(p_intf);
+    vlc_playlist_t *playlist = vlc_playlist_GetMainPlaylist(vlc_object_instance(p_intf));
     vlclua_set_playlist_internal(L, playlist);
 
     luaL_openlibs( L );

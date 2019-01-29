@@ -818,7 +818,7 @@ static lua_State* GetLuaState( extensions_manager_t *p_mgr,
         }
         vlclua_set_this( L, p_mgr );
         intf_thread_t *intf = (intf_thread_t *) vlc_object_parent(p_mgr);
-        vlc_playlist_t *playlist = vlc_intf_GetMainPlaylist(intf);
+        vlc_playlist_t *playlist = vlc_playlist_GetMainPlaylist(vlc_object_instance(intf));
         vlclua_set_playlist_internal(L, playlist);
         vlclua_extension_set( L, p_ext );
 
