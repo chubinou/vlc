@@ -8,8 +8,10 @@
 #   - Add *.h to nodist_..._SOURCES
 # For each ressource (icon, png, ...)
 #   - Add it to DEPS_res
+# For each qml and js ressource
+#   - Add it to ..._QML
 
-SUFFIXES += .ui .h .hpp .moc.cpp
+SUFFIXES += .ui .h .hpp .moc.cpp .qml
 
 libqt_plugin_la_CPPFLAGS = $(AM_CPPFLAGS) \
 	-I$(srcdir)/gui/qt -I$(builddir)/gui/qt
@@ -517,7 +519,10 @@ libqt_plugin_la_RES = \
 	gui/qt/pixmaps/update.svg \
 	gui/qt/pixmaps/valid.svg \
 	gui/qt/pixmaps/search_clear.svg \
-	gui/qt/pixmaps/lock.svg \
+	gui/qt/pixmaps/lock.svg
+
+#QML and JS resources
+libqt_plugin_la_QML = \
 	gui/qt/qml/MainInterface.qml \
 	gui/qt/qml/BannerSources.qml \
 	gui/qt/qml/about/About.qml \
@@ -532,7 +537,6 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/utils/DNDLabel.qml \
 	gui/qt/qml/utils/ToolTipArea.qml \
 	gui/qt/qml/utils/Drawer.qml \
-	gui/qt/qml/utils/ExpandGridView.qml \
 	gui/qt/qml/utils/GridItem.qml \
 	gui/qt/qml/utils/IconToolButton.qml \
 	gui/qt/qml/utils/ImageToolButton.qml \
@@ -563,6 +567,7 @@ libqt_plugin_la_RES = \
 	gui/qt/qml/menus/ViewMenu.qml \
 	gui/qt/qml/menus/VideoMenu.qml \
 	gui/qt/qml/mediacenter/ArtistListView.qml \
+	gui/qt/qml/mediacenter/ArtistGridView.qml \
 	gui/qt/qml/mediacenter/ArtistTopBanner.qml \
 	gui/qt/qml/mediacenter/MCMainDisplay.qml \
 	gui/qt/qml/mediacenter/MCMusicDisplay.qml \
@@ -595,8 +600,32 @@ if ENABLE_VLM
 nodist_libqt_plugin_la_SOURCES += gui/qt/dialogs/vlm.moc.cpp
 endif
 
-gui/qt/resources.cpp: gui/qt/vlc.qrc $(libqt_plugin_la_RES)
-	$(AM_V_GEN)$(RCC) -name vlc -o $@ $<
+if HAVE_QMLCACHE
+
+nodist_libqt_plugin_la_SOURCES += gui/qt/qmlcache_loader.cpp
+libqt_plugin_la_SOURCES += $(libqt_plugin_la_QML)
+
+.qml.cpp:
+	$(AM_V_GEN)$(QMLCACHE) --resource=$(srcdir)/gui/qt/vlc.qrc -o $@ $<
+
+qml_cache.qrc: gui/qt/vlc.qrc
+	$(AM_V_GEN)$(QMLCACHE) --filter-resource-file -o $@ $<
+
+gui/qt/resources.cpp: qml_cache.qrc $(libqt_plugin_la_RES)
+	$(AM_V_GEN)$(RCC) --name qml_cache -o $@ $<
+
+#output name matters here
+gui/qt/qmlcache_loader.cpp: gui/qt/vlc.qrc qml_cache.qrc $(libqt_plugin_la_QML)
+	$(AM_V_GEN)$(QMLCACHE) --resource-file-mapping=$<=qml_cache.qrc $< -o $@
+
+else
+
+EXTRA_DIST += $(libqt_plugin_la_QML)
+
+gui/qt/resources.cpp: gui/qt/vlc.qrc $(libqt_plugin_la_RES) $(libqt_plugin_la_QML)
+	$(AM_V_GEN)$(RCC) --name vlc -o $@ $<
+
+endif
 
 vlc_qt_check_SOURCES = gui/qt/vlc-qt-check.cpp
 vlc_qt_check_CXXFLAGS = $(AM_CXXFLAGS) $(QT_CFLAGS) -fPIC
