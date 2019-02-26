@@ -57,8 +57,13 @@
 #include "components/dialogmodel.hpp"
 
 #include "components/voutwindow/qvoutwindowgl.hpp"
-#include "components/voutwindow/qvoutwindowwayland.hpp"
 #include "components/voutwindow/qvoutwindowdummy.hpp"
+#ifdef QT5_HAS_WAYLAND
+#  include "components/voutwindow/qvoutwindowwayland.hpp"
+#endif
+#ifdef _WIN32
+#  include "components/voutwindow/qvoutwindowdirectcomposition.hpp"
+#endif
 
 #include "components/qml_main_context.hpp"
 
@@ -170,20 +175,28 @@ MainInterface::MainInterface( intf_thread_t *_p_intf ) : QVLCMW( _p_intf ),
     QString platformName = QGuiApplication::platformName();
 #ifdef QT5_HAS_WAYLAND
     b_hasWayland = platformName.startsWith(QLatin1String("wayland"), Qt::CaseInsensitive);
+#endif
+
     //fixme use a factory
-    if( b_hasWayland )
+    if (platformName == qfu("xcb"))
+    {
+        m_videoRenderer.reset(new QVoutWindowGL(this, this));
+    }
+#ifdef QT5_HAS_WAYLAND
+    else if( b_hasWayland )
     {
         //set an initial reference to the Egl intitialisation ref counting, this will avoid
         //to destroy the display when the Vout is closed.
         m_videoRenderer.reset(new QVoutWindowWayland(this, this));
         setAttribute(Qt::WA_TranslucentBackground);
     }
-    else
 #endif
-    if (platformName.startsWith(QLatin1String("xcb"), Qt::CaseInsensitive))
+#ifdef _WIN32
+    else if (platformName == qfu("windows"))
     {
-        m_videoRenderer.reset(new QVoutWindowGL(this, this));
+        m_videoRenderer.reset(new QVoutWindowDirectComposition(this, this));
     }
+#endif
     else
     {
         m_videoRenderer.reset(new QVoutWindowDummy(this));
@@ -372,7 +385,8 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterType<QmlEventFilter>( "org.videolan.vlc", 0, 1, "EventFilter" );
 
 
-    mediacenterView = new QQuickWidget(this);
+    mediacenterView = new QQuickWidget();
+    mediacenterView->setAttribute(Qt::WA_TranslucentBackground);
     mediacenterView->setClearColor(Qt::transparent);
 
     NavigationHistory* navigation_history = new NavigationHistory(mediacenterView);
@@ -401,8 +415,9 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
 
     mediacenterView->setSource( QUrl ( QStringLiteral("qrc:/qml/MainInterface.qml") ) );
     mediacenterView->setResizeMode( QQuickWidget::SizeRootObjectToView );
+    mediacenterView->show();
 
-    setCentralWidget( mediacenterView );
+    //setCentralWidget( mediacenterView );
 
     if ( b_interfaceOnTop )
         setWindowFlags( windowFlags() | Qt::WindowStaysOnTopHint );

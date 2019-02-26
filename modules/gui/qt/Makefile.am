@@ -35,7 +35,7 @@ libqt_plugin_la_CXXFLAGS += $(WAYLAND_CLIENT_CFLAGS)
 libqt_plugin_la_LIBADD += $(WAYLAND_CLIENT_LIBS)
 endif
 if HAVE_WIN32
-libqt_plugin_la_LIBADD += $(LIBCOM) -lcomctl32 -luuid
+libqt_plugin_la_LIBADD += $(LIBCOM) -lcomctl32 -luuid -ldcomp -ld3d11 -ldxgi
 endif
 if UPDATE_CHECK
 libqt_plugin_la_CPPFLAGS += -DUPDATE_CHECK
@@ -193,7 +193,9 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/styles/seekstyle.cpp gui/qt/styles/seekstyle.hpp
 if HAVE_WIN32
 libqt_plugin_la_SOURCES += \
-	gui/qt/main_interface_win32.cpp gui/qt/main_interface_win32.hpp
+	gui/qt/main_interface_win32.cpp gui/qt/main_interface_win32.hpp \
+	gui/qt/components/voutwindow/qvoutwindowdirectcomposition.hpp \
+	gui/qt/components/voutwindow/qvoutwindowdirectcomposition.cpp
 endif
 if HAVE_WAYLAND
 libqt_plugin_la_SOURCES += \
@@ -305,7 +307,8 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/styles/seekstyle.moc.cpp
 
 if HAVE_WIN32
-nodist_libqt_plugin_la_SOURCES += gui/qt/main_interface_win32.moc.cpp
+nodist_libqt_plugin_la_SOURCES += gui/qt/main_interface_win32.moc.cpp \
+	gui/qt/components/voutwindow/qvoutwindowdirectcomposition.moc.cpp
 endif
 
 if HAVE_WAYLAND

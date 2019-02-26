@@ -146,7 +146,9 @@ protected:
 
     std::unique_ptr<QVoutWindow> m_videoRenderer;
 
+public:
     QQuickWidget        *mediacenterView;
+
     QWidget             *mediacenterWrapper;
 
     /* Status Bar */
