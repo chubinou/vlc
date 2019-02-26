@@ -180,21 +180,19 @@ MainInterface::MainInterface( intf_thread_t *_p_intf ) : QVLCMW( _p_intf ),
     //fixme use a factory
     if (platformName == qfu("xcb"))
     {
-        m_videoRenderer.reset(new QVoutWindowGL(this, this));
+        m_videoRenderer.reset(new QVoutWindowGL(this));
     }
 #ifdef QT5_HAS_WAYLAND
     else if( b_hasWayland )
     {
-        //set an initial reference to the Egl intitialisation ref counting, this will avoid
-        //to destroy the display when the Vout is closed.
-        m_videoRenderer.reset(new QVoutWindowWayland(this, this));
+        m_videoRenderer.reset(new QVoutWindowWayland(this));
         setAttribute(Qt::WA_TranslucentBackground);
     }
 #endif
 #ifdef _WIN32
     else if (platformName == qfu("windows"))
     {
-        m_videoRenderer.reset(new QVoutWindowDirectComposition(this, this));
+        m_videoRenderer.reset(new QVoutWindowDirectComposition(this));
     }
 #endif
     else
@@ -385,14 +383,11 @@ void MainInterface::createMainWidget( QSettings *creationSettings )
     qmlRegisterType<QmlEventFilter>( "org.videolan.vlc", 0, 1, "EventFilter" );
 
 
-    mediacenterView = new QQuickWidget();
-    mediacenterView->setAttribute(Qt::WA_TranslucentBackground);
-    mediacenterView->setClearColor(Qt::transparent);
+    mediacenterView = m_videoRenderer->createQuickWindow();
 
     NavigationHistory* navigation_history = new NavigationHistory(mediacenterView);
 
     QmlMainContext* mainCtx = new QmlMainContext(p_intf, this, mediacenterView);
-
 
     QQmlContext *rootCtx = mediacenterView->rootContext();
 

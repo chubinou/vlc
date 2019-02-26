@@ -35,9 +35,8 @@ void QVoutWindowWayland::registry_global_remove( void *, wl_registry *, uint32_t
     // nothing to do
 }
 
-QVoutWindowWayland::QVoutWindowWayland( MainInterface* p_mi, QObject* parent )
-    : QVoutWindow( parent )
-    , m_mainInterface( p_mi )
+QVoutWindowWayland::QVoutWindowWayland(MainInterface* p_mi)
+    : QVoutWindow( p_mi )
 {
     assert( m_mainInterface );
     m_surfaceProvider = new VideoSurfaceWayland( this, this );

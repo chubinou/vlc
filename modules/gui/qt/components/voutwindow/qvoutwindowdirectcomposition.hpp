@@ -34,17 +34,17 @@ class QVoutWindowDirectComposition : public QVoutWindow
 {
     Q_OBJECT
 public:
-    QVoutWindowDirectComposition(MainInterface* p_mi,  QObject *parent = nullptr);
+    QVoutWindowDirectComposition(MainInterface* p_mi);
 
     VideoSurfaceProvider* getVideoSurfaceProvider() override;
+
+    QQuickWidget* createQuickWindow() override;
 
     virtual void setupVoutWindow(vout_window_t* window) override;
 
     bool eventFilter(QObject *obj, QEvent *event);
 private:
     VideoSurfaceProviderDirectComposition* m_surfaceProvider = nullptr;
-
-    MainInterface* m_mainInterface = nullptr;
 
     QWidget* m_mainWindow;
     HWND m_mainHwnd = nullptr;

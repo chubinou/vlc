@@ -6,9 +6,8 @@
 #include <vlc_vout_window.h>
 #include "main_interface.hpp"
 
-QVoutWindowGL::QVoutWindowGL(MainInterface* p_mi, QObject* parent)
-    : QVoutWindow(parent)
-    , m_mainInterface(p_mi)
+QVoutWindowGL::QVoutWindowGL(MainInterface* p_mi)
+    : QVoutWindow(p_mi)
 {
     assert(m_mainInterface);
     m_surfaceProvider.reset(new VideoSurfaceGL(this));

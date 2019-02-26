@@ -17,6 +17,7 @@
  *****************************************************************************/
 #include "qvoutwindowdummy.hpp"
 #include <QtQuick/QQuickWindow>
+#include <QtQuick/QSGImageNode>
 
 VideoSurfaceProviderDummy::VideoSurfaceProviderDummy(QObject* parent)
     : VideoSurfaceProvider(parent)
@@ -36,8 +37,8 @@ QSGNode*VideoSurfaceProviderDummy::updatePaintNode(QQuickItem* item, QSGNode* ol
     return node;
 }
 
-QVoutWindowDummy::QVoutWindowDummy(MainInterface* p_mi, QObject* parent)
-    : QVoutWindow(parent)
+QVoutWindowDummy::QVoutWindowDummy(MainInterface* p_mi)
+    : QVoutWindow(p_mi)
     , m_surfaceProvider(new VideoSurfaceProviderDummy(this))
 {
 }

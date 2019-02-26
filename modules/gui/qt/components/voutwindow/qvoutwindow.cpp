@@ -1,8 +1,10 @@
 #include "qvoutwindow.hpp"
 #include "util/customwidgets.hpp" //for qtEventToVLCKey
+#include "main_interface.hpp"
 
-QVoutWindow::QVoutWindow(QObject* parent)
-    : QObject(parent)
+QVoutWindow::QVoutWindow(MainInterface* p_mi)
+    : QObject(p_mi)
+    , m_mainInterface(p_mi)
 {
 }
 
@@ -39,6 +41,15 @@ void QVoutWindow::windowClosed()
     QMutexLocker lock(&m_voutlock);
     if (m_voutWindow)
         vout_window_ReportClose(m_voutWindow);
+}
+
+QQuickWidget* QVoutWindow::createQuickWindow()
+{
+    QQuickWidget* mainWindow = new QQuickWidget(m_mainInterface);
+    mainWindow->setAttribute(Qt::WA_TranslucentBackground);
+    mainWindow->setClearColor(Qt::transparent);
+    m_mainInterface->setCentralWidget(mainWindow);
+    return mainWindow;
 }
 
 void QVoutWindow::onMousePressed(int vlcButton)

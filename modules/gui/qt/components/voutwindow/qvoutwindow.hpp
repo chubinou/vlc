@@ -6,12 +6,13 @@
 #include "qt.hpp"
 #include "vlc_vout_window.h"
 #include "videosurface.hpp"
+#include <QtQuickWidgets//QQuickWidget>
 
 class QVoutWindow : public QObject
 {
     Q_OBJECT
 public:
-    QVoutWindow(QObject* parent = nullptr);
+    QVoutWindow(MainInterface* p_mi);
     virtual ~QVoutWindow();
 
     virtual void setupVoutWindow(vout_window_t* window);
@@ -20,6 +21,12 @@ public:
     virtual void windowClosed();
 
     virtual VideoSurfaceProvider* getVideoSurfaceProvider() = 0;
+
+    /*
+     * Create the main QML view and parent it to the main window
+     * This can be overloaded for special needs (ie: draw the interface in an offscreen window)
+     */
+    virtual QQuickWidget* createQuickWindow();
 
 public slots:
     void onMousePressed( int vlcButton );
@@ -33,6 +40,7 @@ public slots:
 protected:
     QMutex m_voutlock;
     vout_window_t* m_voutWindow = nullptr;
+    MainInterface* m_mainInterface = nullptr;
     bool m_hasVideo = false;
 
     QSizeF m_surfaceSize;

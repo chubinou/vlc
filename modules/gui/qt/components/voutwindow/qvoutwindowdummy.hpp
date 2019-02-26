@@ -40,7 +40,7 @@ class QVoutWindowDummy : public QVoutWindow
 {
     Q_OBJECT
 public:
-    QVoutWindowDummy(MainInterface* p_mi,  QObject *parent = nullptr);
+    QVoutWindowDummy(MainInterface* p_mi);
 
     VideoSurfaceProvider* getVideoSurfaceProvider() override;
 

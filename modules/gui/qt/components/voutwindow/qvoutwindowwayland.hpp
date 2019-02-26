@@ -22,7 +22,7 @@ class QVoutWindowWayland: public QVoutWindow
 {
     Q_OBJECT
 public:
-    QVoutWindowWayland(MainInterface* p_mi,  QObject *parent = nullptr);
+    QVoutWindowWayland(MainInterface* p_mi);
     ~QVoutWindowWayland() override;
 
     void enableVideo(unsigned int width, unsigned int height, bool fullscreen) override;
@@ -39,7 +39,6 @@ private:
                                  const char *, uint32_t );
     static void registry_global_remove( void *, wl_registry *, uint32_t );
 
-    MainInterface *m_mainInterface;
     VideoSurfaceWayland *m_surfaceProvider = nullptr;
     wl_compositor *m_compositor = nullptr;
     wl_subcompositor *m_subcompositor = nullptr;

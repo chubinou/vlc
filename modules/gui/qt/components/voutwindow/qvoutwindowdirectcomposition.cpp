@@ -28,21 +28,11 @@ static void HR(HRESULT const result, const char* msg = "")
 }
 
 
-QVoutWindowDirectComposition::QVoutWindowDirectComposition(MainInterface* p_mi, QObject* parent)
-    : QVoutWindow(parent)
-    , m_mainInterface(p_mi)
+QVoutWindowDirectComposition::QVoutWindowDirectComposition(MainInterface* p_mi)
+    : QVoutWindow(p_mi)
 {
-    //  //create the video native surface
-    //  m_videoWindow = new QWidget();
-    //  //m_videoWindow->setWindowFlag(Qt::ToolTip); //so it won't appears in window list
-    //  //m_videoWindow->setAttribute(Qt::WA_TranslucentBackground); //set the window as layered
-    //  m_videoWindow->setAttribute(Qt::WA_NativeWindow);
-    //  m_videoHwnd =(HWND) m_videoWindow->winId(); //this force the creation of the native widget
-    //
-    //  BOOL dwma_true = TRUE;
-    //  //window won't be rendered on screen
-    //  DwmSetWindowAttribute(m_videoHwnd, DWMWA_CLOAK, &dwma_true, sizeof(dwma_true));
-    //  m_videoWindow->show();
+    assert(p_mi);
+    m_surfaceProvider = new VideoSurfaceProviderDirectComposition( this, this );
 
     p_mi->installEventFilter(this);
 
@@ -87,143 +77,174 @@ QVoutWindowDirectComposition::QVoutWindowDirectComposition(MainInterface* p_mi, 
         if( FAILED( hr ) )
             m_d3d11Device.Reset();
     }
+
+    ComPtr<IDXGIDevice> dxgiDevice;
+    m_d3d11Device.As(&dxgiDevice);
+
+    // Create the DirectComposition device object.
+    HR(DCompositionCreateDevice(dxgiDevice.Get(),
+                                __uuidof(IDCompositionDevice),
+                                reinterpret_cast<void**>(m_dcompDevice.GetAddressOf())), "create device" );
+
+    HR(m_dcompDevice->CreateTargetForHwnd((HWND)m_mainInterface->winId(), TRUE, &m_dcompTarget), "create target");
+
+    HR(m_dcompDevice->CreateVisual(&m_rootVisual), "create root visual");
+    HR(m_dcompTarget->SetRoot(m_rootVisual.Get()), "set root visual");
+
+    /**** create swapchain  */
+    DXGI_FORMAT output_format = DXGI_FORMAT_B8G8R8A8_UNORM; //DXGI_FORMAT_R16G16B16A16_FLOAT for HDR
+    int width = 1024;
+    int height = 768;
+
+    ComPtr<IDXGIAdapter> dxgi_adapter;
+    HR(dxgiDevice->GetAdapter(dxgi_adapter.GetAddressOf()));
+    ComPtr<IDXGIFactory2> dxgi_factory;
+    HR(dxgi_adapter->GetParent(IID_PPV_ARGS(dxgi_factory.GetAddressOf())));
+
+    DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
+    desc.Width = width;
+    desc.Height = height;
+    desc.Format = output_format;
+    desc.Stereo = FALSE;
+    desc.SampleDesc.Count = 1;
+    desc.SampleDesc.Quality = 0;
+    desc.BufferCount = 2;
+    desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    desc.Scaling = DXGI_SCALING_STRETCH;
+    desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+    desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    desc.Flags = 0;
+
+    HR(dxgi_factory->CreateSwapChainForComposition(
+        m_d3d11Device.Get(), &desc, nullptr,
+        m_videoSwapChain.GetAddressOf()));
+
+    HR(m_dcompDevice->CreateVisual(&m_videoVisual), "create video visual");
+    HR(m_videoVisual->SetContent(m_videoSwapChain.Get()), "set video content");
 }
-
-
 
 VideoSurfaceProvider*QVoutWindowDirectComposition::getVideoSurfaceProvider()
 {
     return m_surfaceProvider;
 }
 
+QQuickWidget*QVoutWindowDirectComposition::createQuickWindow()
+{
+    QQuickWidget* mainWindow = new QQuickWidget(m_mainInterface);
+    mainWindow->setWindowFlag(Qt::ToolTip); //set window as tooltip so it won't appears in window list
+    mainWindow->setAttribute(Qt::WA_TranslucentBackground);
+    mainWindow->setClearColor(Qt::transparent);
+
+    BOOL dwma_true = TRUE;
+    ////set ui windows out of screen
+    HWND uiHwnd = (HWND)mainWindow->winId();
+    DwmSetWindowAttribute(uiHwnd, DWMWA_CLOAK, &dwma_true, sizeof(dwma_true));
+
+    //create visual for ui layer
+    HR(m_dcompDevice->CreateVisual(&m_uiVisual), "create ui visual");
+    HR(m_dcompDevice->CreateSurfaceFromHwnd(uiHwnd, &m_uiSurface), "create ui surface from hwnd");
+    HR(m_uiVisual->SetContent(m_uiSurface.Get()), "set video content");
+    HR(m_rootVisual->AddVisual(m_uiVisual.Get(), TRUE, NULL), "add video visual to root");
+
+    HR(m_dcompDevice->Commit(), "commit");
+
+    return mainWindow;
+}
+
 void QVoutWindowDirectComposition::setupVoutWindow(vout_window_t* window)
 {
+    if (m_voutWindow)
+    {
+        libvlc_int_t* libvlc = vlc_object_instance(m_voutWindow);
+        var_Destroy(libvlc, "vout");
+        var_Destroy(libvlc, "winrt-d3dcontext");
+        var_Destroy(libvlc, "winrt-swapchain");
+
+        HR(m_rootVisual->RemoveVisual(m_videoVisual.Get()), "remove video visual from root");
+    }
+
     QVoutWindow::setupVoutWindow(window);
-    //window->type = VOUT_WINDOW_TYPE_HWND;
-    //window->handle.hwnd = m_videoHwnd;
 
-    ////run on UI thread
-    //QMetaObject::invokeMethod(m_mainInterface, [this]() {
+    if (window)
+    {
+        //window->type = VOUT_WINDOW_TYPE_DIRECTCOMPOSITION;
+        //window->handle.dcompvisual = m_uiVisual.Get();
 
-        ComPtr<IDXGIDevice> dxgiDevice;
-        m_d3d11Device.As(&dxgiDevice);
+        libvlc_int_t* libvlc = vlc_object_instance(window);
+        var_Create(libvlc, "vout", VLC_VAR_STRING );
+        var_Create(libvlc, "winrt-d3dcontext", VLC_VAR_INTEGER );
+        var_Create(libvlc, "winrt-swapchain", VLC_VAR_INTEGER );
 
-        // Create the DirectComposition device object.
-        HR(DCompositionCreateDevice(dxgiDevice.Get(),
-                                    __uuidof(IDCompositionDevice),
-                                    reinterpret_cast<void**>(m_dcompDevice.GetAddressOf())), "create device" );
+        var_SetString( libvlc, "vout", "direct3d11" );
+        var_SetInteger(libvlc, "winrt-d3dcontext", (int64_t)m_d3d11Context.Get());
+        var_SetInteger(libvlc, "winrt-swapchain", (int64_t)m_videoSwapChain.Get());
 
-        HR(m_dcompDevice->CreateTargetForHwnd((HWND)m_mainInterface->effectiveWinId(), TRUE, &m_dcompTarget), "create target");
-
-        HR(m_dcompDevice->CreateVisual(&m_rootVisual), "create root visual");
-        HR(m_dcompTarget->SetRoot(m_rootVisual.Get()), "set root visual");
-
-        /**** create swapchain  */
-        DXGI_FORMAT output_format = DXGI_FORMAT_B8G8R8A8_UNORM; //DXGI_FORMAT_R16G16B16A16_FLOAT for HDR
-        int width = 1024;
-        int height = 768;
-
-        ComPtr<IDXGIAdapter> dxgi_adapter;
-        HR(dxgiDevice->GetAdapter(dxgi_adapter.GetAddressOf()));
-        ComPtr<IDXGIFactory2> dxgi_factory;
-        HR(dxgi_adapter->GetParent(IID_PPV_ARGS(dxgi_factory.GetAddressOf())));
-
-        DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
-        desc.Width = width;
-        desc.Height = height;
-        desc.Format = output_format;
-        desc.Stereo = FALSE;
-        desc.SampleDesc.Count = 1;
-        desc.SampleDesc.Quality = 0;
-        desc.BufferCount = 2;
-        desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-        desc.Scaling = DXGI_SCALING_STRETCH;
-        desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-        desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-        desc.Flags = 0;
-
-        HR(dxgi_factory->CreateSwapChainForComposition(
-            m_d3d11Device.Get(), &desc, nullptr,
-            m_videoSwapChain.GetAddressOf()));
-
-        HR(m_dcompDevice->CreateVisual(&m_videoVisual), "create video visual");
-        HR(m_videoVisual->SetContent(m_videoSwapChain.Get()), "set video content");
-        HR(m_rootVisual->AddVisual(m_videoVisual.Get(), TRUE, NULL), "add video visual to root");
-
-        msg_Info(window, "m_videoSwapChain %p", m_videoSwapChain.Get());
-
-        DXGI_SWAP_CHAIN_DESC1 desc2 = { 0 };
-        HR(m_videoSwapChain->GetDesc1(&desc2));
-
-        msg_Info(window, "m_videoSwapChain getDesc OK");
-
-        var_Create(window->obj.libvlc, "vout", VLC_VAR_STRING );
-        var_Create(window->obj.libvlc, "winrt-d3dcontext", VLC_VAR_INTEGER );
-        var_Create(window->obj.libvlc, "winrt-swapchain", VLC_VAR_INTEGER );
-
-        var_SetString( window->obj.libvlc, "vout", "direct3d11" );
-        var_SetInteger(window->obj.libvlc, "winrt-d3dcontext", (int64_t)m_d3d11Context.Get());
-        var_SetInteger(window->obj.libvlc, "winrt-swapchain", (int64_t)m_videoSwapChain.Get());
-
-        //create visual for video layer
-        ///  HR(m_dcompDevice->CreateVisual(&m_videoVisual), "create video visual");
-        ///  HR(m_dcompDevice->CreateSurfaceFromHwnd(m_videoHwnd, &m_videoSurface), "create video surface from hwnd");
-        ///  HR(m_videoVisual->SetContent(m_videoSurface.Get()), "set video content");
-        ///  HR(m_rootVisual->AddVisual(m_videoVisual.Get(), TRUE, NULL), "add video visual to root");
-
-        BOOL dwma_true = TRUE;
-        ////set ui windows out of screen
-        HWND uiHwnd = (HWND)m_mainInterface->mediacenterView->effectiveWinId();
-        //m_mainInterface->setWindowFlag(Qt::ToolTip);
-        DwmSetWindowAttribute(uiHwnd, DWMWA_CLOAK, &dwma_true, sizeof(dwma_true));
-
-        //create visual for ui layer
-        HR(m_dcompDevice->CreateVisual(&m_uiVisual), "create ui visual");
-        HR(m_dcompDevice->CreateSurfaceFromHwnd(uiHwnd, &m_uiSurface), "create ui surface from hwnd");
-        HR(m_uiVisual->SetContent(m_uiSurface.Get()), "set video content");
-        HR(m_rootVisual->AddVisual(m_uiVisual.Get(), TRUE, m_videoVisual.Get()), "add video visual to root");
-
-        ////commit compisition
-        HR(m_dcompDevice->Commit(), "commit");
-    //}, Qt::QueuedConnection, nullptr);
+        //place it bellow UI visual
+        HR(m_rootVisual->AddVisual(m_videoVisual.Get(), FALSE, m_uiVisual.Get()), "remove video visual from root");
+    }
+    HR(m_dcompDevice->Commit(), "commit");
 }
 
 bool QVoutWindowDirectComposition::eventFilter(QObject* obj, QEvent* event)
 {
-    if (obj == m_mainInterface)
-    {
-        switch (event->type()) {
-        case QEvent::MouseButtonPress:
-        case QEvent::MouseButtonRelease:
-        case QEvent::MouseButtonDblClick:
-        case QEvent::MouseMove:
-        case QEvent::KeyPress:
-        case QEvent::KeyRelease:
-        case QEvent::HoverEnter:
-        case QEvent::HoverLeave:
-        case QEvent::HoverMove:
-        case QEvent::Enter:
-        case QEvent::Leave:
-        case QEvent::FocusIn:
-        case QEvent::FocusOut:
-        case QEvent::GrabMouse:
-        case QEvent::UngrabMouse:
-        case QEvent::GrabKeyboard:
-        case QEvent::UngrabKeyboard:
-        case QEvent::FocusAboutToChange:
-            return QApplication::sendEvent(m_mainInterface->mediacenterView, event);
-            break;
-        case QEvent::Resize:
-        {
-            QResizeEvent* resizeEvent = static_cast<QResizeEvent*>(event);
-            m_mainInterface->mediacenterView->resize(resizeEvent->size().width(), resizeEvent->size().height());
-            return false;
-        }
-        default:
-            break;
-        }
+#define PRINT_EVENT(S) case S: { qWarning("got event %s obj is %p (%smi)", #S, obj, obj == m_mainInterface ? "" : "not " ); break; }
+    switch (event->type()) {
+        PRINT_EVENT(QEvent::MouseMove)
+        PRINT_EVENT(QEvent::MouseButtonPress)
+        PRINT_EVENT(QEvent::MouseButtonRelease)
+        PRINT_EVENT(QEvent::MouseButtonDblClick)
+        PRINT_EVENT(QEvent::Wheel)
+        PRINT_EVENT(QEvent::KeyPress)
+        PRINT_EVENT(QEvent::KeyRelease)
+        PRINT_EVENT(QEvent::HoverEnter)
+        PRINT_EVENT(QEvent::HoverLeave)
+        PRINT_EVENT(QEvent::HoverMove)
+        PRINT_EVENT(QEvent::Enter)
+        PRINT_EVENT(QEvent::Leave)
+        PRINT_EVENT(QEvent::FocusIn)
+        PRINT_EVENT(QEvent::FocusOut)
+        PRINT_EVENT(QEvent::FocusAboutToChange)
+        PRINT_EVENT(QEvent::GrabMouse)
+        PRINT_EVENT(QEvent::UngrabMouse)
+        PRINT_EVENT(QEvent::GrabKeyboard)
+        PRINT_EVENT(QEvent::UngrabKeyboard)
     }
-    return false;
+
+    switch (event->type()) {
+    case QEvent::MouseMove:
+    case QEvent::MouseButtonPress:
+    case QEvent::MouseButtonRelease:
+    case QEvent::MouseButtonDblClick:
+    case QEvent::Wheel:
+
+    case QEvent::HoverEnter:
+    case QEvent::HoverLeave:
+    case QEvent::HoverMove:
+    case QEvent::Enter:
+    case QEvent::Leave:
+    case QEvent::FocusIn:
+    case QEvent::FocusOut:
+    case QEvent::FocusAboutToChange:
+
+    case QEvent::GrabMouse:
+    case QEvent::UngrabMouse:
+    case QEvent::GrabKeyboard:
+    case QEvent::UngrabKeyboard:
+    case QEvent::KeyPress:
+    case QEvent::KeyRelease:
+    {
+        return QApplication::sendEvent(m_mainInterface->mediacenterView->quickWindow(), event);
+    }
+    case QEvent::Resize:
+    {
+        QResizeEvent* resizeEvent = static_cast<QResizeEvent*>(event);
+        m_mainInterface->mediacenterView->resize(resizeEvent->size().width(), resizeEvent->size().height());
+        return false;
+    }
+    default:
+        break;
+    }
+    return QObject::eventFilter(obj, event);
 }
 
 VideoSurfaceProviderDirectComposition::VideoSurfaceProviderDirectComposition(QVoutWindowDirectComposition* renderer, QObject* parent)

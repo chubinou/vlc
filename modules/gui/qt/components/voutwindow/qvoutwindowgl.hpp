@@ -37,7 +37,7 @@ class QVoutWindowGL : public QVoutWindow
 {
     Q_OBJECT
 public:
-    QVoutWindowGL(MainInterface* p_mi,  QObject *parent = nullptr);
+    QVoutWindowGL(MainInterface* p_mi);
     virtual ~QVoutWindowGL();
 
     QSharedPointer<QSGTexture> getDisplayTexture();
@@ -65,7 +65,6 @@ private:
     QOpenGLContext* m_ctx = nullptr;
     QOffscreenSurface* m_surface = nullptr;
 
-    MainInterface* m_mainInterface = nullptr;
     QQuickWindow* m_window = nullptr;
     QSize m_size;
 
