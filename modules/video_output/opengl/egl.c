@@ -278,8 +278,16 @@ static int Open(vlc_gl_t *gl, const struct gl_api *api,
         goto error;
     sys->window = window;
 
+#ifdef EGL_KHR_display_reference
+    const EGLint attrs[] = {
+        EGL_TRACK_REFERENCES_KHR, EGL_TRUE,
+        EGL_NONE
+    };
+#else
+    const EGLint* attrs = NULL;
+#endif
     sys->display = GetDisplayEXT(EGL_PLATFORM_WAYLAND_EXT, wnd->display.wl,
-                                 NULL);
+                                 attrs);
     createSurface = CreateWindowSurfaceEXT;
 
 # endif
