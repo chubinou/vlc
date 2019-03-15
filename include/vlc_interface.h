@@ -96,9 +96,6 @@ static inline playlist_t *pl_Get( struct intf_thread_t *intf )
     return (playlist_t *)vlc_object_parent(intf);
 }
 
-VLC_API vlc_playlist_t *
-vlc_intf_GetMainPlaylist(intf_thread_t *intf);
-
 /**
  * Retrieves the current input thread from the playlist.
  * @note The returned object must be released with input_Release().

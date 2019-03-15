@@ -227,7 +227,7 @@ static VLCMain *sharedInstance = nil;
 
         [VLCApplication sharedApplication].delegate = self;
 
-        _playlistController = [[VLCPlaylistController alloc] initWithPlaylist:vlc_intf_GetMainPlaylist(p_intf)];
+        _playlistController = [[VLCPlaylistController alloc] initWithPlaylist:vlc_playlist_GetMainPlaylist(vlc_object_instance(p_intf))];
         _input_manager = [[VLCInputManager alloc] initWithMain:self];
 
         // first initalize extensions dialog provider, then core dialog

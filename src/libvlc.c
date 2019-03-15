@@ -160,6 +160,8 @@ int libvlc_InternalInit( libvlc_int_t *p_libvlc, int i_argc,
             config_LoadConfigFile( p_libvlc );
     }
 
+    vlc_mutex_init(&priv->lock);
+
     /*
      * Override configuration with command line settings
      */
@@ -421,6 +423,8 @@ void libvlc_InternalCleanup( libvlc_int_t *p_libvlc )
 
     if (priv->main_playlist)
         vlc_playlist_Delete(priv->main_playlist);
+
+    vlc_mutex_destroy(&priv->lock);
 
     libvlc_InternalActionsClean( p_libvlc );
 

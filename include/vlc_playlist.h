@@ -869,6 +869,14 @@ VLC_API void
 vlc_playlist_Preparse(vlc_playlist_t *playlist, libvlc_int_t *libvlc,
                       input_item_t *media);
 
+/**
+ * Return the main playlist instance.
+ *
+ * \param libvlc the libvlc instance
+ */
+VLC_API vlc_playlist_t *
+vlc_playlist_GetMainPlaylist(libvlc_int_t *libvlc);
+
 /** @} */
 # ifdef __cplusplus
 }
