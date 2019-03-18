@@ -166,6 +166,10 @@ Utils.NavigableFocusScope {
                                     anchors.fill: parent
                                     onActionLeft: playlist.quit()
                                     onActionCancel: playlist.quit()
+                                    onActionUp: {
+                                        playlist.state = "hidden"
+                                        sourcesBanner.forceActiveFocus()
+                                    }
                                 }
                             }
                         }
