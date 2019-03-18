@@ -26,8 +26,8 @@ public slots:
     void onMouseReleased( int vlcButton );
     void onMouseDoubleClick( int vlcButton );
     void onMouseMoved( float x, float y );
-    void onMouseWheeled( QWheelEvent* event );
-    void onKeyPressed(QKeyEvent *event);
+    void onMouseWheeled(const QPointF &pos, int delta, Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Qt::Orientation orient);
+    void onKeyPressed(int key, Qt::KeyboardModifiers modifiers);
     void onSurfaceSizeChanged(QSizeF size);
 
 protected:

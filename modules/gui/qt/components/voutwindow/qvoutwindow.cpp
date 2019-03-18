@@ -69,20 +69,23 @@ void QVoutWindow::onMouseMoved(float x, float y)
         vout_window_ReportMouseMoved(m_voutWindow, x, y);
 }
 
-void QVoutWindow::onMouseWheeled(QWheelEvent* event)
+void QVoutWindow::onMouseWheeled(const QPointF& pos, int delta, Qt::MouseButtons buttons,  Qt::KeyboardModifiers modifiers, Qt::Orientation orient)
 {
-    int vlckey = qtWheelEventToVLCKey(event);
+    QWheelEvent event(pos, delta, buttons, modifiers, orient);
+    int vlckey = qtWheelEventToVLCKey(&event);
     QMutexLocker lock(&m_voutlock);
     if (m_hasVideo)
         vout_window_ReportKeyPress(m_voutWindow, vlckey);
 }
 
-void QVoutWindow::onKeyPressed(QKeyEvent* event)
+void QVoutWindow::onKeyPressed(int key, Qt::KeyboardModifiers modifiers)
 {
-    int vlckey = qtEventToVLCKey(event);
+    QKeyEvent event(QEvent::KeyPress, key, modifiers);
+    int vlckey = qtEventToVLCKey(&event);
     QMutexLocker lock(&m_voutlock);
     if (m_hasVideo)
         vout_window_ReportKeyPress(m_voutWindow, vlckey);
+
 }
 
 void QVoutWindow::onSurfaceSizeChanged(QSizeF size)

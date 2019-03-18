@@ -125,14 +125,14 @@ void VideoSurface::mouseDoubleClickEvent(QMouseEvent* event)
 
 void VideoSurface::keyPressEvent(QKeyEvent* event)
 {
-    emit keyPressed(event);
+    emit keyPressed(event->key(), event->modifiers());
     event->ignore();
 }
 
 #if QT_CONFIG(wheelevent)
 void VideoSurface::wheelEvent(QWheelEvent *event)
 {
-    emit mouseWheeled(event);
+    emit mouseWheeled(event->posF(), event->delta(), event->buttons(), event->modifiers(), event->orientation());
     event->ignore();
 }
 #endif

@@ -41,8 +41,8 @@ signals:
     void mouseReleased( int vlcButton );
     void mouseDblClicked( int vlcButton );
     void mouseMoved( float x, float y );
-    void keyPressed(QKeyEvent *event);
-    void mouseWheeled(QWheelEvent *event);
+    void keyPressed(int key, Qt::KeyboardModifiers modifier);
+    void mouseWheeled(const QPointF& pos, int delta, Qt::MouseButtons buttons,  Qt::KeyboardModifiers modifiers, Qt::Orientation orient);
 
     void update();
 };
@@ -90,8 +90,8 @@ signals:
     void mouseReleased( int vlcButton );
     void mouseDblClicked( int vlcButton );
     void mouseMoved( float x, float y );
-    void keyPressed(QKeyEvent *event);
-    void mouseWheeled(QWheelEvent *event);
+    void keyPressed(int key, Qt::KeyboardModifiers modifier);
+    void mouseWheeled(const QPointF& pos, int delta, Qt::MouseButtons buttons,  Qt::KeyboardModifiers modifiers, Qt::Orientation orient);
 
 private slots:
     void onSourceSizeChanged(QSize);
