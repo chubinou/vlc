@@ -91,36 +91,36 @@ QVoutWindowDirectComposition::QVoutWindowDirectComposition(MainInterface* p_mi)
     HR(m_dcompDevice->CreateVisual(&m_rootVisual), "create root visual");
     HR(m_dcompTarget->SetRoot(m_rootVisual.Get()), "set root visual");
 
-    /**** create swapchain  */
-    DXGI_FORMAT output_format = DXGI_FORMAT_B8G8R8A8_UNORM; //DXGI_FORMAT_R16G16B16A16_FLOAT for HDR
-    int width = 1024;
-    int height = 768;
-
-    ComPtr<IDXGIAdapter> dxgi_adapter;
-    HR(dxgiDevice->GetAdapter(dxgi_adapter.GetAddressOf()));
-    ComPtr<IDXGIFactory2> dxgi_factory;
-    HR(dxgi_adapter->GetParent(IID_PPV_ARGS(dxgi_factory.GetAddressOf())));
-
-    DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
-    desc.Width = width;
-    desc.Height = height;
-    desc.Format = output_format;
-    desc.Stereo = FALSE;
-    desc.SampleDesc.Count = 1;
-    desc.SampleDesc.Quality = 0;
-    desc.BufferCount = 2;
-    desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    desc.Scaling = DXGI_SCALING_STRETCH;
-    desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
-    desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
-    desc.Flags = 0;
-
-    HR(dxgi_factory->CreateSwapChainForComposition(
-        m_d3d11Device.Get(), &desc, nullptr,
-        m_videoSwapChain.GetAddressOf()));
-
+    ///**** create swapchain  */
+    //DXGI_FORMAT output_format = DXGI_FORMAT_B8G8R8A8_UNORM; //DXGI_FORMAT_R16G16B16A16_FLOAT for HDR
+    //int width = 1024;
+    //int height = 768;
+    //
+    //ComPtr<IDXGIAdapter> dxgi_adapter;
+    //HR(dxgiDevice->GetAdapter(dxgi_adapter.GetAddressOf()));
+    //ComPtr<IDXGIFactory2> dxgi_factory;
+    //HR(dxgi_adapter->GetParent(IID_PPV_ARGS(dxgi_factory.GetAddressOf())));
+    //
+    //DXGI_SWAP_CHAIN_DESC1 desc = { 0 };
+    //desc.Width = width;
+    //desc.Height = height;
+    //desc.Format = output_format;
+    //desc.Stereo = FALSE;
+    //desc.SampleDesc.Count = 1;
+    //desc.SampleDesc.Quality = 0;
+    //desc.BufferCount = 2;
+    //desc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+    //desc.Scaling = DXGI_SCALING_STRETCH;
+    //desc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_SEQUENTIAL;
+    //desc.AlphaMode = DXGI_ALPHA_MODE_UNSPECIFIED;
+    //desc.Flags = 0;
+    //
+    //HR(dxgi_factory->CreateSwapChainForComposition(
+    //    m_d3d11Device.Get(), &desc, nullptr,
+    //    m_videoSwapChain.GetAddressOf()));
+    //
     HR(m_dcompDevice->CreateVisual(&m_videoVisual), "create video visual");
-    HR(m_videoVisual->SetContent(m_videoSwapChain.Get()), "set video content");
+    //HR(m_videoVisual->SetContent(m_videoSwapChain.Get()), "set video content");
 }
 
 VideoSurfaceProvider*QVoutWindowDirectComposition::getVideoSurfaceProvider()
@@ -157,8 +157,10 @@ void QVoutWindowDirectComposition::setupVoutWindow(vout_window_t* window)
     {
         libvlc_int_t* libvlc = vlc_object_instance(m_voutWindow);
         var_Destroy(libvlc, "vout");
-        var_Destroy(libvlc, "winrt-d3dcontext");
-        var_Destroy(libvlc, "winrt-swapchain");
+        //var_Destroy(libvlc, "winrt-d3dcontext");
+        //var_Destroy(libvlc, "winrt-swapchain");
+        //var_Destroy(libvlc, "direct3d11-dcomposition-cb");
+        //var_Destroy(libvlc, "direct3d11-dcomposition-ptr");
 
         HR(m_rootVisual->RemoveVisual(m_videoVisual.Get()), "remove video visual from root");
     }
@@ -167,17 +169,21 @@ void QVoutWindowDirectComposition::setupVoutWindow(vout_window_t* window)
 
     if (window)
     {
-        //window->type = VOUT_WINDOW_TYPE_DIRECTCOMPOSITION;
-        //window->handle.dcompvisual = m_uiVisual.Get();
+        window->type = VOUT_WINDOW_TYPE_DIRECTCOMPOSITION;
+        window->handle.dcompvisual = m_uiVisual.Get();
 
         libvlc_int_t* libvlc = vlc_object_instance(window);
         var_Create(libvlc, "vout", VLC_VAR_STRING );
-        var_Create(libvlc, "winrt-d3dcontext", VLC_VAR_INTEGER );
-        var_Create(libvlc, "winrt-swapchain", VLC_VAR_INTEGER );
+        //var_Create(libvlc, "winrt-d3dcontext", VLC_VAR_INTEGER );
+        //var_Create(libvlc, "winrt-swapchain", VLC_VAR_INTEGER );
+        //var_Create(libvlc, "direct3d11-dcomposition-cb",VLC_VAR_INTEGER );
+        //var_Create(libvlc, "direct3d11-dcomposition-ptr",VLC_VAR_INTEGER );
 
         var_SetString( libvlc, "vout", "direct3d11" );
-        var_SetInteger(libvlc, "winrt-d3dcontext", (int64_t)m_d3d11Context.Get());
-        var_SetInteger(libvlc, "winrt-swapchain", (int64_t)m_videoSwapChain.Get());
+        //var_SetInteger(libvlc, "direct3d11-dcomposition-cb", (int64_t)&QVoutWindowDirectComposition::dcomposition_vout_cb);
+        //var_SetInteger(libvlc, "direct3d11-dcomposition-ptr", (int64_t)this);
+        //var_SetInteger(libvlc, "winrt-d3dcontext", (int64_t)m_d3d11Context.Get());
+        //var_SetInteger(libvlc, "winrt-swapchain", (int64_t)m_videoSwapChain.Get());
 
         //place it bellow UI visual
         HR(m_rootVisual->AddVisual(m_videoVisual.Get(), FALSE, m_uiVisual.Get()), "remove video visual from root");
@@ -245,6 +251,15 @@ bool QVoutWindowDirectComposition::eventFilter(QObject* obj, QEvent* event)
         break;
     }
     return QObject::eventFilter(obj, event);
+}
+
+void QVoutWindowDirectComposition::dcomposition_vout_cb(void* data, void* userData)
+{
+    qWarning("\n\n\ndcomposition_vout_cb\n\n\n\n");
+    QVoutWindowDirectComposition* that = (QVoutWindowDirectComposition*)userData;
+    IDXGISwapChain* swapChain = (IDXGISwapChain*)data;
+    that->m_videoVisual->SetContent(swapChain);
+    that->m_dcompDevice->Commit();
 }
 
 VideoSurfaceProviderDirectComposition::VideoSurfaceProviderDirectComposition(QVoutWindowDirectComposition* renderer, QObject* parent)

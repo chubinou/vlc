@@ -43,7 +43,10 @@ public:
     virtual void setupVoutWindow(vout_window_t* window) override;
 
     bool eventFilter(QObject *obj, QEvent *event);
+
 private:
+    static void dcomposition_vout_cb( void* data, void* userData );
+
     VideoSurfaceProviderDirectComposition* m_surfaceProvider = nullptr;
 
     QWidget* m_mainWindow;

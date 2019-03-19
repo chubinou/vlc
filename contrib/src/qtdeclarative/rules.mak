@@ -22,6 +22,7 @@ $(TARBALLS)/qtdeclarative-$(QTDECLARATIVE_VERSION).tar.xz:
 qtdeclarative: qtdeclarative-$(QTDECLARATIVE_VERSION).tar.xz .sum-qtdeclarative
 	$(UNPACK)
 	mv qtdeclarative-everywhere-src-$(QTDECLARATIVE_VERSION) qtdeclarative-$(QTDECLARATIVE_VERSION)
+	$(APPLY) $(SRC)/qtdeclarative/0001-allow-to-set-viewpoint-origin-in-QWindow.patch
 	$(MOVE)
 
 .qtdeclarative: qtdeclarative
