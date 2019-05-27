@@ -230,7 +230,7 @@ static int DemuxOpen(vlc_object_t *obj, vcddev_t *dev, unsigned track)
     /* Track number in input item */
     if (sys->start == (unsigned)-1 || sys->length == (unsigned)-1)
     {
-        int *sectors = NULL; /* Track sectors */
+        vcddev_sectors_t *sectors = NULL; /* Track sectors */
         unsigned titles = ioctl_GetTracksMap(obj, dev, &sectors);
 
         if (track > titles)
@@ -240,8 +240,8 @@ static int DemuxOpen(vlc_object_t *obj, vcddev_t *dev, unsigned track)
             goto error;
         }
 
-        sys->start = sectors[track - 1];
-        sys->length = sectors[track] - sys->start;
+        sys->start = sectors[track - 1].i_lba;
+        sys->length = sectors[track].i_lba - sys->start;
         free(sectors);
     }
 
@@ -271,7 +271,7 @@ error:
 typedef struct
 {
     vcddev_t    *vcddev;                            /* vcd device descriptor */
-    int         *p_sectors;                                 /* Track sectors */
+    vcddev_sectors_t *p_sectors;                    /* Track sectors */
     int          titles;
     int          cdtextc;
     vlc_meta_t **cdtextv;
@@ -457,7 +457,7 @@ static int ReadDir(stream_t *access, input_item_node_t *node)
     /* Build title table */
     for (int i = 0; i < sys->titles; i++)
     {
-        msg_Dbg(access, "track[%d] start=%d", i, sys->p_sectors[i]);
+        msg_Dbg(access, "track[%d] start=%d", i, sys->p_sectors[i].i_lba);
 
         /* Initial/default name */
         char *name;
@@ -467,7 +467,7 @@ static int ReadDir(stream_t *access, input_item_node_t *node)
 
         /* Create playlist items */
         const vlc_tick_t duration =
-            (vlc_tick_t)(sys->p_sectors[i + 1] - sys->p_sectors[i])
+            (vlc_tick_t)(sys->p_sectors[i + 1].i_lba - sys->p_sectors[i].i_lba)
             * CDDA_DATA_SIZE * CLOCK_FREQ / 44100 / 2 / 2;
 
         input_item_t *item = input_item_NewDisc(access->psz_url,
@@ -486,14 +486,14 @@ static int ReadDir(stream_t *access, input_item_node_t *node)
         }
 
         if (likely(asprintf(&opt, "cdda-first-sector=%i",
-                            sys->p_sectors[i]) != -1))
+                            sys->p_sectors[i].i_lba) != -1))
         {
             input_item_AddOption(item, opt, VLC_INPUT_OPTION_TRUSTED);
             free(opt);
         }
 
         if (likely(asprintf(&opt, "cdda-last-sector=%i",
-                            sys->p_sectors[i + 1]) != -1))
+                            sys->p_sectors[i + 1].i_lba) != -1))
         {
             input_item_AddOption(item, opt, VLC_INPUT_OPTION_TRUSTED);
             free(opt);
