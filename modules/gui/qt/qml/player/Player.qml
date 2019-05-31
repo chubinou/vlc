@@ -39,8 +39,8 @@ Utils.NavigableFocusScope {
 
         Image {
             id: cover
-            source: (mainPlaylistController.currentItem.artwork && mainPlaylistController.currentItem.artwork.toString())
-                    ? mainPlaylistController.currentItem.artwork
+            source: (player.artwork && player.artwork.toString())
+                    ? player.artwork
                     : VLCStyle.noArtCover
             fillMode: Image.PreserveAspectFit
 
@@ -71,7 +71,7 @@ Utils.NavigableFocusScope {
                 topMargin: VLCStyle.margin_small
                 horizontalCenter: cover.horizontalCenter
             }
-            text: mainPlaylistController.currentItem.title
+            text: player.name
             font.pixelSize: VLCStyle.fontSize_xxlarge
             font.bold: true
             color: VLCStyle.colors.text
@@ -85,7 +85,7 @@ Utils.NavigableFocusScope {
                 horizontalCenter: titleLabel.horizontalCenter
             }
 
-            text: mainPlaylistController.currentItem.artist
+            text: player.artist
             font.pixelSize: VLCStyle.fontSize_xlarge
             color: VLCStyle.colors.text
         }

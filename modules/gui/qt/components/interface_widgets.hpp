@@ -123,7 +123,7 @@ protected:
     QString defaultArt;
 public slots:
     void toggle(){ isVisible() ? hide() : show(); }
-    void updateArt( const QString& );
+    void updateArt( const QUrl& );
     void titleUpdated( const QString& );
 };
 
@@ -288,7 +288,7 @@ private:
     input_item_t *p_item;
 
 public slots:
-    void showArtUpdate( const QString& );
+    void showArtUpdate( const QUrl& );
     void showArtUpdate( input_item_t * );
     void askForUpdate();
     void setArtFromFile();

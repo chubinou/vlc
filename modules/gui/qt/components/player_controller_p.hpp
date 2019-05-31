@@ -136,7 +136,10 @@ public:
     VLCTick m_ABLoopB = VLC_TICK_INVALID;
 
     //others
-    QString         m_artUrl;
+    QUrl         m_artUrl;
+    QString      m_artist;
+    QString      m_album;
+
     struct input_stats_t m_stats;
 
 };

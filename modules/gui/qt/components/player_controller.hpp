@@ -117,6 +117,11 @@ public:
     Q_PROPERTY(bool recordable READ isRecordable NOTIFY recordableChanged)
     Q_PROPERTY(bool ratechangable READ isRateChangable NOTIFY rateChangableChanged)
 
+    //meta
+    Q_PROPERTY(QString artist READ getArtist NOTIFY artistChanged)
+    Q_PROPERTY(QString album READ getArtist NOTIFY albumChanged)
+    Q_PROPERTY(QUrl artwork READ getArtwork NOTIFY artChanged)
+  
     //tracks
     Q_PROPERTY(TrackListModel* videoTracks READ getVideoTracks CONSTANT)
     Q_PROPERTY(TrackListModel* audioTracks READ getAudioTracks CONSTANT)
@@ -236,7 +241,7 @@ public:
 
     void requestArtUpdate( input_item_t *p_item, bool b_forced );
     void setArt( input_item_t *p_item, QString fileUrl );
-    static const QString decodeArtURL( input_item_t *p_item );
+    static const QUrl decodeArtURL( input_item_t *p_item );
 
     //getter/setters binded to a Q_PROPERTY
 public slots:
@@ -259,6 +264,11 @@ public slots:
     bool isPausable() const;
     bool isRecordable() const;
     bool isRateChangable() const;
+
+    //meta
+    QUrl getArtwork() const;
+    QString getArtist() const;
+    QString getAlbum() const;
 
     //tracks
     TrackListModel* getVideoTracks();
@@ -397,7 +407,9 @@ signals:
     void infoChanged( input_item_t* );
     void currentMetaChanged( input_item_t* );
     void metaChanged( input_item_t *);
-    void artChanged( QString ); /* current item art ( same as item == NULL ) */
+    void artChanged( QUrl ); /* current item art ( same as item == NULL ) */
+    void artistChanged( QString );
+    void albumChanged( QString );
     void artChanged( input_item_t * );
 
     void bookmarksChanged();

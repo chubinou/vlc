@@ -420,7 +420,7 @@ BackgroundWidget::BackgroundWidget( intf_thread_t *_p_i )
 
     /* Init the cone art */
     updateDefaultArt( ":/logo/vlc128.png" );
-    updateArt( "" );
+    updateArt( QUrl{} );
 
     /* fade in animator */
     setProperty( "opacity", 1.0 );
@@ -432,16 +432,16 @@ BackgroundWidget::BackgroundWidget( intf_thread_t *_p_i )
     CONNECT( fadeAnimation, valueChanged( const QVariant & ),
              this, update() );
 
-    connect( THEMIM, QOverload<QString>::of(&PlayerController::artChanged),
+    connect( THEMIM, QOverload<QUrl>::of(&PlayerController::artChanged),
              this, &BackgroundWidget::updateArt );
     connect( THEMIM, &PlayerController::nameChanged,
              this, &BackgroundWidget::titleUpdated );
 }
 
-void BackgroundWidget::updateArt( const QString& url )
+void BackgroundWidget::updateArt( const QUrl& url )
 {
     if ( !url.isEmpty() )
-        pixmapUrl = url;
+        pixmapUrl = url.toString();
     else
         pixmapUrl = defaultArt;
     update();
@@ -549,7 +549,7 @@ EasterEggBackgroundWidget::EasterEggBackgroundWidget( intf_thread_t *p_intf )
     CONNECT( timer, timeout(), this, spawnFlakes() );
     if ( isVisible() && b_enabled ) timer->start();
     defaultArt = QString( ":/logo/vlc128-xmas.png" );
-    updateArt( "" );
+    updateArt( QUrl{} );
 }
 
 EasterEggBackgroundWidget::~EasterEggBackgroundWidget()
@@ -816,8 +816,8 @@ CoverArtLabel::CoverArtLabel( QWidget *parent, intf_thread_t *_p_i )
     : QLabel( parent ), p_intf( _p_i ), p_item( NULL )
 {
     setContextMenuPolicy( Qt::ActionsContextMenu );
-    connect( THEMIM, QOverload<QString>::of(&PlayerController::artChanged),
-             this, QOverload<const QString&>::of(&CoverArtLabel::showArtUpdate) );
+    connect( THEMIM, QOverload<QUrl>::of(&PlayerController::artChanged),
+             this, QOverload<const QUrl&>::of(&CoverArtLabel::showArtUpdate) );
 
     setMinimumHeight( 128 );
     setMinimumWidth( 128 );
@@ -839,7 +839,7 @@ CoverArtLabel::CoverArtLabel( QWidget *parent, intf_thread_t *_p_i )
         showArtUpdate( p_item );
     }
     else
-        showArtUpdate( "" );
+        showArtUpdate( QUrl{} );
 }
 
 CoverArtLabel::~CoverArtLabel()
@@ -857,10 +857,10 @@ void CoverArtLabel::setItem( input_item_t *_p_item )
     if ( p_item ) input_item_Hold( p_item );
 }
 
-void CoverArtLabel::showArtUpdate( const QString& url )
+void CoverArtLabel::showArtUpdate( const QUrl& url )
 {
     QPixmap pix;
-    if( !url.isEmpty() && pix.load( url ) )
+    if( !url.isEmpty() && pix.load( url.toString() ) )
     {
         pix = pix.scaled( minimumWidth(), minimumHeight(),
                           Qt::KeepAspectRatioByExpanding,
@@ -879,7 +879,7 @@ void CoverArtLabel::showArtUpdate( input_item_t *_p_item )
     if ( _p_item != p_item )
         return;
 
-    QString url;
+    QUrl url;
     if ( _p_item ) url = THEMIM->decodeArtURL( _p_item );
     showArtUpdate( url );
 }
@@ -905,7 +905,7 @@ void CoverArtLabel::setArtFromFile()
 
 void CoverArtLabel::clear()
 {
-    showArtUpdate( "" );
+    showArtUpdate( QUrl{} );
 }
 
 TimeLabel::TimeLabel( intf_thread_t *_p_intf, TimeLabel::Display _displayType  )

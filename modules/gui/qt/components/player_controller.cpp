@@ -115,7 +115,7 @@ void PlayerControllerPrivate::UpdateArt(input_item_t *p_item)
     if (! p_item)
         return;
 
-    QString url = PlayerController::decodeArtURL( p_item );
+    QUrl url = PlayerController::decodeArtURL( p_item );
 
     /* the art hasn't changed, no need to update */
     if(m_artUrl == url)
@@ -157,6 +157,11 @@ void PlayerControllerPrivate::UpdateTrackSelection(vlc_es_id_t *trackid, bool se
 void PlayerControllerPrivate::UpdateMeta( input_item_t *p_item )
 {
     Q_Q(PlayerController);
+
+    m_artist = vlc_meta_Get(p_item->p_meta, vlc_meta_Artist);
+    m_album = vlc_meta_Get(p_item->p_meta, vlc_meta_Album);
+    emit q->artistChanged( m_artist  );
+    emit q->albumChanged( m_album  );
     emit q->currentMetaChanged( p_item  );
 }
 
@@ -285,7 +290,11 @@ static void on_player_state_changed(vlc_player_t *, enum vlc_player_state state,
             /* Reset all InfoPanels but stats */
             that->m_artUrl = "";
             emit q->artChanged( NULL );
-            emit q->artChanged( "" );
+            emit q->artChanged( QUrl{} );
+            that->m_artist = "";
+            emit q->artistChanged( "" );
+            that->m_album = "";
+            emit q->albumChanged( "" );
             emit q->infoChanged( NULL );
             emit q->currentMetaChanged( (input_item_t *)NULL );
 
@@ -1385,26 +1394,14 @@ void PlayerController::requestArtUpdate( input_item_t *p_item, bool b_forced )
     }
 }
 
-const QString PlayerController::decodeArtURL( input_item_t *p_item )
+const QUrl PlayerController::decodeArtURL( input_item_t *p_item )
 {
     assert( p_item );
 
     char *psz_art = input_item_GetArtURL( p_item );
-    if( psz_art )
-    {
-        char *psz = vlc_uri2path( psz_art );
-        free( psz_art );
-        psz_art = psz;
-    }
-
-#if 0
-    /* Taglib seems to define a attachment://, It won't work yet */
-    url = url.replace( "attachment://", "" );
-#endif
-
-    QString path = qfu( psz_art ? psz_art : "" );
-    free( psz_art );
-    return path;
+    if (psz_art)
+      return QUrl(psz_art);
+    return QUrl{};
 }
 
 void PlayerController::setArt( input_item_t *p_item, QString fileUrl )
@@ -1413,12 +1410,12 @@ void PlayerController::setArt( input_item_t *p_item, QString fileUrl )
     if( hasInput() )
     {
         char *psz_cachedir = config_GetUserDir( VLC_CACHE_DIR );
-        QString old_url = decodeArtURL( p_item );
-        old_url = QDir( old_url ).canonicalPath();
+        QUrl old_url = decodeArtURL( p_item );
+        //old_url = QDir( old_url ).canonicalPath();
 
-        if( old_url.startsWith( QString::fromUtf8( psz_cachedir ) ) )
-            QFile( old_url ).remove(); /* Purge cached artwork */
-
+	if ( old_url.isLocalFile() && old_url.path().startsWith( qfu(psz_cachedir) ) )
+	  QFile( old_url.path() ).remove(); /* Purge cached artwork */
+	
         free( psz_cachedir );
 
         input_item_SetArtURL( p_item , fileUrl.toUtf8().constData() );
@@ -1478,6 +1475,9 @@ PRIMITIVETYPE_GETTER(bool, isRewindable, m_capabilities & VLC_INPUT_CAPABILITIES
 PRIMITIVETYPE_GETTER(bool, isPausable, m_capabilities & VLC_INPUT_CAPABILITIES_PAUSEABLE)
 PRIMITIVETYPE_GETTER(bool, isRecordable, m_capabilities & VLC_INPUT_CAPABILITIES_RECORDABLE)
 PRIMITIVETYPE_GETTER(bool, isRateChangable, m_capabilities & VLC_INPUT_CAPABILITIES_CHANGE_RATE)
+PRIMITIVETYPE_GETTER(QUrl, getArtwork, m_artUrl)
+PRIMITIVETYPE_GETTER(QString, getArtist, m_artist)
+PRIMITIVETYPE_GETTER(QString, getAlbum, m_album)
 PRIMITIVETYPE_GETTER(float, getSubtitleFPS, m_subtitleFPS)
 PRIMITIVETYPE_GETTER(bool, hasVideoOutput, m_hasVideo)
 PRIMITIVETYPE_GETTER(float, getBuffering, m_buffering)
