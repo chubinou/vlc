@@ -43,6 +43,21 @@ struct vout_display_sys_t
     libvlc_video_makeCurrent_cb makeCurrentCb;
     libvlc_video_getProcAddress_cb getProcAddressCb;
 
+    union
+    {
+        struct
+        {
+            void* display;
+            void* (*createImageKHR)(void* display, void* ctx, unsigned target, void *buffer, const int32_t *attrib_list);
+            void* (*destroyImageKHR)(void* display, void* img);
+            const char *(*queryString)(vlc_gl_t *, int32_t name);
+        } egl;
+        struct
+        {
+            const char* (*getExtensionsStringEXT)();
+        } wgl;
+    };
+
     void* opaque;
     unsigned width;
     unsigned height;
@@ -97,6 +112,31 @@ static void Close(vlc_gl_t *gl)
         sys->cleanupCb(sys->opaque);
 }
 
+static const char* EglQueryString(vlc_gl_t *gl, int32_t name )
+{
+    vout_display_sys_t *sys = gl->sys;
+    return sys->egl.queryString(sys->egl.display, name);
+}
+
+static void *EglCreateImageKHR(vlc_gl_t *gl, unsigned target, void *buffer,
+                            const int32_t *attrib_list)
+{
+    vout_display_sys_t *sys = gl->sys;
+    return sys->egl.createImageKHR(sys->egl.display, NULL, target, buffer, attrib_list);
+}
+
+static bool EglDestroyImageKHR(vlc_gl_t *gl, void *image)
+{
+    vout_display_sys_t *sys = gl->sys;
+    return sys->egl.destroyImageKHR(sys->egl.display, image);
+}
+
+static const char* WglGetExtensionsString(vlc_gl_t *gl )
+{
+    vout_display_sys_t *sys = gl->sys;
+    return sys->wgl.getExtensionsStringEXT();
+}
+
 
 #define SET_CALLBACK_ADDR(var, varname) \
     do {                                                           \
@@ -137,6 +177,45 @@ static int Open(vlc_gl_t *gl, unsigned width, unsigned height)
             msg_Err( gl, "user setup failed" );
             return VLC_EGENERIC;
         }
+
+    //Detect if we are using EGL to allow HW acceleration
+    void* (*eglGetCurrentDisplay)() = sys->getProcAddressCb(sys->opaque, "eglGetCurrentDisplay");
+    if (eglGetCurrentDisplay)
+    {
+        sys->makeCurrentCb(sys->opaque, true);
+        void* eglDisplay = eglGetCurrentDisplay();
+        sys->makeCurrentCb(sys->opaque, false);
+        if (eglDisplay != 0)
+        {
+            void* eglCreateImageKHR = sys->getProcAddressCb(sys->opaque, "eglCreateImageKHR");
+            void* eglDestroyImageKHR = sys->getProcAddressCb(sys->opaque, "eglDestroyImageKHR");
+            void* eglQueryString = sys->getProcAddressCb(sys->opaque, "eglQueryString");
+            if (eglCreateImageKHR && eglDestroyImageKHR && eglQueryString)
+            {
+                sys->egl.display = eglDisplay;
+                sys->egl.createImageKHR = eglCreateImageKHR;
+                sys->egl.destroyImageKHR = eglCreateImageKHR;
+                sys->egl.queryString = eglQueryString;
+
+                gl->ext = VLC_GL_EXT_EGL;
+                gl->egl.createImageKHR = EglCreateImageKHR;
+                gl->egl.destroyImageKHR = EglDestroyImageKHR;
+                gl->egl.queryString = EglQueryString;
+            }
+        }
+    }
+    else
+    {
+        //Detect if we are using WGL
+        const char* (*wglGetExtensionsStringEXT)() = sys->getProcAddressCb(sys->opaque, "wglGetExtensionsStringEXT");
+        if (wglGetExtensionsStringEXT)
+        {
+            sys->wgl.getExtensionsStringEXT = wglGetExtensionsStringEXT;
+
+            gl->ext = VLC_GL_EXT_WGL;
+            gl->wgl.getExtensionsString = WglGetExtensionsString;
+        }
+    }
 
     Resize(gl, width, height);
     return VLC_SUCCESS;
