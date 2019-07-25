@@ -118,6 +118,8 @@ libqt_plugin_la_SOURCES = \
 	gui/qt/components/voutwindow/qvoutwindow.hpp \
 	gui/qt/components/voutwindow/qvoutwindowdummy.cpp \
 	gui/qt/components/voutwindow/qvoutwindowdummy.hpp \
+	gui/qt/components/voutwindow/qvoutwindowgl.cpp \
+	gui/qt/components/voutwindow/qvoutwindowgl.hpp \
 	gui/qt/components/custom_menus.cpp \
 	gui/qt/components/custom_menus.hpp \
 	gui/qt/components/epg/EPGChannels.cpp \
@@ -270,6 +272,7 @@ nodist_libqt_plugin_la_SOURCES = \
 	gui/qt/components/voutwindow/videosurface.moc.cpp \
 	gui/qt/components/voutwindow/qvoutwindow.moc.cpp \
 	gui/qt/components/voutwindow/qvoutwindowdummy.moc.cpp \
+	gui/qt/components/voutwindow/qvoutwindowgl.moc.cpp \
 	gui/qt/components/epg/EPGChannels.moc.cpp \
 	gui/qt/components/epg/EPGProgram.moc.cpp \
 	gui/qt/components/epg/EPGRuler.moc.cpp \
