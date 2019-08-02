@@ -222,23 +222,69 @@ void MCMediaLib::onMediaLibraryEvent( void* data, const vlc_ml_event_t* event )
     switch ( event->i_type )
     {
         case VLC_ML_EVENT_PARSING_PROGRESS_UPDATED:
-            self->emit progressUpdated( event->parsing_progress.i_percent );
+        {
+            int percent =  event->parsing_progress.i_percent;
+            QMetaObject::invokeMethod(self, [self, percent]() {
+                self->m_discoveryProgress = percent;
+                self->emit discoveryProgressChanged(percent);
+            });
             break;
+        }
         case VLC_ML_EVENT_DISCOVERY_STARTED:
-            self->emit discoveryStarted();
+        {
+            QMetaObject::invokeMethod(self, [self]() {
+                self->m_discoveryPending = true;
+                self->emit discoveryPendingChanged(self->m_discoveryPending);
+                self->emit discoveryStarted();
+            });
             break;
+        }
         case VLC_ML_EVENT_DISCOVERY_PROGRESS:
-            self->emit discoveryProgress( event->discovery_progress.psz_entry_point );
+        {
+            QString entryPoint{ event->discovery_progress.psz_entry_point };
+            QMetaObject::invokeMethod(self, [self, entryPoint]() {
+                self->m_discoveryEntryPoint = entryPoint;
+                self->emit discoveryEntryPointChanged(entryPoint);
+            });
             break;
+        }
         case VLC_ML_EVENT_DISCOVERY_COMPLETED:
-            self->emit discoveryCompleted();
+        {
+            QMetaObject::invokeMethod(self, [self]() {
+                self->m_discoveryPending = false;
+                self->emit discoveryPendingChanged(self->m_discoveryPending);
+                self->emit discoveryCompleted();
+            });
             break;
+        }
         case VLC_ML_EVENT_RELOAD_STARTED:
-            self->emit reloadStarted();
+        {
+            QMetaObject::invokeMethod(self, [self]() {
+                self->m_discoveryPending = true;
+                self->emit discoveryPendingChanged(self->m_discoveryPending);
+                self->emit reloadStarted();
+            });
             break;
+        }
         case VLC_ML_EVENT_RELOAD_COMPLETED:
-            self->emit reloadCompleted();
+        {
+            QMetaObject::invokeMethod(self, [self]() {
+                self->m_discoveryPending = false;
+                self->emit discoveryPendingChanged(self->m_discoveryPending);
+                self->emit reloadCompleted();
+            });
             break;
+        }
+        case VLC_ML_EVENT_BACKGROUND_IDLE_CHANGED:
+        {
+            bool idle = event->background_idle_changed.b_idle;
+            QMetaObject::invokeMethod(self, [self, idle]() {
+                msg_Err(self->m_intf, "VLC_ML_EVENT_BACKGROUND_IDLE_CHANGED %s", idle ? "on" : "off");
+                self->m_discoveryIdle = idle;
+                self->emit idleChanged();
+            });
+            break;
+        }
         default:
             break;
     }
